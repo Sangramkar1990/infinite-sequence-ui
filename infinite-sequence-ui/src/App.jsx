@@ -23,9 +23,9 @@ function App() {
             <Route
               path="/flow-editor"
               element={
-                <ProtectedRoute>
+                // <ProtectedRoute> 
                   <FlowEditor />
-                </ProtectedRoute>
+                // </ProtectedRoute>
               }
             />
           </Routes>
