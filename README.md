@@ -1,12 +1,70 @@
-# React + Vite
+# Infinite Sequence UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application for creating and connecting cards in a flow-based interface using React Flow.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- User authentication (login/registration)
+- Interactive flow editor for creating and connecting cards
+- Responsive design using Bootstrap
+- React Flow for node-based UI
 
-## Expanding the ESLint configuration
+## Technologies Used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- React Router for navigation
+- React Flow for interactive node-based UI
+- Bootstrap for styling
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/infinite-sequence-ui.git
+   cd infinite-sequence-ui
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Start the development server
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:5173`
+
+## Project Structure
+
+```
+src/
+├── assets/        # Static assets
+├── components/    # Reusable components
+├── context/       # React context for state management
+├── pages/         # Page components
+├── utils/         # Utility functions
+├── App.jsx        # Main application component
+├── main.jsx       # Entry point
+```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+This will create a `dist` folder with the production build of the application.
+
+## License
+
+MIT
+
