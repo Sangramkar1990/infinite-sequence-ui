@@ -87,9 +87,9 @@ const Register = () => {
     }
 
     // Organization name validation
-    if (formData.userType === 'organization' && !formData.organizationName.trim()) {
-      newErrors.organizationName = 'Organization name is required for organization accounts';
-    }
+    // if (formData.userType === 'organization' && !formData.organizationName.trim()) {
+    //   newErrors.organizationName = 'Organization name is required for organization accounts';
+    // }
 
     return newErrors;
   };
@@ -98,10 +98,12 @@ const Register = () => {
     e.preventDefault();
     setGeneralError('');
     setSubmitting(true);
+    console.log(submitting);
 
     // Validate form
     const formErrors = validateForm();
     setErrors(formErrors);
+    console.log(formErrors);
 
     // If there are errors, don't submit
     if (Object.keys(formErrors).length > 0) {
@@ -112,13 +114,21 @@ const Register = () => {
     // Prepare data for submission (exclude confirmPassword)
     const { confirmPassword, ...registrationData } = formData;
 
+    // console.log(registrationData);
+
     try {
       // Call register function from AuthContext
       const result = await register(registrationData);
 
       if (result.success) {
         navigate('/login');
-      } else {
+      }
+      else if (result.redirect){
+        navigate(`/create-organization?userId=${result.userId}` 
+        )
+
+      }
+       else {
         setGeneralError(result.error || 'Registration failed. Please try again.');
       }
     } catch (error) {
@@ -152,13 +162,14 @@ const Register = () => {
             <div className="card-header">
               <h3 className="text-center">Register</h3>
             </div>
-            <div className="card-body">
-              {generalError && <div className="alert alert-danger">{generalError}</div>}
+            {generalError && <div className="alert alert-danger">{generalError}</div>}
+            <div className="card-body d-flex w-100">
+              
 
-              <form onSubmit={handleSubmit}>
-                <div className="row">
+              <form onSubmit={handleSubmit} className="w-100">
+                {/*<div className="row">*/}
                   {/* Name */}
-                  <div className="col-md-6 mb-3">
+                  <div className="col-md-12 mb-3 mx-auto w-50">
                     <label htmlFor="name" className="form-label">Name *</label>
                     <input
                       type="text"
@@ -171,55 +182,8 @@ const Register = () => {
                     />
                     {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </div>
-
-                  {/* Email */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="email" className="form-label">Email *</label>
-                    <input
-                      type="email"
-                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-                  </div>
-
-                  {/* Password */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="password" className="form-label">Password *</label>
-                    <input
-                      type="password"
-                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-                    <small className="form-text text-muted">Password must be at least 6 characters</small>
-                  </div>
-
-                  {/* Confirm Password */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="confirmPassword" className="form-label">Confirm Password *</label>
-                    <input
-                      type="password"
-                      className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                    />
-                    {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
-                  </div>
-
-                  {/* Date of Birth */}
-                  <div className="col-md-6 mb-3">
+                    {/* Date of Birth */}
+                    <div className="col-md-12 mb-3 mx-auto w-50">
                     <label htmlFor="dateOfBirth" className="form-label">Date of Birth</label>
                     <input
                       type="date"
@@ -231,9 +195,8 @@ const Register = () => {
                     />
                     {errors.dateOfBirth && <div className="invalid-feedback">{errors.dateOfBirth}</div>}
                   </div>
-
                   {/* Rank */}
-                  <div className="col-md-6 mb-3">
+                  <div className="col-md-12 mb-3 mx-auto w-50">
                     <label htmlFor="rank" className="form-label">Rank</label>
                     <select
                       className={`form-select ${errors.rank ? 'is-invalid' : ''}`}
@@ -251,54 +214,112 @@ const Register = () => {
                     {errors.rank && <div className="invalid-feedback">{errors.rank}</div>}
                   </div>
 
-                  {/* User Type */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="userType" className="form-label">User Type *</label>
-                    <select
-                      className={`form-select ${errors.userType ? 'is-invalid' : ''}`}
-                      id="userType"
-                      name="userType"
-                      value={formData.userType}
+                  {/* Email */}
+                  <div className="col-md-12 mb-3 mx-auto w-50">
+                    <label htmlFor="email" className="form-label">Email *</label>
+                    <input
+                      type="email"
+                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                      id="email"
+                      name="email"
+                      value={formData.email}
                       onChange={handleChange}
                       required
-                    >
-                      <option value="individual">Individual</option>
-                      <option value="organization">Organization</option>
-                    </select>
+                    />
+                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                  </div>
+
+                  {/* Password */}
+                  <div className="col-md-12 mb-3 mx-auto w-50">
+                    <label htmlFor="password" className="form-label">Password *</label>
+                    <input
+                      type="password"
+                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                    <small className="form-text text-muted">Password must be at least 6 characters</small>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="col-md-12 mb-3 mx-auto w-50">
+                    <label htmlFor="confirmPassword" className="form-label">Confirm Password *</label>
+                    <input
+                      type="password"
+                      className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+                  </div>
+
+                
+
+                  
+
+                  {/* User Type */}
+                  <div className="col-md-12 mb-3 mx-auto w-50">
+                    <label className="form-label">User Type *</label>
+                    <div className={`form-check ${errors.userType ? 'is-invalid' : ''}`}>
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        id="userTypeIndividual"
+                        name="userType"
+                        value="individual"
+                        checked={formData.userType === 'individual'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <label className="form-check-label" htmlFor="userTypeIndividual">
+                        Individual
+                      </label>
+                    </div>
+                    <div className={`form-check ${errors.userType ? 'is-invalid' : ''}`}>
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        id="userTypeOrganization"
+                        name="userType"
+                        value="organization"
+                        checked={formData.userType === 'organization'}
+                        onChange={handleChange}
+                        required
+                      />
+                      <label className="form-check-label" htmlFor="userTypeOrganization">
+                        Organization
+                      </label>
+                    </div>
                     {errors.userType && <div className="invalid-feedback">{errors.userType}</div>}
                   </div>
 
-                  {/* Organization Name (conditional) */}
-                  {formData.userType === 'organization' && (
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="organizationName" className="form-label">Organization Name *</label>
-                      <input
-                        type="text"
-                        className={`form-control ${errors.organizationName ? 'is-invalid' : ''}`}
-                        id="organizationName"
-                        name="organizationName"
-                        value={formData.organizationName}
-                        onChange={handleChange}
-                        required={formData.userType === 'organization'}
-                      />
-                      {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
-                    </div>
-                  )}
+                  
+                
+                 
+               { /*</div>*/}
+               <div className="mt-3 text-center">
+                  Already have an account? <Link to="/login">Login</Link>
                 </div>
 
-                <div className="d-grid gap-2 mt-4">
+                <div className="d-grid gap-2 mt-4 d-flex">
+                  <button className="btn btn-secondary disabled ms-auto">Cancel</button>
                   <button
                     type="submit"
                     className="btn btn-primary"
                     disabled={submitting}
                   >
-                    {submitting ? 'Registering...' : 'Register'}
+                    {submitting ? 'Creating Account...' : 'Create Account +'}
                   </button>
                 </div>
 
-                <div className="mt-3 text-center">
-                  Already have an account? <Link to="/login">Login</Link>
-                </div>
+                
               </form>
             </div>
           </div>

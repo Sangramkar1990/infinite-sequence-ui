@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import ReactFlow, { addEdge, MiniMap, Controls, Background, Handle } from 'reactflow';
+import { useNavigate } from 'react-router-dom'; // Updated import
 import 'reactflow/dist/style.css';
 
 // Define card layout sizes
@@ -36,23 +37,9 @@ const nodeTypes = { custom: CustomNode };
 const FlowEditor = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [formData, setFormData] = useState({
-    youtube: '',
-    name: '',
-    type: '',
-    effect: '',
-    description: ''
-  });
+  const navigate = useNavigate(); // Updated hook
 
-  const [lastPosition, setLastPosition] = useState(initialPosition);
-  const [lastNodeId, setLastNodeId] = useState(null);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddCard = () => {
+  const handleAddCard = (formData) => {
     const id = `${nodes.length + 1}`;
     const newNode = {
       id,
@@ -84,46 +71,23 @@ const FlowEditor = () => {
 
     setLastPosition({ x: nextX, y: nextY });
     setLastNodeId(id);
-
-    // Reset form
-    setFormData({
-      youtube: '',
-      name: '',
-      type: '',
-      effect: '',
-      description: ''
-    });
   };
 
   return (
     <div className="container-fluid mt-4">
       <div className="row">
         <div className="col-12">
-          <div className="card mb-3">
-            <div className="card-header">
-              <h3>Create New Card</h3>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                {['youtube', 'name', 'type', 'effect', 'description'].map((field) => (
-                  <div className="col-md-6" key={field}>
-                    <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleChange}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button className="btn btn-primary mt-3" onClick={handleAddCard}>
-                Add Card
-              </button>
+        <div className="d-flex w-100 mb-3 align-items-center justify-content-between">
+            <select className="form-select w-25 me-2" id="sequenceSelect">
+              <option value="sequence1">Default Sequence</option>
+            </select>
+            <input type="text" className="form-control w-25 me-2" placeholder="Search" />
+            <div>
+            <button className="btn btn-secondary me-2">Share</button>
+            <button className="btn btn-secondary me-2">Create Card +</button>
+            <button className="btn btn-secondary">Create Sequence +</button>
             </div>
           </div>
-
           <div className="card">
             <div className="card-header">
               <h3>Flow Editor</h3>
@@ -144,7 +108,6 @@ const FlowEditor = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

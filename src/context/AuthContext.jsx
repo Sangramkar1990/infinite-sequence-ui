@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { authService } from '../services/api';
 
+
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -10,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
 
   // Check if user is already logged in
   useEffect(() => {
@@ -37,6 +39,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(email, password);
       setUser(response.data || { email });
       setIsAuthenticated(true);
+
+      
+
       return { success: true };
     } catch (error) {
       setError(error.message || 'Invalid credentials');
@@ -60,7 +65,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setError(null);
     try {
-      await authService.register(userData);
+      let registerResponse = await authService.register(userData);
+      // Check for redirectTo in response
+      if ( registerResponse.redirectTo === 'create-organization') {
+        return  {  redirect: true, userId:  registerResponse.userId};
+      }
+      console.log(registerResponse)
       return { success: true };
     } catch (error) {
       setError(error.message || 'Registration failed');
