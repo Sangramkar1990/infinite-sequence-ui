@@ -20,7 +20,7 @@ const Login = () => {
 
     const success = login(email, password);
     if (success) {
-      navigate('/flow-editor');
+      navigate('/flow-viewer');
     } else {
       setError('Invalid credentials');
     }

@@ -79,3 +79,17 @@ export const authService = {
     return apiRequest('/auth/logout');
   }
 };
+
+/**
+ * Organization service
+ */
+export const organizationService = {
+  /**
+   * Create a new organization
+   * @param {object} orgData - Organization data
+   * @returns {Promise} - Response data
+   */
+  create: (orgData) => {
+    return apiRequest('/organization/create', 'POST', orgData);
+  }
+};

@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../services/api';
+import { authService, organizationService } from '../services/api';
 
 
 const AuthContext = createContext();
@@ -39,6 +39,10 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(email, password);
       setUser(response.data || { email });
       setIsAuthenticated(true);
+      if (response.token) {
+        localStorage.setItem('token', response.token); // Store token in localStorage
+      }
+
 
       
 
@@ -78,6 +82,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Organization creation function
+  const createOrganization = async (orgData) => {
+    setError(null);
+    try {
+      const response = await organizationService.create(orgData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      setError(error.message || 'Organization creation failed');
+      return { success: false, error: error.message || 'Organization creation failed' };
+    }
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -85,7 +101,8 @@ export const AuthProvider = ({ children }) => {
     error,
     login,
     logout,
-    register
+    register,
+    createOrganization // <-- Add this to context
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
