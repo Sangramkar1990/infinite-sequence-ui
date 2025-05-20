@@ -59,7 +59,7 @@ const FlowViewer = () => {
         }
 
         // Ensure this endpoint matches the one you set up in your backend
-        const response = await fetch('/api/organization/status', {
+        const response = await fetch('http://localhost:5001/api/organization/status', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
