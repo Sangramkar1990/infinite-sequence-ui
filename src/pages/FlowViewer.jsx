@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'; // Modified: Added useState, useEffect
+import React, { useState, useEffect } from 'react';
 import ReactFlow, { MiniMap, Controls, Background } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { useNavigate } from 'react-router-dom';
+import CreateSequenceModal from '../components/CreateSequenceModal';
 
 // Dummy data for the sequence
 const dummyNodes = [
@@ -46,7 +48,9 @@ const CustomNode = ({ data }) => {
 const nodeTypes = { custom: CustomNode };
 
 const FlowViewer = () => {
-  const [organizationInfo, setOrganizationInfo] = useState(null); // null: loading, string: name, false: individual
+  const [organizationInfo, setOrganizationInfo] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrganizationInfo = async () => {
@@ -94,7 +98,7 @@ const FlowViewer = () => {
     };
 
     fetchOrganizationInfo();
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
   return (
     <div className="container-fluid mt-4">
@@ -114,11 +118,23 @@ const FlowViewer = () => {
             </select>
             <input type="text" className="form-control w-25 me-2" placeholder="Search" />
             <div>
-            <button className="btn btn-secondary me-2">Share</button>
-            <button className="btn btn-secondary me-2">Create Card +</button>
-            <button className="btn btn-secondary">Create Sequence +</button>
+              <button className="btn btn-secondary me-2">Share</button>
+              <button className="btn btn-secondary me-2">Create Card +</button>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowCreateModal(true)}
+              >
+                Create Sequence +
+              </button>
             </div>
           </div>
+
+          {/* Create Sequence Modal */}
+          <CreateSequenceModal 
+            show={showCreateModal}
+            onClose={() => setShowCreateModal(false)}
+          />
+
           <div className="card">
             <div className="card-header">
               <h3>Flow Viewer</h3>
