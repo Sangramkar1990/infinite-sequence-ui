@@ -8,6 +8,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import FlowEditor from './pages/FlowEditor'
 import CreateOrganization from './pages/CreateOrganization';
+import CreateSequence from './pages/CreateSequence'
+import CreateCardPage from './pages/CreateCardPage' // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -25,20 +27,30 @@ function App() {
             <Route
               path="/flow-editor"
               element={
-                //  <ProtectedRoute> 
+                  //<ProtectedRoute> 
                   <FlowEditor />
-                //  </ProtectedRoute>
+                  //</ProtectedRoute>
               }
             />
             <Route
               path="/flow-viewer"
               element={
-                //  <ProtectedRoute> 
+                 //<ProtectedRoute> 
                   <FlowViewer />
-                //  </ProtectedRoute>
+                  //</ProtectedRoute>
               }
             />
             <Route path="/create-organization" element={<CreateOrganization />} />
+            <Route path="/create-sequence" element={
+              //<ProtectedRoute> 
+              <CreateSequence />
+              //</ProtectedRoute> 
+              } />
+            <Route path="/create-card" element={
+              //<ProtectedRoute>
+              <CreateCardPage />
+              //</ProtectedRoute>
+            } />
           </Routes>
         </main>
       </Router>

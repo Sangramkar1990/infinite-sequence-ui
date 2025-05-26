@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactFlow, { MiniMap, Controls, Background } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CreateSequenceModal from '../components/CreateSequenceModal';
 
 // Dummy data for the sequence
@@ -49,9 +49,55 @@ const nodeTypes = { custom: CustomNode };
 
 const FlowViewer = () => {
   const [organizationInfo, setOrganizationInfo] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [sequences, setSequences] = useState([]);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
+  useEffect(() => {
+    const fetchSequences = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('No authentication token found');
+          return;
+        }
+
+        const response = await fetch('http://localhost:5001/api/sequences/user/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch sequences');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          setSequences(result.data);
+          setError(null);
+        } else {
+          throw new Error(result.message || 'Failed to fetch sequences');
+        }
+      } catch (error) {
+        setError(error.message);
+        console.error('Error fetching sequences:', error);
+      }
+    };
+
+    fetchSequences();
+  }, []);
+
+  const sequenceId = searchParams.get('sequenceId');
+  if (sequenceId) {
+    // Load the sequence data using the ID
+    // You can implement this part based on your API
+    console.log('Loading sequence:', sequenceId);
+  }
+  
   useEffect(() => {
     const fetchOrganizationInfo = async () => {
       try {
@@ -104,6 +150,12 @@ const FlowViewer = () => {
     <div className="container-fluid mt-4">
       <div className="row">
         <div className="col-12">
+        {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            )}
+            
           {/* Parent div with d-flex class for layout */}
           <div className="d-flex mb-3 align-items-center justify-content-between">
             {/* Organization/Individual Info Display - Added to the top-left */}
@@ -113,8 +165,14 @@ const FlowViewer = () => {
               {organizationInfo === false && <span>Individual</span>}
             </div>
             
+           
             <select className="form-select w-25 me-2" id="sequenceSelect">
-              <option value="sequence1">Default Sequence</option>
+              <option value="">Select a sequence</option>
+              {sequences.map(sequence => (
+                <option key={sequence.id} value={sequence.id}>
+                  {sequence.name}
+                </option>
+              ))}
             </select>
             <input type="text" className="form-control w-25 me-2" placeholder="Search" />
             <div>
@@ -122,19 +180,15 @@ const FlowViewer = () => {
               <button className="btn btn-secondary me-2">Create Card +</button>
               <button 
                 className="btn btn-secondary"
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => navigate('/create-sequence')}
               >
                 Create Sequence +
               </button>
             </div>
           </div>
 
-          {/* Create Sequence Modal */}
-          <CreateSequenceModal 
-            show={showCreateModal}
-            onClose={() => setShowCreateModal(false)}
-          />
-
+          {/* Remove the CreateSequenceModal component */}
+          
           <div className="card">
             <div className="card-header">
               <h3>Flow Viewer</h3>
