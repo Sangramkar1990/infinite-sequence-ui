@@ -20,15 +20,27 @@ const canvasWidth = 1000;
 // Custom Node Component
 const CustomNode = ({ data }) => {
   return (
-    <div style={{ padding: 10, background: '#fff', border: '1px solid #ccc', borderRadius: 8, minWidth: 220 }}>
-      <Handle type="target" position="left" style={{ background: '#555' }} />
+    <div
+      style={{
+        padding: 10,
+        background: "#fff",
+        border: "1px solid #ccc",
+        borderRadius: 8,
+        minWidth: 220,
+      }}
+    >
+      <Handle type="target" position="left" style={{ background: "#555" }} />
       <div>
-        <strong>{data.name}</strong><br />
-        <small>Type: {data.type}</small><br />
-        <small>Effect: {data.effect}</small><br />
-        <small>{data.description}</small><br />
+        <strong>{data.name}</strong>
+        <br />
+        <small>Type: {data.type}</small>
+        <br />
+        <small>Effect: {data.effect}</small>
+        <br />
+        <small>{data.description}</small>
+        <br />
       </div>
-      <Handle type="source" position="right" style={{ background: '#555' }} />
+      <Handle type="source" position="right" style={{ background: "#555" }} />
     </div>
   );
 };
@@ -43,7 +55,9 @@ const FlowEditor = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlSequenceParams = searchParams.get("sequenceSelected");
-  const [sequenceSelected, setSequenceSelected] = useState(urlSequenceParams || "");
+  const [sequenceSelected, setSequenceSelected] = useState(
+    urlSequenceParams || ""
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -64,71 +78,78 @@ const FlowEditor = () => {
   // Function to convert nodes and edges to linked list format
   const convertToLinkedList = () => {
     const nodeMap = new Map();
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       nodeMap.set(node.id, {
         ...node.data,
-        next: null
+        next: null,
       });
     });
 
-    edges.forEach(edge => {
+    edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
+      const targetNode = nodeMap.get(edge.target);
+      console.log("edge : ", edge);
+      console.log("source node : ", sourceNode);
+      console.log("target node :", targetNode);
       if (sourceNode) {
+        sourceNode.next_id = targetNode.id;
         sourceNode.next = edge.target;
       }
     });
 
     // Convert to array starting from nodes without incoming edges
-    const startNodes = nodes.filter(node => 
-      !edges.some(edge => edge.target === node.id)
+    const startNodes = nodes.filter(
+      (node) => !edges.some((edge) => edge.target === node.id)
     );
 
     const linkedList = [];
     const processedNodes = new Set();
 
     const traverseList = (nodeId) => {
+      console.log("traverseList nodeId", nodeId);
       if (!nodeId || processedNodes.has(nodeId)) return;
-      
+
       const node = nodeMap.get(nodeId);
       if (node) {
         processedNodes.add(nodeId);
         linkedList.push({
-          name: node.name,
-          type: node.type,
-          effect: node.effect,
-          description: node.description,
-          url: node.url,
-          next: node.next
+          id: node.id,
+          next: node.next_id,
         });
         traverseList(node.next);
       }
     };
 
-    startNodes.forEach(node => traverseList(node.id));
+    startNodes.forEach((node) => traverseList(node.id));
+    
     return linkedList;
   };
 
   // Function to save sequence
   const saveSequence = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token || !sequenceSelected) return;
 
       const linkedListData = convertToLinkedList();
-      
-      const response = await fetch(`http://localhost:5001/api/sequences/${sequenceSelected}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          cards: linkedListData
-        })
-      });
+      console.log("linkedListData", linkedListData);
+
+      const response = await fetch(
+        `http://localhost:5001/api/sequences/${sequenceSelected}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cards: linkedListData,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to save sequence');
+        throw new Error("Failed to save sequence");
       }
 
       const result = await response.json();
@@ -137,7 +158,7 @@ const FlowEditor = () => {
       }
     } catch (error) {
       setError(error.message);
-      console.error('Error saving sequence:', error);
+      console.error("Error saving sequence:", error);
     }
   };
 
@@ -145,10 +166,8 @@ const FlowEditor = () => {
   useEffect(() => {
     console.log("auto save init", hasUnsavedChanges, sequenceSelected);
     if (hasUnsavedChanges && sequenceSelected) {
-     
       const timeoutId = setTimeout(() => {
         saveSequence();
-        
       }, 2000); // Auto-save after 2 seconds of no changes
 
       return () => clearTimeout(timeoutId);
@@ -157,10 +176,10 @@ const FlowEditor = () => {
 
   // Modify handleAddCard to trigger auto-save
   const handleAddCard = (card) => {
-    console.log("card added");
+    console.log("card added", card.id);
     const newNode = {
       id: `node-${Date.now()}`,
-      type: 'custom',
+      type: "custom",
       position: calculateNewPosition(nodes.length),
       data: {
         name: card.name,
@@ -168,18 +187,37 @@ const FlowEditor = () => {
         effect: card.effect,
         description: card.description,
         url: card.url,
+        id: card.id,
       },
     };
 
-    setNodes(prevNodes => [...prevNodes, newNode]);
+    setNodes((prevNodes) => [...prevNodes, newNode]);
     setSearchResults([]);
-    setSearchQuery('');
+    setSearchQuery("");
     setHasUnsavedChanges(true);
   };
 
   // Add edge handling to trigger auto-save
   const onConnect = useCallback((params) => {
-    setEdges(eds => addEdge(params, eds));
+    setEdges((eds) => addEdge(params, eds));
+    // setNodes((nds) => {
+    //   const targetNode = nds.find((node) => node.id === params.target); // Find the target node
+    //   const targetCardId = targetNode ? targetNode.data.id : null; // Get its original card ID
+
+    //   return nds.map((node) => {
+    //     if (node.id === params.source) {
+    //       console.log("node updated", params);
+    //       return {
+    //         ...node,
+    //         data: {
+    //           ...node.data,
+    //           next: params.target, // Set next to the target node's original card ID
+    //         },
+    //       };
+    //     }
+    //     return node;
+    //   });
+    // });
     setHasUnsavedChanges(true);
   }, []);
 
@@ -283,22 +321,24 @@ const FlowEditor = () => {
       const nodeId = `node-${index}`;
       newNodes.push({
         id: nodeId,
-        type: 'custom',
+        type: "custom",
         position: { ...position },
         data: {
           name: card.name,
           type: card.type,
           effect: card.effect,
           description: card.description,
-          url: card.url
-        }
+          url: card.url,
+        },
       });
 
       if (card.next) {
         newEdges.push({
-          id: `edge-${nodeId}-node-${cards.findIndex(c => c.name === card.next)}`,
+          id: `edge-${nodeId}-node-${cards.findIndex(
+            (c) => c.name === card.next
+          )}`,
           source: nodeId,
-          target: `node-${cards.findIndex(c => c.name === card.next)}`
+          target: `node-${cards.findIndex((c) => c.name === card.next)}`,
         });
       }
 
@@ -324,22 +364,25 @@ const FlowEditor = () => {
     setSequenceSelected(selectedId);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        setError('No authentication token found');
+        setError("No authentication token found");
         return;
       }
 
-      const response = await fetch(`http://localhost:5001/api/sequences/${selectedId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `http://localhost:5001/api/sequences/${selectedId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch sequence');
+        throw new Error("Failed to fetch sequence");
       }
 
       const result = await response.json();
@@ -352,7 +395,7 @@ const FlowEditor = () => {
       }
     } catch (error) {
       setError(error.message);
-      console.error('Error fetching sequence:', error);
+      console.error("Error fetching sequence:", error);
     }
   };
 
@@ -366,15 +409,17 @@ const FlowEditor = () => {
               {error}
             </div>
           )}
-          
+
           <div className="d-flex mb-3 align-items-center justify-content-between">
             <select
               className="form-select w-25 me-2"
               id="sequenceSelect"
-              value={sequenceSelected || ''}
+              value={sequenceSelected || ""}
               onChange={handleSequenceSelect}
             >
-              <option value="">{selectedSequenceName || "Select a sequence"}</option>
+              <option value="">
+                {selectedSequenceName || "Select a sequence"}
+              </option>
               {sequences.map((sequence) => (
                 <option key={sequence.id} value={sequence.id}>
                   {sequence.name}
@@ -382,7 +427,10 @@ const FlowEditor = () => {
               ))}
             </select>
 
-            <div className="d-flex flex-column w-40 position-relative" style={{ width: '40%' }}>
+            <div
+              className="d-flex flex-column w-40 position-relative"
+              style={{ width: "40%" }}
+            >
               <input
                 type="text"
                 className="form-control w-100 me-2"
@@ -391,19 +439,28 @@ const FlowEditor = () => {
                 onChange={handleSearchChange}
               />
               {searchResults.length > 0 && (
-                <div className="position-absolute start-0 w-25" style={{ zIndex: 1000, top: '100%' }}>
+                <div
+                  className="position-absolute start-0 w-25"
+                  style={{ zIndex: 1000, top: "100%" }}
+                >
                   <div className="card shadow">
                     <div className="card-body p-0">
                       <h6 className="p-3 mb-0 border-bottom">Search Results</h6>
-                      <div className="list-group list-group-flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                      <div
+                        className="list-group list-group-flush"
+                        style={{ maxHeight: "300px", overflowY: "auto" }}
+                      >
                         {searchResults.map((card) => (
                           <button
                             key={card.id}
                             className="list-group-item list-group-item-action border-0"
                             onClick={() => handleAddCard(card)}
                           >
-                            <strong>{card.name}</strong><br />
-                            <small className="text-muted">{card.description}</small>
+                            <strong>{card.name}</strong>
+                            <br />
+                            <small className="text-muted">
+                              {card.description}
+                            </small>
                           </button>
                         ))}
                       </div>
@@ -417,13 +474,13 @@ const FlowEditor = () => {
               <button className="btn btn-secondary me-2">Share</button>
               <button
                 className="btn btn-secondary me-2"
-                onClick={() => navigate('/create-card')}
+                onClick={() => navigate("/create-card")}
               >
                 Create Card +
               </button>
               <button
                 className="btn btn-secondary"
-                onClick={() => navigate('/create-sequence')}
+                onClick={() => navigate("/create-sequence")}
               >
                 Create Sequence +
               </button>
@@ -432,11 +489,16 @@ const FlowEditor = () => {
 
           <div className="card">
             <div className="card-header">
-              <h3>Flow Editor {selectedSequenceName && `- ${selectedSequenceName}`}</h3>
-              <p className="text-muted">Create and connect cards in this editor</p>
+              <h3>
+                Flow Editor{" "}
+                {selectedSequenceName && `- ${selectedSequenceName}`}
+              </h3>
+              <p className="text-muted">
+                Create and connect cards in this editor
+              </p>
             </div>
             <div className="card-body">
-              <div style={{ height: '70vh', width: '100%' }}>
+              <div style={{ height: "70vh", width: "100%" }}>
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
