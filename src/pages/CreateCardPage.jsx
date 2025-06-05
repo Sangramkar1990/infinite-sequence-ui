@@ -32,7 +32,7 @@ const CreateCardPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: formData.youtube,
+          video: formData.video,
           name: formData.name,
           type: formData.type,
           effect: formData.effect,
@@ -61,17 +61,51 @@ const CreateCardPage = () => {
           {error}
         </div>
       )}
-      <div className="row g-3">
-        {['youtube', 'name', 'type', 'effect', 'description'].map((field) => (
-          <div className="col-md-6" key={field}>
-            <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-            <input
-              type="text"
-              className="form-control"
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-            />
+      <div  className="row g-3 mx-5 my-4 py-4" style={{paddingLeft:"10rem", paddingRight: "10rem"}} >
+        {['video', 'name', 'type', 'effect', 'description'].map((field) => (
+          <div className="col-md-12 d-flex" key={field}>
+            <label className="form-label me-3">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            {field === 'description' ? (<textarea
+            className="form-control"
+            name={field}
+            value={formData[field]}
+            onChange={handleChange}
+          />) :
+          field === 'type' ? (<select
+            className="form-select"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+          >
+            <option value="">Select Type</option>
+            {['Sweep', 'Submission', 'Guard', 'Position', 'Escape', 'Other'].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>) 
+          :
+          field === 'effect' ? (<select
+            className="form-select"
+            name="effect"
+            value={formData.effect}
+            onChange={handleChange}
+          >
+            <option value="">Select Type</option>
+            {[ 'GI', 'No GI', 'GI and No GI'].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>)
+          :(<input
+            type="text"
+            className="form-control"
+            name={field}
+            value={formData[field]}
+            onChange={handleChange}
+          />)}
+            
           </div>
         ))}
       </div>

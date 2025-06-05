@@ -84,6 +84,7 @@ const FlowEditor = () => {
         next: null,
       });
     });
+    console.log('edges', edges);
 
     edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
@@ -271,6 +272,7 @@ const FlowEditor = () => {
 
   useEffect(() => {
     const fetchSequences = async () => {
+      console.log("feching sequences");
       try {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -279,7 +281,7 @@ const FlowEditor = () => {
         }
 
         const response = await fetch(
-          "http://localhost:5001/api/sequences/user/me",
+          "http://localhost:5001/api/sequences/user",
           {
             method: "GET",
             headers: {
@@ -318,6 +320,7 @@ const FlowEditor = () => {
     let position = { x: initialPosition.x, y: initialPosition.y };
 
     cards.forEach((card, index) => {
+      console.log("each card", card);
       const nodeId = `node-${index}`;
       newNodes.push({
         id: nodeId,
@@ -329,16 +332,18 @@ const FlowEditor = () => {
           effect: card.effect,
           description: card.description,
           url: card.url,
+          id: card.id,
+          next: card.next,
         },
       });
 
       if (card.next) {
         newEdges.push({
           id: `edge-${nodeId}-node-${cards.findIndex(
-            (c) => c.name === card.next
+            (c) => c.id === card.next
           )}`,
           source: nodeId,
-          target: `node-${cards.findIndex((c) => c.name === card.next)}`,
+          target: `node-${cards.findIndex((c) => c.id === card.next)}`,
         });
       }
 
@@ -388,6 +393,8 @@ const FlowEditor = () => {
       const result = await response.json();
       if (result.success && result.data) {
         const flowData = convertLinkedListToFlow(result.data.cards);
+        console.log("new nodes", flowData.nodes);
+        console.log("new edges", flowData.edges);
         setNodes(flowData.nodes);
         setEdges(flowData.edges);
         setSelectedSequenceName(result.data.name); // Set the sequence name
@@ -420,7 +427,7 @@ const FlowEditor = () => {
               <option value="">
                 {selectedSequenceName || "Select a sequence"}
               </option>
-              {sequences.map((sequence) => (
+              {sequences?.map((sequence) => (
                 <option key={sequence.id} value={sequence.id}>
                   {sequence.name}
                 </option>
