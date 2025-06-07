@@ -482,7 +482,7 @@ const FlowViewer = () => {
 
             <div>
               <button className="btn btn-secondary me-2">Share</button>
-              {/* <button
+               <button
                 className="btn btn-secondary me-2"
                 onClick={() => navigate("/create-card")}
               >
@@ -493,7 +493,7 @@ const FlowViewer = () => {
                 onClick={() => navigate("/create-sequence")}
               >
                 Create Sequence +
-              </button> */}
+              </button>  
             </div>
           </div>
 

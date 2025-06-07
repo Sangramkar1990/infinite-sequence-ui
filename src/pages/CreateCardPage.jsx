@@ -61,57 +61,77 @@ const CreateCardPage = () => {
           {error}
         </div>
       )}
-      <div  className="row g-3 mx-5 my-4 py-4" style={{paddingLeft:"10rem", paddingRight: "10rem"}} >
+      <div  className="d-flex g-3 mx-5 my-4 py-4 " style={{paddingLeft:"10rem", paddingRight: "10rem"}} >
+        <div className="d-flex flex-column pe-2">
         {['video', 'name', 'type', 'effect', 'description'].map((field) => (
-          <div className="col-md-12 d-flex" key={field}>
-            <label className="form-label me-3">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-            {field === 'description' ? (<textarea
-            className="form-control"
-            name={field}
-            value={formData[field]}
-            onChange={handleChange}
-          />) :
-          field === 'type' ? (<select
-            className="form-select"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-          >
-            <option value="">Select Type</option>
-            {['Sweep', 'Submission', 'Guard', 'Position', 'Escape', 'Other'].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>) 
-          :
-          field === 'effect' ? (<select
-            className="form-select"
-            name="effect"
-            value={formData.effect}
-            onChange={handleChange}
-          >
-            <option value="">Select Type</option>
-            {[ 'GI', 'No GI', 'GI and No GI'].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>)
-          :(<input
-            type="text"
-            className="form-control"
-            name={field}
-            value={formData[field]}
-            onChange={handleChange}
-          />)}
-            
+          <div className=" mb-4 align-items-center" style={{marginTop: "6px"}} key={field}>
+            <div className="col3 text-end">
+            <label className="form-label ">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            </div> 
           </div>
         ))}
+        </div>
+        <div className="d-flex flex-column " style={{width: "80%"}}>
+        {['video', 'name', 'type', 'effect', 'description'].map((field) => (
+          <div className="col-9 mb-4">
+
+            
+          {field === 'description' ? (<textarea
+          className="form-control"
+          name={field}
+          value={formData[field]}
+          onChange={handleChange}
+        />) :
+        field === 'type' ? (<select
+          className="form-select"
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+        >
+          <option value="">Select Type</option>
+          {['Sweep', 'Submission', 'Guard', 'Position', 'Escape', 'Other'].map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>) 
+        :
+        field === 'effect' ? (<select
+          className="form-select"
+          name="effect"
+          value={formData.effect}
+          onChange={handleChange}
+        >
+          <option value="">Select Type</option>
+          {[ 'GI', 'No GI', 'GI and No GI'].map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>)
+        :(<input
+          type="text"
+          className="form-control"
+          name={field}
+          value={formData[field]}
+          onChange={handleChange}
+        />)}
+        </div>
+        ))}
+        </div>
       </div>
-      <button className="btn btn-primary mt-3" onClick={handleSubmit}>
+        <div className="d-flex flex-row-reverse">
+        
+      <button className="btn btn-primary mt-3 me-3" onClick={handleSubmit}>
         Create Card
       </button>
+      <button className="btn btn-warning mt-3 me-3" onClick={()=> navigate(-1)}>
+        Cancel
+      </button>
+
+        </div>
+
+      
     </div>
   );
 };
