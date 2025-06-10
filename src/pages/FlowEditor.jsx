@@ -5,9 +5,26 @@ import ReactFlow, {
   Controls,
   Background,
   Handle,
+MarkerType ,
+useNodesState,
+  useEdgesState,
+  applyNodeChanges, // Import applyNodeChanges
 } from "reactflow";
 import { useNavigate, useSearchParams } from "react-router-dom"; // Add useSearchParams
+import { useDispatch, useSelector } from "react-redux";
+import { setSequence } from "../store/sequenceSlice";
 import "reactflow/dist/style.css";
+import {
+  fetchUserSequences,
+  fetchSequenceById,
+  saveSequence as saveSequenceThunk, // Renamed to avoid conflict with local saveSequence function
+  searchCards,
+  fetchCardById,
+  clearFlowEditorError,
+  clearSaveError,
+  clearSearchError,
+  resetSearchResults,
+} from "../store/flowEditorSlice";
 
 // Define card layout sizes
 const initialPosition = { x: 50, y: 50 };
@@ -55,10 +72,27 @@ const FlowEditor = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlSequenceParams = searchParams.get("sequenceSelected");
+  const cardId = searchParams.get("cardId");
+  // const hasCardId = cardId ? true : false;
+  const dispatch = useDispatch();
+  const {
+    sequences: flowEditorSequences, // Renamed to avoid conflict with local state
+    currentSequence,
+    searchResults: flowEditorSearchResults, // Renamed
+    status: flowEditorStatus,
+    error: flowEditorError,
+    saveStatus,
+    saveError,
+    searchStatus,
+    searchError,
+    currentCard, 
+  fetchCardStatus, 
+  fetchCardError,
+  } = useSelector((state) => state.flowEditor);
   const [sequenceSelected, setSequenceSelected] = useState(
     urlSequenceParams || ""
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
 
   const calculateNewPosition = (nodeCount) => {
@@ -75,16 +109,27 @@ const FlowEditor = () => {
   // Add new state for tracking changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Add onNodesChange handler
+  const onNodesChange = useCallback(
+    (changes) => {
+      setNodes((nds) => applyNodeChanges(changes, nds));
+      setHasUnsavedChanges(true);
+    },
+    [setNodes]
+  );
+
   // Function to convert nodes and edges to linked list format
   const convertToLinkedList = () => {
     const nodeMap = new Map();
     nodes.forEach((node) => {
-      nodeMap.set(node.id, {
+      // console.log("convert linked list", node);
+      return nodeMap.set(node.id, {
         ...node.data,
+        position: {x : node.position.x * 1.0, y: node.position.y * 1.0}, // Include position data
         next: null,
       });
     });
-    console.log('edges', edges);
+    console.log("edges", edges);
 
     edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
@@ -115,6 +160,7 @@ const FlowEditor = () => {
         processedNodes.add(nodeId);
         linkedList.push({
           id: node.id,
+          position: node.position,
           next: node.next_id,
         });
         traverseList(node.next);
@@ -122,45 +168,32 @@ const FlowEditor = () => {
     };
 
     startNodes.forEach((node) => traverseList(node.id));
-    
+
     return linkedList;
   };
 
   // Function to save sequence
   const saveSequence = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token || !sequenceSelected) return;
-
-      const linkedListData = convertToLinkedList();
-      console.log("linkedListData", linkedListData);
-
-      const response = await fetch(
-        `http://localhost:5001/api/sequences/${sequenceSelected}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cards: linkedListData,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to save sequence");
-      }
-
-      const result = await response.json();
-      if (result.success) {
+    
+    if (!sequenceSelected) return;
+    const linkedListData = convertToLinkedList(); // This logic remains
+    console.log("linked list data ", {linkedListData});
+    dispatch(
+      saveSequenceThunk({
+        sequenceId: sequenceSelected,
+        cardsData: linkedListData,
+      })
+    )
+      .unwrap() // Use unwrap to handle promise resolution/rejection here if needed
+      .then(() => {
         setHasUnsavedChanges(false);
-      }
-    } catch (error) {
-      setError(error.message);
-      console.error("Error saving sequence:", error);
-    }
+        // Optionally: dispatch(clearSaveError());
+      })
+      .catch((err) => {
+        // Error is already in saveError from the slice, but you can log or handle locally too
+        console.error("Failed to save sequence (local catch):", err);
+      });
+    
   };
 
   // Add auto-save effect
@@ -175,9 +208,56 @@ const FlowEditor = () => {
     }
   }, [nodes, edges, hasUnsavedChanges, sequenceSelected]);
 
+  // display selected sequence on page load
+  useEffect(() => {
+    let is_url_sequence_id = urlSequenceParams ? true : false;
+    if (is_url_sequence_id) {
+      dispatch(fetchSequenceById(urlSequenceParams)).then((data) => {
+        
+        if (data.meta.requestStatus === "fulfilled") {
+          processSequenceData(data);
+        }
+      });
+    }
+  }, [urlSequenceParams]);
+  useEffect(() => {
+    
+      if (cardId) {
+        dispatch(fetchCardById(cardId))
+          .unwrap()
+          .then((cardData) => {
+            // console.log("Fetched card:", cardData);
+            
+              const cardFromID = {
+                name: cardData.card.name,
+                description:  cardData.card.description,
+                url:  cardData.card.url ,
+                type:  cardData.card.type , 
+                effect:  cardData.card.effect , 
+                user:  cardData.card.user , 
+                id:  cardData.id
+                
+              }
+              console.log("Fetched card:", cardFromID);
+              handleAddCard(cardFromID);
+            // }
+            
+            
+          })
+          .catch((err) => {
+            console.error("Failed to fetch card:", err);
+            // Handle error display if needed
+          });
+      // searchHandler(cardId);
+    }
+  
+}, [ cardId, dispatch]);
+
   // Modify handleAddCard to trigger auto-save
   const handleAddCard = (card) => {
-    console.log("card added", card.id);
+
+    
+    
     const newNode = {
       id: `node-${Date.now()}`,
       type: "custom",
@@ -191,6 +271,7 @@ const FlowEditor = () => {
         id: card.id,
       },
     };
+    console.log("handle add card", {newNode});
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
     setSearchResults([]);
@@ -201,115 +282,50 @@ const FlowEditor = () => {
   // Add edge handling to trigger auto-save
   const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge(params, eds));
-    // setNodes((nds) => {
-    //   const targetNode = nds.find((node) => node.id === params.target); // Find the target node
-    //   const targetCardId = targetNode ? targetNode.data.id : null; // Get its original card ID
-
-    //   return nds.map((node) => {
-    //     if (node.id === params.source) {
-    //       console.log("node updated", params);
-    //       return {
-    //         ...node,
-    //         data: {
-    //           ...node.data,
-    //           next: params.target, // Set next to the target node's original card ID
-    //         },
-    //       };
-    //     }
-    //     return node;
-    //   });
-    // });
+    
     setHasUnsavedChanges(true);
   }, []);
 
   // Remove handleSearch function as we'll search on input change
-
-  const handleSearchChange = async (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
+  // function to handle search
+  const searchHandler = (query) => {
     if (!query.trim()) {
-      setSearchResults([]);
+      dispatch(resetSearchResults()); // Use action to clear results in store
       return;
     }
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No authentication token found");
-        return;
-      }
-
-      const response = await fetch(
-        `http://localhost:5001/api/sequences/search/cards?query=${encodeURIComponent(
-          query
-        )}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to search cards");
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        setSearchResults(result.data);
+    dispatch(searchCards(query)).then((data) => {
+     
+      if (data.meta.requestStatus === "fulfilled") {
+        setSearchResults(data.payload);
         setError(null);
-      } else {
-        throw new Error(result.message || "Failed to search cards");
       }
-    } catch (error) {
-      setError(error.message);
-      console.error("Error searching cards:", error);
+    });
+  };
+  const handleSearchChange = async (e) => {
+    const query = e.target.value;
+
+    setSearchQuery(query);
+    searchHandler(query);
+
+    
+    if (!query.trim()) {
+      dispatch(resetSearchResults()); // Use action to clear results in store
+      return;
     }
+    dispatch(searchCards(query)).then((data) => {
+      console.log("search from redux thunk", data);
+    });
   };
 
   useEffect(() => {
-    const fetchSequences = async () => {
-      console.log("feching sequences");
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("No authentication token found");
-          return;
-        }
+    
 
-        const response = await fetch(
-          "http://localhost:5001/api/sequences/user",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch sequences");
-        }
-
-        const result = await response.json();
-        if (result.success) {
-          setSequences(result.data);
-          setError(null);
-        } else {
-          throw new Error(result.message || "Failed to fetch sequences");
-        }
-      } catch (error) {
-        setError(error.message);
-        console.error("Error fetching sequences:", error);
-      }
-    };
-
-    fetchSequences();
-  }, []);
+    dispatch(fetchUserSequences()).then((data) => {
+      console.log("data----->", data.payload);
+      setSequences(data.payload);
+      setError(null);
+    });
+  }, [dispatch]);
 
   // Function to convert linked list to flow nodes and edges
   const convertLinkedListToFlow = (cards) => {
@@ -317,7 +333,7 @@ const FlowEditor = () => {
 
     const newNodes = [];
     const newEdges = [];
-    let position = { x: initialPosition.x, y: initialPosition.y };
+    // Remove initialPosition calculation here, use stored position
 
     cards.forEach((card, index) => {
       console.log("each card", card);
@@ -325,7 +341,7 @@ const FlowEditor = () => {
       newNodes.push({
         id: nodeId,
         type: "custom",
-        position: { ...position },
+        position: card.position || calculateNewPosition(index), // Use stored position or calculate if not present
         data: {
           name: card.name,
           type: card.type,
@@ -333,6 +349,7 @@ const FlowEditor = () => {
           description: card.description,
           url: card.url,
           id: card.id,
+          position: card.position,
           next: card.next,
         },
       });
@@ -344,11 +361,13 @@ const FlowEditor = () => {
           )}`,
           source: nodeId,
           target: `node-${cards.findIndex((c) => c.id === card.next)}`,
+          markerStart:{ type: MarkerType.ArrowClosed },
+          markerEnd: { type: MarkerType.ArrowClosed },
         });
       }
 
       // Update position for next node
-      position = calculateNewPosition(index + 1);
+      // position = calculateNewPosition(index + 1);
     });
 
     return { nodes: newNodes, edges: newEdges };
@@ -356,6 +375,29 @@ const FlowEditor = () => {
 
   // Modify sequence selection handler
   const [selectedSequenceName, setSelectedSequenceName] = useState("");
+
+  //fetch sequence
+  const processSequenceData = (data) => {
+    // Extract sequence data
+    let sequenceData = data.payload;
+
+    // Convert linked list to flow representation
+    const flowData = convertLinkedListToFlow(sequenceData.cards);
+
+    // Dispatch the sequence data to Redux store
+    dispatch(setSequence([sequenceData]));
+
+    // Logging information
+    console.log(sequenceData);
+    console.log("new nodes", flowData.nodes);
+    console.log("new edges", flowData.edges);
+
+    // Updating state values
+    setNodes(flowData.nodes);
+    setEdges(flowData.edges);
+    setSelectedSequenceName(sequenceData.name);
+    setError(null);
+  };
 
   // Modify handleSequenceSelect
   const handleSequenceSelect = async (event) => {
@@ -367,43 +409,15 @@ const FlowEditor = () => {
       return;
     }
     setSequenceSelected(selectedId);
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No authentication token found");
-        return;
+    dispatch(fetchSequenceById(selectedId)).then((data) => {
+      if (data.meta.requestStatus === "fulfilled") {
+        processSequenceData(data);
       }
 
-      const response = await fetch(
-        `http://localhost:5001/api/sequences/${selectedId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+     
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch sequence");
-      }
 
-      const result = await response.json();
-      if (result.success && result.data) {
-        const flowData = convertLinkedListToFlow(result.data.cards);
-        console.log("new nodes", flowData.nodes);
-        console.log("new edges", flowData.edges);
-        setNodes(flowData.nodes);
-        setEdges(flowData.edges);
-        setSelectedSequenceName(result.data.name); // Set the sequence name
-        setError(null);
-      }
-    } catch (error) {
-      setError(error.message);
-      console.error("Error fetching sequence:", error);
-    }
   };
 
   // Update the return statement to match FlowViewer's layout
@@ -442,9 +456,10 @@ const FlowEditor = () => {
                 type="text"
                 className="form-control w-100 me-2"
                 placeholder="Search"
-                value={searchQuery}
+                value={searchQuery || ""}
                 onChange={handleSearchChange}
               />
+              
               {searchResults.length > 0 && (
                 <div
                   className="position-absolute start-0 w-25"
@@ -511,6 +526,7 @@ const FlowEditor = () => {
                   edges={edges}
                   nodeTypes={nodeTypes}
                   onConnect={onConnect}
+                  onNodesChange={onNodesChange} // Add onNodesChange handler
                   fitView
                 >
                   <MiniMap />

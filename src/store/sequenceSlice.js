@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
-    sequence: []
+    sequence: {}
 };
 
 const sequenceSlice = createSlice({
@@ -11,7 +11,7 @@ const sequenceSlice = createSlice({
             state.sequence = action.payload;
         },
         clearSequence: (state) => {
-            state.sequence = [];
+            state.sequence = {};
         }
     }
 });

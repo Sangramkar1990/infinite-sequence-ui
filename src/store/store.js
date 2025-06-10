@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import sequenceReducer from "./sequenceSlice";
+import flowEditorReducer from "./flowEditorSlice";
 
 export const store = configureStore({
     reducer: {
-        sequence: sequenceReducer
+        sequence: sequenceReducer,
+        flowEditor: flowEditorReducer
     }
 });

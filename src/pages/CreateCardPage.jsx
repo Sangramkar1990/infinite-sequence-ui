@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const CreateCardPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const sequence = useSelector((state) =>  {console.log("redux card:", 
+    {state:state.flowEditor.currentSequence}
+  );return state.flowEditor.currentSequence});
+  let is_sequence_set = Object.keys(sequence).length > 0 ? true : false;
+  console.log("is_sequence", is_sequence_set);
+
+  console.log("sequence redux", sequence);
   const [formData, setFormData] = useState({
     youtube: '',
     name: '',
@@ -43,7 +51,8 @@ const CreateCardPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        navigate('/flow-editor');
+        console.log("added card data", {result})
+        is_sequence_set ? navigate('/flow-editor?sequenceSelected='+sequence.id+'&cardId='+result.data.id) : navigate('/flow-editor');
       } else {
         setError(result.message || 'Failed to create card');
       }
