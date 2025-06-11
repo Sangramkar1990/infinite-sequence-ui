@@ -140,6 +140,31 @@ export const fetchCardById = createAsyncThunk(
   }
 );
 
+export const deleteSequence = createAsyncThunk(
+  'flowEditor/deleteSequence',
+  async (sequenceId, { rejectWithValue }) => {
+    const token = getToken();
+    if (!token) return rejectWithValue('No authentication token found');
+    if (!sequenceId) return rejectWithValue('Sequence ID is required');
+    try {
+      const response = await fetch(`${API_BASE_URL}/sequences/${sequenceId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete sequence');
+      }
+      return sequenceId; // Return deleted id for reducer
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState = {
   sequences: [],
   currentSequence: null, // Stores the fully loaded sequence for editing
@@ -245,6 +270,15 @@ const flowEditorSlice = createSlice({
       .addCase(fetchCardById.rejected, (state, action) => {
         state.fetchCardStatus = 'failed';
         state.fetchCardError = action.payload;
+      })
+      .addCase(deleteSequence.fulfilled, (state, action) => {
+        state.sequences = state.sequences.filter(seq => seq.id !== action.payload);
+        if (state.currentSequence && state.currentSequence.id === action.payload) {
+          state.currentSequence = null;
+        }
+      })
+      .addCase(deleteSequence.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });

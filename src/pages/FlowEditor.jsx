@@ -24,6 +24,7 @@ import {
   clearSaveError,
   clearSearchError,
   resetSearchResults,
+  deleteSequence,
 } from "../store/flowEditorSlice";
 
 // Define card layout sizes
@@ -94,6 +95,21 @@ const FlowEditor = () => {
   );
   const [searchQuery, setSearchQuery] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  const handleDeleteSequence = async () => {
+    if (!sequenceSelected) return;
+    dispatch(deleteSequence(sequenceSelected))
+      .unwrap()
+      .then(() => {
+        setSequenceSelected("");
+        setNodes([]);
+        setEdges([]);
+        setSelectedSequenceName("");
+        setSequences(sequences.filter(seq => seq.id !== sequenceSelected));
+      })
+      .catch((err) => {
+        setError(err);
+      });
+  };
 
   const calculateNewPosition = (nodeCount) => {
     const cardsPerRow = Math.floor(canvasWidth / (cardWidth + gapX));
@@ -450,7 +466,7 @@ const FlowEditor = () => {
 
             <div
               className="d-flex flex-column w-40 position-relative"
-              style={{ width: "40%" }}
+              style={{ width: "30%" }}
             >
               <input
                 type="text"
@@ -501,10 +517,17 @@ const FlowEditor = () => {
                 Create Card +
               </button>
               <button
-                className="btn btn-secondary"
+                className="btn btn-secondary me-2"
                 onClick={() => navigate("/create-sequence")}
               >
                 Create Sequence +
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={handleDeleteSequence}
+                disabled={!sequenceSelected}
+              >
+                Delete Sequence
               </button>
             </div>
           </div>
