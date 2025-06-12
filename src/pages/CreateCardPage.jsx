@@ -90,7 +90,7 @@ const CreateCardPage = () => {
           name={field}
           value={formData[field]}
           onChange={handleChange}
-        />) :
+        /> ) :
         field === 'type' ? (<select
           className="form-select"
           name="type"

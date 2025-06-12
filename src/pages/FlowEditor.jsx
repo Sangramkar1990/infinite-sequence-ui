@@ -26,6 +26,7 @@ import {
   resetSearchResults,
   deleteSequence,
 } from "../store/flowEditorSlice";
+import { CustomNode } from "../components/editor/CustomNode";
 
 // Define card layout sizes
 const initialPosition = { x: 50, y: 50 };
@@ -36,32 +37,43 @@ const gapY = 30;
 const canvasWidth = 1000;
 
 // Custom Node Component
-const CustomNode = ({ data }) => {
-  return (
-    <div
-      style={{
-        padding: 10,
-        background: "#fff",
-        border: "1px solid #ccc",
-        borderRadius: 8,
-        minWidth: 220,
-      }}
-    >
-      <Handle type="target" position="left" style={{ background: "#555" }} />
-      <div>
-        <strong>{data.name}</strong>
-        <br />
-        <small>Type: {data.type}</small>
-        <br />
-        <small>Effect: {data.effect}</small>
-        <br />
-        <small>{data.description}</small>
-        <br />
-      </div>
-      <Handle type="source" position="right" style={{ background: "#555" }} />
-    </div>
-  );
-};
+// const CustomNode = ({ data }) => {
+//   return (
+//     <div
+//       style={{
+//         padding: 10,
+//         background: "#fff",
+//         border: "1px solid #ccc",
+//         borderRadius: 8,
+//         minWidth: 220,
+//       }}
+//     >
+//       <Handle type="target" position="left" style={{ background: "#555" }} />
+//       <div>
+//       <iframe
+//           width="350"
+//           height="197"
+//           src={data.url}
+//           title="Embedded Video"
+          
+//           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+//           allowFullScreen
+//           style={{ marginTop: '1rem' }}
+//         />
+//         <br/>
+//         <strong>{data.name}</strong>
+//         <br />
+//         <small>Type: {data.type}</small>
+//         <br />
+//         <small>Effect: {data.effect}</small>
+//         <br />
+//         <small>{data.description}</small>
+//         <br />
+//       </div>
+//       <Handle type="source" position="right" style={{ background: "#555" }} />
+//     </div>
+//   );
+// };
 
 const nodeTypes = { custom: CustomNode };
 
