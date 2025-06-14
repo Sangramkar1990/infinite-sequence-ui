@@ -8,7 +8,8 @@ import ReactFlow, {
   MarkerType,
   useNodesState,
   useEdgesState,
-  applyNodeChanges, // Import applyNodeChanges
+  applyNodeChanges,
+  applyEdgeChanges, // Import applyNodeChanges
 } from "reactflow";
 import { useNavigate, useSearchParams } from "react-router-dom"; // Add useSearchParams
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +26,7 @@ import {
   clearSearchError,
   resetSearchResults,
   deleteSequence,
+  
 } from "../store/flowEditorSlice";
 import { CustomNode } from "../components/editor/CustomNode";
 
@@ -85,6 +87,33 @@ const FlowEditor = () => {
   const [searchParams] = useSearchParams();
   const urlSequenceParams = searchParams.get("sequenceSelected");
   const cardId = searchParams.get("cardId");
+  const [selectedEdge, setSelectedEdge] = useState(null);
+
+const onEdgeClick = useCallback((event, edge) => {
+  console.log("inside effect")
+  setSelectedEdge(edge);
+}, []);
+const onEdgesChange = useCallback(
+  (changes) => {
+    setEdges((eds) => applyEdgeChanges(changes, eds));
+    setHasUnsavedChanges(true);
+  },
+  [setEdges]
+);
+
+useEffect(() => {
+  
+  const handleKeyDown = (event) => {
+    if (event.key === 'Backspace' && selectedEdge) {
+      setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
+      setSelectedEdge(null);
+
+    }
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [selectedEdge, setEdges]);
+
   // const hasCardId = cardId ? true : false;
   const dispatch = useDispatch();
   const {
@@ -142,11 +171,7 @@ const FlowEditor = () => {
   const onNodesChange = useCallback(
     (changes) => {
       setNodes((nds) => {
-        //   applyNodeChanges(changes, nds).filter(
-        //   (node) => !changes.some((change) => {
-        //     console.log("change :", {change})
-        //     return change.id === node.id && change.type === 'remove';})
-        // )
+        
         // Get all the IDs of nodes that are being removed
         const removedNodeIds = changes
           .filter((change) => change.type === "remove")
@@ -603,6 +628,8 @@ const FlowEditor = () => {
                   nodeTypes={nodeTypes}
                   onConnect={onConnect}
                   onNodesChange={onNodesChange} // Add onNodesChange handler
+                  onEdgeClick={onEdgeClick}
+                  onEdgesChange={onEdgesChange}
                   fitView
                 >
                   <MiniMap />
@@ -619,3 +646,4 @@ const FlowEditor = () => {
 };
 
 export default FlowEditor;
+
