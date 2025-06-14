@@ -2,7 +2,7 @@ import  {
   Handle,
 } from "reactflow";
 import React, { useState, useRef, useEffect } from "react";
-export const CustomNode = ({ data }) => {
+export const CustomNode = ({ data, selected = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -22,8 +22,8 @@ export const CustomNode = ({ data }) => {
     return (
       <div
         style={{
-          padding: 10,
-          background: "#fff",
+          padding: 30,
+          background: selected ? "#f4f4f4" : "#fff",
           border: "1px solid #ccc",
           borderRadius: 8,
           minWidth: 220,
@@ -80,7 +80,7 @@ export const CustomNode = ({ data }) => {
                 setMenuOpen(false);
               }}
             >
-              Remove from sequence
+              Remove
             </button>
             <button
               style={{ width: "100%", padding: 8, color: "#fff", background: "#d32f2f", border: "none", borderRadius: 4, cursor: "pointer" }}

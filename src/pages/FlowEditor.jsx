@@ -5,8 +5,8 @@ import ReactFlow, {
   Controls,
   Background,
   Handle,
-MarkerType ,
-useNodesState,
+  MarkerType,
+  useNodesState,
   useEdgesState,
   applyNodeChanges, // Import applyNodeChanges
 } from "reactflow";
@@ -36,7 +36,6 @@ const gapX = 80;
 const gapY = 30;
 const canvasWidth = 1000;
 
-// Custom Node Component
 // const CustomNode = ({ data }) => {
 //   return (
 //     <div
@@ -55,7 +54,7 @@ const canvasWidth = 1000;
 //           height="197"
 //           src={data.url}
 //           title="Embedded Video"
-          
+
 //           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 //           allowFullScreen
 //           style={{ marginTop: '1rem' }}
@@ -98,9 +97,9 @@ const FlowEditor = () => {
     saveError,
     searchStatus,
     searchError,
-    currentCard, 
-  fetchCardStatus, 
-  fetchCardError,
+    currentCard,
+    fetchCardStatus,
+    fetchCardError,
   } = useSelector((state) => state.flowEditor);
   const [sequenceSelected, setSequenceSelected] = useState(
     urlSequenceParams || ""
@@ -116,7 +115,7 @@ const FlowEditor = () => {
         setNodes([]);
         setEdges([]);
         setSelectedSequenceName("");
-        setSequences(sequences.filter(seq => seq.id !== sequenceSelected));
+        setSequences(sequences.filter((seq) => seq.id !== sequenceSelected));
       })
       .catch((err) => {
         setError(err);
@@ -136,35 +135,82 @@ const FlowEditor = () => {
 
   // Add new state for tracking changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
+  useEffect(() => {
+    console.log("Updated nodes:", nodes);
+  }, [nodes]);
   // Add onNodesChange handler
   const onNodesChange = useCallback(
     (changes) => {
-      setNodes((nds) => applyNodeChanges(changes, nds));
+      setNodes((nds) => {
+        //   applyNodeChanges(changes, nds).filter(
+        //   (node) => !changes.some((change) => {
+        //     console.log("change :", {change})
+        //     return change.id === node.id && change.type === 'remove';})
+        // )
+        // Get all the IDs of nodes that are being removed
+        const removedNodeIds = changes
+          .filter((change) => change.type === "remove")
+          .map((change) => change.id);
+
+        // Apply normal node updates first
+        let updatedNodes = applyNodeChanges(changes, nds);
+
+        // Nullify `.data.next` for nodes that were pointing to removed nodes
+        updatedNodes = updatedNodes.map((node) => {
+          if (removedNodeIds.includes(node.data?.next)) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                next: null, // Update the next pointer
+              },
+            };
+          }
+          return node;
+        });
+
+        // Finally, filter out the nodes that are being removed
+        return updatedNodes.filter((node) => !removedNodeIds.includes(node.id));
+      });
+
+      // Remove edges connected to removed nodes
+      setEdges((eds) => {
+        const removedNodeIds = changes
+          .filter((change) => change.type === "remove")
+          .map((change) => change.id);
+        return eds.filter(
+          (edge) =>
+            !removedNodeIds.includes(edge.source) &&
+            !removedNodeIds.includes(edge.target)
+        );
+      });
+
       setHasUnsavedChanges(true);
     },
-    [setNodes]
+    [setNodes, setEdges]
   );
 
   // Function to convert nodes and edges to linked list format
   const convertToLinkedList = () => {
     const nodeMap = new Map();
+    console.log("convert linked list nodes", {nodes});
     nodes.forEach((node) => {
-      // console.log("convert linked list", node);
+      console.log("convert linked list", node);
       return nodeMap.set(node.id, {
         ...node.data,
-        position: {x : node.position.x * 1.0, y: node.position.y * 1.0}, // Include position data
+        position: { x: node.position.x * 1.0, y: node.position.y * 1.0 }, // Include position data
         next: null,
+        node_id: node.id,
       });
     });
-    console.log("edges", edges);
+    // console.log("nodeMap", {nodeMap});
 
     edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
       const targetNode = nodeMap.get(edge.target);
       console.log("edge : ", edge);
-      console.log("source node : ", sourceNode);
-      console.log("target node :", targetNode);
+      // console.log("source node : ", sourceNode);
+      // console.log("target node :", targetNode);
       if (sourceNode) {
         sourceNode.next_id = targetNode.id;
         sourceNode.next = edge.target;
@@ -173,14 +219,15 @@ const FlowEditor = () => {
 
     // Convert to array starting from nodes without incoming edges
     const startNodes = nodes.filter(
-      (node) => !edges.some((edge) => edge.target === node.id)
+      (node) => !edges.some((edge) => edge.target === node.node_id)
+      // (node) => !edges.some((edge) => edge.target === node.id)
     );
 
     const linkedList = [];
     const processedNodes = new Set();
 
     const traverseList = (nodeId) => {
-      console.log("traverseList nodeId", nodeId);
+      // console.log("traverseList nodeId", nodeId);
       if (!nodeId || processedNodes.has(nodeId)) return;
 
       const node = nodeMap.get(nodeId);
@@ -189,7 +236,8 @@ const FlowEditor = () => {
         linkedList.push({
           id: node.id,
           position: node.position,
-          next: node.next_id,
+          next: node.next,
+          node_id: node.node_id,
         });
         traverseList(node.next);
       }
@@ -202,10 +250,9 @@ const FlowEditor = () => {
 
   // Function to save sequence
   const saveSequence = async () => {
-    
     if (!sequenceSelected) return;
     const linkedListData = convertToLinkedList(); // This logic remains
-    console.log("linked list data ", {linkedListData});
+    console.log("saveSequenceThunk", { linkedListData });
     dispatch(
       saveSequenceThunk({
         sequenceId: sequenceSelected,
@@ -221,12 +268,11 @@ const FlowEditor = () => {
         // Error is already in saveError from the slice, but you can log or handle locally too
         console.error("Failed to save sequence (local catch):", err);
       });
-    
   };
 
   // Add auto-save effect
   useEffect(() => {
-    console.log("auto save init", hasUnsavedChanges, sequenceSelected);
+    console.log("auto save init", {nodes});
     if (hasUnsavedChanges && sequenceSelected) {
       const timeoutId = setTimeout(() => {
         saveSequence();
@@ -241,51 +287,45 @@ const FlowEditor = () => {
     let is_url_sequence_id = urlSequenceParams ? true : false;
     if (is_url_sequence_id) {
       dispatch(fetchSequenceById(urlSequenceParams)).then((data) => {
-        
         if (data.meta.requestStatus === "fulfilled") {
+          // console.log("fetched data :", {data});
           processSequenceData(data);
         }
       });
     }
   }, [urlSequenceParams]);
   useEffect(() => {
-    
-      if (cardId) {
-        dispatch(fetchCardById(cardId))
-          .unwrap()
-          .then((cardData) => {
-            // console.log("Fetched card:", cardData);
-            
-              const cardFromID = {
-                name: cardData.card.name,
-                description:  cardData.card.description,
-                url:  cardData.card.url ,
-                type:  cardData.card.type , 
-                effect:  cardData.card.effect , 
-                user:  cardData.card.user , 
-                id:  cardData.id
-                
-              }
-              console.log("Fetched card:", cardFromID);
-              handleAddCard(cardFromID);
-            // }
-            
-            
-          })
-          .catch((err) => {
-            console.error("Failed to fetch card:", err);
-            // Handle error display if needed
-          });
+    if (cardId) {
+      dispatch(fetchCardById(cardId))
+        .unwrap()
+        .then((cardData) => {
+          // console.log("Fetched card:", cardData);
+
+          const cardFromID = {
+            name: cardData.card.name,
+            description: cardData.card.description,
+            url: cardData.card.url,
+            type: cardData.card.type,
+            effect: cardData.card.effect,
+            user: cardData.card.user,
+            id: cardData.id,
+          };
+          // console.log("Fetched card:", cardFromID);
+          handleAddCard(cardFromID);
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete("cardId");
+          navigate(`?${newParams.toString()}`, { replace: true });
+        })
+        .catch((err) => {
+          console.error("Failed to fetch card:", err);
+          // Handle error display if needed
+        });
       // searchHandler(cardId);
     }
-  
-}, [ cardId, dispatch]);
+  }, [cardId, dispatch]);
 
   // Modify handleAddCard to trigger auto-save
   const handleAddCard = (card) => {
-
-    
-    
     const newNode = {
       id: `node-${Date.now()}`,
       type: "custom",
@@ -299,7 +339,7 @@ const FlowEditor = () => {
         id: card.id,
       },
     };
-    console.log("handle add card", {newNode});
+    // console.log("handle add card", {newNode});
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
     setSearchResults([]);
@@ -310,7 +350,7 @@ const FlowEditor = () => {
   // Add edge handling to trigger auto-save
   const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge(params, eds));
-    
+
     setHasUnsavedChanges(true);
   }, []);
 
@@ -322,7 +362,6 @@ const FlowEditor = () => {
       return;
     }
     dispatch(searchCards(query)).then((data) => {
-     
       if (data.meta.requestStatus === "fulfilled") {
         setSearchResults(data.payload);
         setError(null);
@@ -335,7 +374,6 @@ const FlowEditor = () => {
     setSearchQuery(query);
     searchHandler(query);
 
-    
     if (!query.trim()) {
       dispatch(resetSearchResults()); // Use action to clear results in store
       return;
@@ -346,10 +384,8 @@ const FlowEditor = () => {
   };
 
   useEffect(() => {
-    
-
     dispatch(fetchUserSequences()).then((data) => {
-      console.log("data----->", data.payload);
+      // console.log("data----->", data.payload);
       setSequences(data.payload);
       setError(null);
     });
@@ -364,8 +400,9 @@ const FlowEditor = () => {
     // Remove initialPosition calculation here, use stored position
 
     cards.forEach((card, index) => {
-      console.log("each card", card);
-      const nodeId = `node-${index}`;
+      // console.log("each card", card);
+      const nodeId = card.node_id ? card.node_id : `node-${index}`;
+      // console.log("node 123 id:", nodeId);
       newNodes.push({
         id: nodeId,
         type: "custom",
@@ -383,13 +420,17 @@ const FlowEditor = () => {
       });
 
       if (card.next) {
+        const nextCard = cards.find((c) => c.node_id === card.next);
+        // console.log("card next", {card:card.next});
+        // console.log("next card", {nextCard});
+        const targetNodeId = nextCard ? `${nextCard.node_id}` : null;
+        // console.log("target node id", {targetNodeId})
+
         newEdges.push({
-          id: `edge-${nodeId}-node-${cards.findIndex(
-            (c) => c.id === card.next
-          )}`,
+          id: `edge-${nodeId}-node-${targetNodeId}`,
           source: nodeId,
-          target: `node-${cards.findIndex((c) => c.id === card.next)}`,
-          markerStart:{ type: MarkerType.ArrowClosed },
+          target: targetNodeId,
+          markerStart: { type: MarkerType.ArrowClosed },
           markerEnd: { type: MarkerType.ArrowClosed },
         });
       }
@@ -416,9 +457,9 @@ const FlowEditor = () => {
     dispatch(setSequence([sequenceData]));
 
     // Logging information
-    console.log(sequenceData);
-    console.log("new nodes", flowData.nodes);
-    console.log("new edges", flowData.edges);
+    // console.log(sequenceData);
+    // console.log("new nodes", flowData.nodes);
+    // console.log("new edges", flowData.edges);
 
     // Updating state values
     setNodes(flowData.nodes);
@@ -440,12 +481,12 @@ const FlowEditor = () => {
     dispatch(fetchSequenceById(selectedId)).then((data) => {
       if (data.meta.requestStatus === "fulfilled") {
         processSequenceData(data);
+        if (!urlSequenceParams) return;
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete("sequenceSelected");
+        navigate(`?${newParams.toString()}`, { replace: true });
       }
-
-     
     });
-
-
   };
 
   // Update the return statement to match FlowViewer's layout
@@ -487,7 +528,7 @@ const FlowEditor = () => {
                 value={searchQuery || ""}
                 onChange={handleSearchChange}
               />
-              
+
               {searchResults.length > 0 && (
                 <div
                   className="position-absolute start-0 w-25"

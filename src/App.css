@@ -28,3 +28,14 @@ main {
   height: 80vh;
   width: 100%;
 }
+
+@keyframes borderAnimation {
+  0% { border-color: red; }
+  50% { border-color: blue; }
+  100% { border-color: red; }
+}
+
+.selected-node {
+  border: 2px solid red;
+  animation: borderAnimation 1s infinite;
+}
