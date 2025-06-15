@@ -1,6 +1,7 @@
 import  {
   Handle,
 } from "reactflow";
+
 import React, { useState, useRef, useEffect } from "react";
 export const CustomNode = ({ data, selected = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -75,7 +76,7 @@ export const CustomNode = ({ data, selected = false }) => {
               style={{ width: "100%", padding: 8, marginBottom: 4, cursor: "pointer" }}
               onClick={() => {
                 if (data.removeCardFromSequenceHandler) {
-                  data.removeCardFromSequenceHandler();
+                  data.removeCardFromSequenceHandler(data.id);
                 }
                 setMenuOpen(false);
               }}
@@ -95,8 +96,10 @@ export const CustomNode = ({ data, selected = false }) => {
             </button>
           </div>
         )}
+        
         <div className="w-100 d-flex flex-column" style={{marginTop: "235px"}}>
         <label className="form-label ms-auto me-2 mt-2" >Name </label>
+        {/* <label className="form-label ms-auto me-2 mt-2">{data.card_data_present}</label> */}
         <label className="form-label ms-auto me-2 " style={{marginTop: "1.8rem"}} >Type </label>
         <label className="form-label ms-auto me-2 " style={{marginTop: "1.8rem"}}>Effect </label>
         <label className="form-label ms-auto me-2 " style={{marginTop: "1.8rem"}}>Description </label>
@@ -105,7 +108,7 @@ export const CustomNode = ({ data, selected = false }) => {
         </div>
         <div className="ms-auto">
           <div className="d-flex flex-column">
-          <iframe
+          { data.url ? <iframe
             width="350"
             height="197"
             src={data.url}
@@ -114,7 +117,10 @@ export const CustomNode = ({ data, selected = false }) => {
             allowFullScreen
             style={{ marginTop: '1rem' }}
             className="ms-auto"
-          />
+          /> : <div class="alert alert-warning alert-dismissible fade show" role="alert" style={{width: "350px"}}>
+          <strong>Warning!</strong>  The card used to create this card in sequence has been deleted , please remove this card and recreate it.
+          
+        </div>}
           <br/>
           <div className="d-flex align-items-center">
          

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import ReactFlow, {
   addEdge,
   MiniMap,
@@ -26,6 +26,7 @@ import {
   clearSearchError,
   resetSearchResults,
   deleteSequence,
+  deleteCard,
   
 } from "../store/flowEditorSlice";
 import { CustomNode } from "../components/editor/CustomNode";
@@ -76,7 +77,9 @@ const canvasWidth = 1000;
 //   );
 // };
 
-const nodeTypes = { custom: CustomNode };
+// const nodeTypes = { custom: CustomNode };
+
+
 
 const FlowEditor = () => {
   const [nodes, setNodes] = useState([]);
@@ -88,6 +91,15 @@ const FlowEditor = () => {
   const urlSequenceParams = searchParams.get("sequenceSelected");
   const cardId = searchParams.get("cardId");
   const [selectedEdge, setSelectedEdge] = useState(null);
+  const handleDestroyCard = useCallback((cardId) => {
+  console.log("card id",{cardId});
+  
+  dispatch(deleteCard(cardId))
+  
+}, []);
+  const nodeTypes = useMemo(() => ({
+  custom: (props) => <CustomNode {...props} data={{ ...props.data, destroyCard: handleDestroyCard }} />,
+}), [handleDestroyCard] )
 
 const onEdgeClick = useCallback((event, edge) => {
   console.log("inside effect")
@@ -350,6 +362,12 @@ useEffect(() => {
   }, [cardId, dispatch]);
 
   // Modify handleAddCard to trigger auto-save
+  // const removeCardFromSequenceHandler = (nodeId) => {
+  //   setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+  //   setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  //   setHasUnsavedChanges(true);
+  // };
+
   const handleAddCard = (card) => {
     const newNode = {
       id: `node-${Date.now()}`,
@@ -362,6 +380,7 @@ useEffect(() => {
         description: card.description,
         url: card.url,
         id: card.id,
+        // removeCardFromSequenceHandler: () => removeCardFromSequenceHandler(`node-${Date.now()}`), // will fix below
       },
     };
     // console.log("handle add card", {newNode});
@@ -441,6 +460,7 @@ useEffect(() => {
           id: card.id,
           position: card.position,
           next: card.next,
+          // removeCardFromSequenceHandler: () => removeCardFromSequenceHandler(nodeId),
         },
       });
 
@@ -646,4 +666,14 @@ useEffect(() => {
 };
 
 export default FlowEditor;
+
+// const handleDestroyCard = (cardId) => {
+//   dispatch(deleteCard(cardId))
+//     .unwrap()
+//     .then(() => {
+//       setNodes((nds) => nds.filter((node) => node.data.id !== cardId));
+//       setEdges((eds) => eds.filter((edge) => edge.source !== cardId && edge.target !== cardId));
+//     })
+//     .catch((err) => setError(err));
+// };
 
