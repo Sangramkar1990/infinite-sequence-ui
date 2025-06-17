@@ -10,6 +10,7 @@ import FlowEditor from './pages/FlowEditor'
 import CreateOrganization from './pages/CreateOrganization';
 import CreateSequence from './pages/CreateSequence'
 import CreateCardPage from './pages/CreateCardPage' // Add this import
+import Account from "./pages/Account";
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -24,6 +25,12 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/account" element={
+              // <ProtectedRoute>
+              <Account/>
+              // </ProtectedRoute>
+              
+              }/>
             <Route
               path="/flow-editor"
               element={

@@ -30,6 +30,7 @@ import {
   
 } from "../store/flowEditorSlice";
 import { CustomNode } from "../components/editor/CustomNode";
+import { CgProfile } from "react-icons/cg";
 
 // Define card layout sizes
 const initialPosition = { x: 50, y: 50 };
@@ -91,6 +92,9 @@ const FlowEditor = () => {
   const urlSequenceParams = searchParams.get("sequenceSelected");
   const cardId = searchParams.get("cardId");
   const [selectedEdge, setSelectedEdge] = useState(null);
+  const user = useSelector((state) => state.user.user);
+  
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const handleDestroyCard = useCallback((cardId) => {
   console.log("card id",{cardId});
   
@@ -361,12 +365,7 @@ useEffect(() => {
     }
   }, [cardId, dispatch]);
 
-  // Modify handleAddCard to trigger auto-save
-  // const removeCardFromSequenceHandler = (nodeId) => {
-  //   setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-  //   setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
-  //   setHasUnsavedChanges(true);
-  // };
+  
 
   const handleAddCard = (card) => {
     const newNode = {
@@ -380,10 +379,10 @@ useEffect(() => {
         description: card.description,
         url: card.url,
         id: card.id,
-        // removeCardFromSequenceHandler: () => removeCardFromSequenceHandler(`node-${Date.now()}`), // will fix below
+       
       },
     };
-    // console.log("handle add card", {newNode});
+    
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
     setSearchResults([]);
@@ -544,6 +543,43 @@ useEffect(() => {
               {error}
             </div>
           )}
+          <div className="d-flex mb-3 align-items-center justify-space-between">
+           <div>
+           {user?.organization_id ? <h2>{'Organization: '+ user?.organization_name}</h2> : <></>}
+           </div>
+           <div className="accountProfile ms-auto" style={{ position: 'relative' }}>
+             <button
+               className="btn btn-link p-0"
+               style={{ fontSize: 28 }}
+               onClick={() => setProfileMenuOpen((open) => !open)}
+               aria-label="Profile Menu"
+             >
+               <CgProfile />
+             </button>
+             {profileMenuOpen && (
+               <div
+                // className="mx-3"
+                 style={{
+                   position: 'absolute',
+                   right: 0,
+                   top: '100%',
+                   background: '#fff',
+                   border: '1px solid #ccc',
+                   borderRadius: 8,
+                   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                   minWidth: 160,
+                   zIndex: 1000,
+                 }}
+               >
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"  onClick={() => navigate("/account")}><strong>Account</strong></button>
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"><strong>Organization</strong></button>
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"><strong>Teams</strong></button>
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"><strong>Roles</strong></button>
+               </div>
+             )}
+           </div>
+            
+          </div>
 
           <div className="d-flex mb-3 align-items-center justify-content-between">
             <select

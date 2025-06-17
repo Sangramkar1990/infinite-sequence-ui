@@ -39,3 +39,19 @@ main {
   border: 2px solid red;
   animation: borderAnimation 1s infinite;
 }
+.menu-over:hover{
+  background-color: #9fccf1;
+}
+.sideMenu-item {
+  background-color: white;
+  border: none;
+
+}
+    
+.selected-side-item {
+  background-color:  #9fccf1;
+}
+
+.sidebar-line {
+  margin: .5rem;
+}

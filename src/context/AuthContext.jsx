@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { authService, organizationService } from '../services/api';
-
+import { useDispatch } from 'react-redux';
+import {fetchCurrentUser} from '../store/userSlice.js';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,11 +19,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await authService.getCurrentUser();
-        if (response.success) {
-          setUser(response.data);
-          setIsAuthenticated(true);
-        }
+        dispatch(fetchCurrentUser());
       } catch (error) {
         // User is not authenticated, do nothing
       } finally {
@@ -30,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuthStatus();
-  }, []);
+  }, [dispatch]);
 
   // Login function
   const login = async (email, password) => {
