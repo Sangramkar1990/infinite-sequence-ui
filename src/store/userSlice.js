@@ -17,6 +17,22 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  'user/updateProfile',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await authService.updateProfile(profileData);
+      if (response.success) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to update profile');
+    }
+  }
+);
+
 export const updatePassword = createAsyncThunk(
   'user/updatePassword',
   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
@@ -66,6 +82,15 @@ const userSlice = createSlice({
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
         state.error = action.payload;
       })
       .addCase(updatePassword.pending, (state) => {
