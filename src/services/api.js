@@ -77,8 +77,18 @@ export const authService = {
    */
   logout: () => {
     return apiRequest('/auth/logout');
-  }
+  },
+  /**
+   * update password
+   * @returns {Promise} - Response data
+   */
+  updatePassword:  (oldPassword, newPassword) => {
+  return apiRequest('/auth/update-password','PUT',{oldPassword, newPassword})
+  
+}
+
 };
+
 
 /**
  * Organization service
