@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authService.login(email, password);
+      
       setUser(response.data || { email });
       setIsAuthenticated(true);
       if (response.token) {
@@ -67,16 +68,19 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setError(null);
     try {
-      let registerResponse = await authService.register(userData);
-      // Check for redirectTo in response
-      if ( registerResponse.redirectTo === 'create-organization') {
-        return  {  redirect: true, userId:  registerResponse.userId};
-      }
-      console.log(registerResponse)
-      return { success: true };
+      return await authService.register(userData);
+      // console.log("registerResponse", {registerResponse});
+      // // Check for redirectTo in response
+      // if ( registerResponse.redirectTo === 'create-organization') {
+      //   return  {  redirect: true, userId:  registerResponse.userId};
+      // }
+      // console.log(registerResponse)
+      // return { success: true };
     } catch (error) {
       setError(error.message || 'Registration failed');
-      return { success: false, error: error.message || 'Registration failed' };
+      console.log("error :", {error})
+      // Pass the full error object from the backend
+      return { success: false, error: error.message || 'Registration failed', backendError: error };
     }
   };
 

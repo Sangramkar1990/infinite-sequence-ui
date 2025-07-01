@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { organizationService } from '../services/api'; // Import organizationService
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -120,7 +121,9 @@ const Register = () => {
       // Call register function from AuthContext
       const result = await register(registrationData);
 
-      if (result.success) {
+      console.log("result check", {result : result.success, field: result})
+
+      if (false) {
         navigate('/login');
       }
       else if (result.redirect){
@@ -129,7 +132,17 @@ const Register = () => {
 
       }
        else {
-        setGeneralError(result.error || 'Registration failed. Please try again.');
+        console.log("result", {result});
+        
+        // Handle backend errors
+        if (!result.success && result.field) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [result.field]: result.message
+          }));
+        } else {
+          setGeneralError(result.error || 'Registration failed. Please try again.');
+        }
       }
     } catch (error) {
       setGeneralError(error.message || 'Registration failed. Please try again.');
@@ -138,19 +151,49 @@ const Register = () => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
+    setFormData(prevFormData => {
+      const newFormData = {
+        ...prevFormData,
+        [name]: value
+      };
+
+      // Clear error for this field when user starts typing
+      if (errors[name]) {
+        setErrors({
+          ...errors,
+          [name]: ''
+        });
+      }
+
+      return newFormData;
     });
 
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
+    if (name === 'organizationName' && value.trim() !== '') {
+      setSubmitting(true); // Disable button while checking
+      try {
+        const response = await organizationService.checkOrganizationName(value);
+        if (!response.isUnique) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            organizationName: 'Organization name already exists.'
+          }));
+        } else {
+          setErrors(prevErrors => {
+            const newErrors = { ...prevErrors };
+            delete newErrors.organizationName;
+            return newErrors;
+          });
+        }
+      } catch (error) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          organizationName: error.message || 'Error checking organization name.'
+        }));
+      } finally {
+        setSubmitting(false); // Enable button after check
+      }
     }
   };
 
@@ -166,14 +209,45 @@ const Register = () => {
             <div className="card-body d-flex w-100">
               
 
-              <form onSubmit={handleSubmit} className="w-100">
-                {/*<div className="row">*/}
+              <form onSubmit={handleSubmit} className="w-100 mt-4">
+                {/*<div className="row">*/  }
                   {/* Name */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="name" className="form-label">Name *</label>
+                  <div className="d-flex px-5 mx-5">
+                  <div className='w-50'>
+                    <div className='mb-4'>
+                       <label htmlFor="name" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Name *</label>
+                    </div>
+                    <div className='mb-4 '>
+                      <label htmlFor="dateOfBirth" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Date of Birth</label>
+                    </div>
+                    <div className='mb-4'>
+                      <label htmlFor="rank" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Rank</label>
+                    </div>
+                    <div className='mb-4'>
+                      <label htmlFor="email" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Email *</label>
+
+                    </div>
+                    <div className='mb-4'>
+                      <label htmlFor="password" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Password *</label>
+                    </div>
+                    <div className='mb-4 mt-4 pt-4'>
+                       <label htmlFor="confirmPassword" className="form-label w-100 text-end pe-3 mt-2 fw-bold">Confirm Password*</label>
+                    </div>
+                    <div className='mb-4'>
+                        <label className="form-label w-100 text-end pe-3 mt-2 fw-bold">User Type *</label>
+                    </div>
+                    <div className={`mb-4 ${formData.userType === 'organization' ? '' : 'd-none'}`}>
+                        <label className="form-label w-100 text-end pe-3 mt-1 fw-bold">Organization Name</label>
+                    </div>
+
+                  </div>
+                   <div className="w-70">
+                  
+                  <div className="mb-spe-4">
+                   
                     <input
                       type="text"
-                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                      className={`form-control${errors.name ? 'is-invalid' : ''}`}
                       id="name"
                       name="name"
                       value={formData.name}
@@ -183,8 +257,8 @@ const Register = () => {
                     {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </div>
                     {/* Date of Birth */}
-                    <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="dateOfBirth" className="form-label">Date of Birth</label>
+                    <div className="mb-spe-4">
+                    
                     <input
                       type="date"
                       className={`form-control ${errors.dateOfBirth ? 'is-invalid' : ''}`}
@@ -196,8 +270,8 @@ const Register = () => {
                     {errors.dateOfBirth && <div className="invalid-feedback">{errors.dateOfBirth}</div>}
                   </div>
                   {/* Rank */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="rank" className="form-label">Rank</label>
+                  <div className="mb-spe-4">
+                    
                     <select
                       className={`form-select ${errors.rank ? 'is-invalid' : ''}`}
                       id="rank"
@@ -215,8 +289,8 @@ const Register = () => {
                   </div>
 
                   {/* Email */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="email" className="form-label">Email *</label>
+                  <div className="mb-spe-4">
+                    
                     <input
                       type="email"
                       className={`form-control ${errors.email ? 'is-invalid' : ''}`}
@@ -226,12 +300,14 @@ const Register = () => {
                       onChange={handleChange}
                       required
                     />
-                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                    <div className={`invalid-feedback invalid-container ${errors.email ? 'visible' : 'invisible'}`}>
+  {errors.email || ' '}
+</div>
                   </div>
 
                   {/* Password */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="password" className="form-label">Password *</label>
+                  <div className="mb-spe-4">
+                    
                     <input
                       type="password"
                       className={`form-control ${errors.password ? 'is-invalid' : ''}`}
@@ -246,8 +322,8 @@ const Register = () => {
                   </div>
 
                   {/* Confirm Password */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label htmlFor="confirmPassword" className="form-label">Confirm Password *</label>
+                  <div className="mb-spe-4 ">
+                   
                     <input
                       type="password"
                       className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
@@ -265,9 +341,9 @@ const Register = () => {
                   
 
                   {/* User Type */}
-                  <div className="col-md-12 mb-3 mx-auto w-50">
-                    <label className="form-label">User Type *</label>
-                    <div className={`form-check ${errors.userType ? 'is-invalid' : ''}`}>
+                  <div className="mb-spe-4 d-flex justify-content-between align-items-center pt-2 px-4">
+                    
+                    <div className={`form-check me-4 ${errors.userType ? 'is-invalid' : ''}`}>
                       <input
                         className="form-check-input"
                         type="radio"
@@ -299,27 +375,41 @@ const Register = () => {
                     </div>
                     {errors.userType && <div className="invalid-feedback">{errors.userType}</div>}
                   </div>
+                  <div className={`mb-spe-4 ${formData.userType === 'organization' ? '' : 'd-none'}`}>
+                    
+                    <input
+                      type="text"
+                      className={`form-control ${errors.organizationName ? 'is-invalid' : ''}`}
+                      id="organizationName"
+                      name="organizationName"
+                      value={formData.organizationName}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
+                  </div>
 
                   
                 
                  
-               { /*</div>*/}
-               <div className="mt-3 text-center">
-                  Already have an account? <Link to="/login">Login</Link>
-                </div>
+                  { /*</div>*/}
+                  <div className="mt-3 text-center">
+                  <Link to="/login"> Already Have An Account Login</Link>
+                    </div>
 
                 <div className="d-grid gap-2 mt-4 d-flex">
                   <button className="btn btn-secondary disabled ms-auto">Cancel</button>
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={submitting}
+                    // disabled={submitting || Object.keys(errors).length > 0} // Disable if submitting or if there are any errors
                   >
                     {submitting ? 'Creating Account...' : 'Create Account +'}
                   </button>
                 </div>
+                </div>
 
-                
+                </div>
               </form>
             </div>
           </div>

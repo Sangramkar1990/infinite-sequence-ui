@@ -15,9 +15,11 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
   
     const response = await fetch(url, options);
     const responseData = await response.json();
-    if (!response.ok) {
-      throw new Error(responseData.message || 'Something went wrong');
-    }
+    // console.log("response data", {responseData});
+    // console.log(" response ok", {ok : response.ok})
+    // if (!response.ok) {
+    //   throw new Error(responseData.message || 'Something went wrong');
+    // }
     return responseData;
   
 };
@@ -46,5 +48,8 @@ export const authService = {
 export const organizationService = {
   create: (orgData) => {
     return apiRequest('/organization/create', 'POST', orgData);
+  },
+  checkOrganizationName: (organizationName) => {
+    return apiRequest(`/organization/check-name?name=${encodeURIComponent(organizationName)}`);
   },
 };
