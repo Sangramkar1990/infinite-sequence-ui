@@ -20,8 +20,8 @@ const Login = () => {
 
     const response = await login(email, password);
     if (response.success) {
-      console.log("success", response.success);
-      navigate("/flow-viewer");
+      console.log("success", response);
+      navigate("/flow-editor");
     } else {
       setError("Invalid credentials");
     }

@@ -14,12 +14,11 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
   }
   
     const response = await fetch(url, options);
+    const statusCode = response.status;
     const responseData = await response.json();
-    // console.log("response data", {responseData});
-    // console.log(" response ok", {ok : response.ok})
-    // if (!response.ok) {
-    //   throw new Error(responseData.message || 'Something went wrong');
-    // }
+
+    console.log("response data", {responseData});
+    
     return responseData;
   
 };

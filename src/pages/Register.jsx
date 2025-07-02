@@ -123,14 +123,10 @@ const Register = () => {
 
       console.log("result check", {result : result.success, field: result})
 
-      if (false) {
+      if (result.created) {
         navigate('/login');
       }
-      else if (result.redirect){
-        navigate(`/create-organization?userId=${result.userId}` 
-        )
-
-      }
+      
        else {
         console.log("result", {result});
         
