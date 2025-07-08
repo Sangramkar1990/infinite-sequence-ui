@@ -13,11 +13,20 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  console.log("dispatch", {dispatch});
+  const token = localStorage.getItem("token"); 
 
 
   // Check if user is already logged in
   useEffect(() => {
+    // or sessionStorage, cookie, etc.
+
+  if (!token) {
+    setLoading(false);
+    return;
+  }
     const checkAuthStatus = async () => {
+      
       try {
         dispatch(fetchCurrentUser());
       } catch (error) {
@@ -28,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuthStatus();
-  }, [dispatch]);
+  }, [dispatch, token]);
 
   // Login function
   const login = async (email, password) => {

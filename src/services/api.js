@@ -51,4 +51,23 @@ export const organizationService = {
   checkOrganizationName: (organizationName) => {
     return apiRequest(`/organization/check-name?name=${encodeURIComponent(organizationName)}`);
   },
+  searchOrganizations: (searchTerm) => {
+    return apiRequest(`/organization/search?searchTerm=${encodeURIComponent(searchTerm)}`);
+  },
+  createInviteRequest: (organizationId, userId) => {
+    return apiRequest('/invites', 'POST', { organizationId, userId });
+  },
+  getInviteRequestsByUser: () => {
+    return apiRequest('/invites/user');
+  },
+  updateInviteRequestStatus: (id, status) => {
+    console.log("id", {id});
+    return apiRequest(`/invites/${id}/status`, 'PUT', { status });
+  }
+};
+
+export const membershipService = {
+  getMemberships: () => {
+    return apiRequest('/memberships/me');
+  },
 };

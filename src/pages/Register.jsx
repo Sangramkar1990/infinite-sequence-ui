@@ -96,6 +96,7 @@ const Register = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("is submitting");
     e.preventDefault();
     setGeneralError('');
     setSubmitting(true);
@@ -118,6 +119,7 @@ const Register = () => {
     // console.log(registrationData);
 
     try {
+      console.log("sending registration request")
       // Call register function from AuthContext
       const result = await register(registrationData);
 
@@ -380,7 +382,7 @@ const Register = () => {
                       name="organizationName"
                       value={formData.organizationName}
                       onChange={handleChange}
-                      required
+                      
                     />
                     {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
                   </div>

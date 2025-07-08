@@ -11,6 +11,7 @@ import CreateOrganization from './pages/CreateOrganization';
 import CreateSequence from './pages/CreateSequence'
 import CreateCardPage from './pages/CreateCardPage' // Add this import
 import Account from "./pages/Account";
+import Organization from "./pages/Organization"; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -31,6 +32,11 @@ function App() {
               // </ProtectedRoute>
               
               }/>
+            <Route path="/organization" element={ // Add this new route
+              // <ProtectedRoute>
+              <Organization/>
+              // </ProtectedRoute>
+            }/>
             <Route
               path="/flow-editor"
               element={
