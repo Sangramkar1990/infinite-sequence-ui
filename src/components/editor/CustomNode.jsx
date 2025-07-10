@@ -32,7 +32,8 @@ export const CustomNode = ({ data, selected = false }) => {
           position: "relative"
         }}
       >
-        <Handle type="target" position="left" style={{ background: "#555" }} />
+        <Handle type="target" position="left" style={{ background: "#555", width:10, height:10 }} />
+        
         {/* Hamburger Button */}
         <div className="d-flex">
 
@@ -72,7 +73,7 @@ export const CustomNode = ({ data, selected = false }) => {
               padding: 8
             }}
           >
-            <button
+            {/* <button
               style={{ width: "100%", padding: 8, marginBottom: 4, cursor: "pointer" }}
               onClick={() => {
                 if (data.removeCardFromSequenceHandler) {
@@ -82,7 +83,7 @@ export const CustomNode = ({ data, selected = false }) => {
               }}
             >
               Remove
-            </button>
+            </button> */}
             <button
               style={{ width: "100%", padding: 8, color: "#fff", background: "#d32f2f", border: "none", borderRadius: 4, cursor: "pointer" }}
               onClick={() => {
@@ -122,7 +123,8 @@ export const CustomNode = ({ data, selected = false }) => {
           
         </div>}
           <br/>
-          <div className="d-flex align-items-center">
+          
+          <div className="d-flex align-items-center mt-4">
          
           <input
           type="text"
@@ -133,7 +135,7 @@ export const CustomNode = ({ data, selected = false }) => {
           
           </div>
           <br />
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mt-4">
           
           <input
           type="text"
@@ -145,7 +147,7 @@ export const CustomNode = ({ data, selected = false }) => {
           </div>
           
           <br />
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mt-4">
          
           <input
           type="text"
@@ -156,7 +158,7 @@ export const CustomNode = ({ data, selected = false }) => {
           
           </div>
           <br />
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center mt-4">
           
           <textarea
           className="form-control"
@@ -171,7 +173,8 @@ export const CustomNode = ({ data, selected = false }) => {
         
         </div>
         </div>
-        <Handle type="source" position="right" style={{ background: "#555" }} />
+        <Handle type="source" position="right" style={{ background: "#555" , width:10, height:10}} />
+        
       </div>
     );
   };

@@ -24,9 +24,42 @@ const CreateCardPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  function convertYouTubeUrlToEmbed(url) {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+
+    const isYouTube =
+      hostname === 'www.youtube.com' ||
+      hostname === 'youtube.com' ||
+      hostname === 'youtu.be';
+
+    if (!isYouTube) {
+      return url; // Not a YouTube URL, return unchanged
+    }
+
+    // Handle youtu.be short links
+    if (hostname === 'youtu.be') {
+      const videoId = urlObj.pathname.slice(1); // e.g., /Rl_HF2ndUZc → Rl_HF2ndUZc
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    // Handle standard watch URLs
+    const videoId = urlObj.searchParams.get('v');
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    return url; // Return original if no valid video ID
+  } catch (e) {
+    return url; // Invalid URL format
+  }
+}
+
 
   const handleSubmit = async () => {
     try {
+
       const token = localStorage.getItem('token');
       if (!token) {
         setError('No authentication token found');
@@ -40,7 +73,7 @@ const CreateCardPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          video: formData.video,
+          video: convertYouTubeUrlToEmbed(formData.video),
           name: formData.name,
           type: formData.type,
           effect: formData.effect,
@@ -124,6 +157,7 @@ const CreateCardPage = () => {
           name={field}
           value={formData[field]}
           onChange={handleChange}
+          required={field === 'video'}
         />)}
         </div>
         ))}

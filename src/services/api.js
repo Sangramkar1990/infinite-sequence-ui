@@ -71,3 +71,24 @@ export const membershipService = {
     return apiRequest('/memberships/me');
   },
 };
+
+export const teamService = {
+  getTeamsByOrganization: (organization_id) => {
+    return apiRequest(`/teams/organization/${organization_id}`);
+  },
+  getTeam: (id) => {
+    return apiRequest(`/teams/${id}`);
+  },
+  createTeam: (data) => {
+    return apiRequest('/teams', 'POST', data);
+  },
+  updateTeam: (id, data) => {
+    return apiRequest(`/teams/${id}`, 'PUT', data);
+  },
+};
+
+export const membershipSearchService = {
+  search: (query) => {
+    return apiRequest(`/memberships/search?query=${encodeURIComponent(query)}`);
+  },
+};

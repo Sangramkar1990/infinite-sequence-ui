@@ -12,6 +12,7 @@ import CreateSequence from './pages/CreateSequence'
 import CreateCardPage from './pages/CreateCardPage' // Add this import
 import Account from "./pages/Account";
 import Organization from "./pages/Organization"; // Add this import
+import Teams from './pages/Teams';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -64,6 +65,7 @@ function App() {
               <CreateCardPage />
               //</ProtectedRoute>
             } />
+            <Route path="/teams" element={<Teams organizationId={1} />} />
           </Routes>
         </main>
       </Router>

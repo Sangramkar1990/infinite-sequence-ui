@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import _ from 'lodash'; 
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
@@ -64,6 +65,14 @@ export const saveSequence = createAsyncThunk(
     const token = getToken();
     if (!token) return rejectWithValue('No authentication token found');
     if (!sequenceId) return rejectWithValue('Sequence ID is required for saving');
+     // Check if the data has actually changed
+    // const state = getState();
+    // const existingCards = state.flowEditor.cards; // Adjust based on your state shape
+
+    // if (_.isEqual(cardsData, existingCards)) {
+    //   return rejectWithValue('No changes to save');
+    // }
+
     try {
       const response = await fetch(`${API_BASE_URL}/sequences/${sequenceId}`, {
         method: 'PUT',

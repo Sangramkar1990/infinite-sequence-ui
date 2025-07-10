@@ -22,9 +22,12 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             {isAuthenticated && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/flow-editor">Flow Editor</Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/flow-editor">Flow Editor</Link>
+                </li>
+                
+              </>
             )}
           </ul>
           <ul className="navbar-nav">
