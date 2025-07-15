@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { teamService, membershipSearchService } from '../services/api';
+import { CgProfile } from "react-icons/cg";
+import { useNavigate } from "react-router-dom"; 
 
 const Teams = ({ organizationId }) => {
   const [teams, setTeams] = useState([]);
+   const navigate = useNavigate();
   const [showCreate, setShowCreate] = useState(false);
   const [editingTeam, setEditingTeam] = useState(null);
   const [teamName, setTeamName] = useState('');
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [pageTitle, setPageTitle] = useState('Teams')
 
   useEffect(() => {
     if (organizationId) fetchTeams();
@@ -29,6 +33,7 @@ const Teams = ({ organizationId }) => {
   const handleEdit = async (team) => {
     setEditingTeam(team);
     setTeamName(team.name);
+    setPageTitle('Edit Team');
     const fullTeam = await teamService.getTeam(team.id);
     setSelectedMembers(fullTeam.members || []);
     setShowCreate(true);
@@ -66,57 +71,123 @@ const Teams = ({ organizationId }) => {
   };
 
   return (
-    <div>
-      <h2>Teams</h2>
-      <button onClick={handleCreate}>Create Team</button>
-      <ul>
+    <div className='p-4 m-5 d-flex flex-column'>
+      <h1>{pageTitle}</h1>
+
+      {teams && <h5 className='ms-5 ps-5 mt-4'>View all teams</h5>}
+
+     
+      <ul className='roles-list mx-auto'>
         
         {teams && teams.map(team => (
           <li key={team.id}>
-            {team.name} <button onClick={() => handleEdit(team)}>Edit</button>
+            {team.name} <button className='btn btn-secondary btn-sm ms-5' onClick={() => handleEdit(team)}>Edit</button>
           </li>
         ))}
       </ul>
       {showCreate && (
-        <div className="">
-          <h3>{editingTeam ? 'Edit Team' : 'Create Team'}</h3>
+        <div className="d-flex flex-column align-items-center">
+         <div className='my-4'>
+          <label className='mx-3'>Team Name </label>
+
           <input
             type="text"
             value={teamName}
             onChange={e => setTeamName(e.target.value)}
             placeholder="Team Name"
+            className="w-50 mx-auto p-2 border rounded border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+         </div>
+          
           <div>
-            <input
+            <div className="d-flex align-items-center">
+               <label className='mx-3'>Team Member </label>
+              <input
               type="text"
               value={search}
               onChange={handleSearch}
               placeholder="Search members by name or email"
+              className="w-50 mx-auto p-2 border rounded border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <ul>
+            </div>
+            <ul  className='roles-list my-4 py-3'>
               {searchResults.map(member => (
                 <li key={member.id}>
-                  {member.name} ({member.email}, {member.role})
-                  <button onClick={() => addMember(member)}>Add</button>
+                  <div className='d-flex align-items-center '>
+                    <CgProfile style={{color: "black", width: "3rem", height: "3rem" }}/>
+                    <div className='mx-3'>
+                      <p className='roles-list-para'>{member.name} </p>
+                      <p className='roles-list-para'>{member.email}</p>
+
+                    </div>
+                    
+                    <input
+                    type="text"
+                    value={member.role}
+            
+                    placeholder="Team Name"
+                    className="w-30 mx-2 p-2 border rounded border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled
+                    />
+
+                  
+                  <button className='btn btn-outline-primary' onClick={() => addMember(member)}>Add</button>
+                  </div>
+                  
+                  
+                 
                 </li>
               ))}
             </ul>
           </div>
           <div>
             <h4>Selected Members</h4>
-            <ul>
+            <ul className='roles-list my-4 py-3'>
               {selectedMembers.map(member => (
                 <li key={member.id}>
-                  {member.name} ({member.email}, {member.role})
-                  <button onClick={() => removeMember(member)}>Remove</button>
+                  <div className='d-flex align-items-center '>
+                    <CgProfile style={{color: "black", width: "3rem", height: "3rem" }}/>
+                    <div className='mx-3'>
+                      <p className='roles-list-para'>{member.name} </p>
+                      <p className='roles-list-para'>{member.email}</p>
+
+                    </div>
+                    
+                    <input
+                    type="text"
+                    value={member.role}
+            
+                    placeholder="Team Name"
+                    className="w-30 mx-2 p-2 border rounded border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled
+                    />
+
+                  
+                   <button className='btn btn-outline-danger' onClick={() => removeMember(member)}>Remove</button>
+                  </div>
+                  
+                 
                 </li>
               ))}
             </ul>
           </div>
-          <button onClick={handleSave}>Save</button>
-          <button onClick={() => setShowCreate(false)}>Cancel</button>
+         
         </div>
       )}
+      {showCreate ? 
+      <div className='d-flex'>
+         <button className='btn btn-secondary ms-auto' onClick={() => setShowCreate(false)}>Cancel</button>
+         <button className='btn btn-primary mx-2' onClick={handleSave}>Save</button>
+         
+      </div> 
+      : 
+      <div className='d-flex'>
+        
+         <button className='btn btn-secondary ms-auto' onClick={()=> navigate("/flow-editor")}>Cancel</button>
+         <button className='btn btn-primary mx-2' onClick={handleCreate}>Create Team +</button>
+      </div>
+      }
+       
     </div>
   );
 };

@@ -665,8 +665,8 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
                >
                  <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"  onClick={() => navigate("/account")}><strong>Account</strong></button>
                  <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/organization")}><strong>Organization</strong></button>
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" ><strong>Teams</strong></button>
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"><strong>Roles</strong></button>
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/teams")}><strong>Teams</strong></button>
+                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/roles")}><strong>Roles</strong></button>
                </div>
              )}
            </div>

@@ -74,3 +74,10 @@ main {
 .mb-spe-4 {
 margin-bottom: 26px;
 }
+.roles-list {
+  list-style-type: none;
+  padding: 0;
+}
+.roles-list-para {
+  margin:0
+}

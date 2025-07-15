@@ -70,6 +70,12 @@ export const membershipService = {
   getMemberships: () => {
     return apiRequest('/memberships/me');
   },
+  getAllMemberships: () => {
+    return apiRequest('/memberships');
+  },
+  updateRoles: (organizationId, updates) => {
+    return apiRequest('/memberships/role', 'POST', { organizationId, updates });
+  },
 };
 
 export const teamService = {
