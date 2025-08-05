@@ -17,7 +17,7 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
     const statusCode = response.status;
     const responseData = await response.json();
 
-    console.log("response data", {responseData});
+    // console.log("response data", {responseData});
     
     return responseData;
   
@@ -61,7 +61,7 @@ export const organizationService = {
     return apiRequest('/invites/user');
   },
   updateInviteRequestStatus: (id, status) => {
-    console.log("id", {id});
+    // console.log("id", {id});
     return apiRequest(`/invites/${id}/status`, 'PUT', { status });
   }
 };
@@ -96,5 +96,14 @@ export const teamService = {
 export const membershipSearchService = {
   search: (query) => {
     return apiRequest(`/memberships/search?query=${encodeURIComponent(query)}`);
+  },
+};
+
+export const shareService = {
+  createShare: (data) => {
+    return apiRequest('/shares', 'POST', data);
+  },
+  updateShare: (sequence_id, data) => {
+    return apiRequest(`/shares/${sequence_id}`, 'PUT', data);
   },
 };

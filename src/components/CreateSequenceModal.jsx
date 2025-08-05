@@ -24,7 +24,7 @@ const CreateSequenceModal = ({ show, onClose }) => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Sequence created:', result);
+        // console.log('Sequence created:', result);
         setNewSequence({ name: '', description: '' });
         onClose();
         navigate('/flow-viewer'); // Navigate back to flow viewer

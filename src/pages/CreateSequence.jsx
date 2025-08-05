@@ -34,7 +34,7 @@ const CreateSequence = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Sequence created:', result);
+        // console.log('Sequence created:', result);
         // Navigate back to flow viewer with the new sequence ID
         navigate(`/flow-editor?sequenceSelected=${result.data.id}`);
       } else {

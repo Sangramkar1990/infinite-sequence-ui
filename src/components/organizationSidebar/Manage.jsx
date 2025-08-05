@@ -11,7 +11,7 @@ const handleCopy = (text, setCopied) => {
 };
 
 const Manage = ({ organizationId = false, inviteLink = false }) => {
-  console.log("test manage")
+  // console.log("test manage")
   const [copiedOrgId, setCopiedOrgId] = useState(false);
   const [copiedInviteLink, setCopiedInviteLink] = useState(false);
   const [memberships, setMemberships] = useState([]);
@@ -19,7 +19,7 @@ const Manage = ({ organizationId = false, inviteLink = false }) => {
   const [errorMemberships, setErrorMemberships] = useState(null);
 
   useEffect(() => {
-     console.log("fetching memebers")
+    //  console.log("fetching memebers")
     const fetchMemberships = async () => {
       try {
        

@@ -14,6 +14,7 @@ import Account from "./pages/Account";
 import Organization from "./pages/Organization"; // Add this import
 import Teams from './pages/Teams';
 import Roles from './pages/Roles'; // Add this import
+import ShareSequenceForm from './pages/Share'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -68,6 +69,13 @@ function App() {
             } />
             <Route path="/teams" element={<Teams organizationId={1} />} />
             <Route path="/roles" element={<Roles />} />
+            // Share Sequence Form
+            <Route path="/share" element={
+              
+              <ShareSequenceForm />
+              
+            } />
+
           </Routes>
         </main>
       </Router>

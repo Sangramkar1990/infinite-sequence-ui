@@ -735,7 +735,7 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
             </div>
 
             <div>
-              <button className="btn btn-secondary me-2">Share</button>
+              <button className="btn btn-secondary me-2" onClick={() => navigate("/share")}>Share</button>
               <button
                 className="btn btn-secondary me-2"
                 onClick={() => navigate("/create-card")}

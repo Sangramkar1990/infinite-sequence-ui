@@ -9,9 +9,9 @@ const CreateCardPage = () => {
     {state:state.flowEditor.currentSequence}
   );return state.flowEditor.currentSequence});
   let is_sequence_set = Object.keys(sequence).length > 0 ? true : false;
-  console.log("is_sequence", is_sequence_set);
+  // console.log("is_sequence", is_sequence_set);
 
-  console.log("sequence redux", sequence);
+  // console.log("sequence redux", sequence);
   const [formData, setFormData] = useState({
     youtube: '',
     name: '',
@@ -84,7 +84,7 @@ const CreateCardPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        console.log("added card data", {result})
+        // console.log("added card data", {result})
         is_sequence_set ? navigate('/flow-editor?sequenceSelected='+sequence.id+'&cardId='+result.data.id) : navigate('/flow-editor');
       } else {
         setError(result.message || 'Failed to create card');

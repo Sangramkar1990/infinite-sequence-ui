@@ -19,7 +19,7 @@ const Join = () => {
         } else {
           setSearchResults([]);
         }
-        console.log('Search results:', response);
+        // console.log('Search results:', response);
       } catch (error) {
         console.error('Error during organization search:', error);
         setSearchResults([]); // Clear results on error
