@@ -15,6 +15,7 @@ import Organization from "./pages/Organization"; // Add this import
 import Teams from './pages/Teams';
 import Roles from './pages/Roles'; // Add this import
 import ShareSequenceForm from './pages/Share'
+import Dashboard from './pages/Dashboard'; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -75,6 +76,7 @@ function App() {
               <ShareSequenceForm />
               
             } />
+            <Route path="dashboard" element={<Dashboard/>} />
 
           </Routes>
         </main>
