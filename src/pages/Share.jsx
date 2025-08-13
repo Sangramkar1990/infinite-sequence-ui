@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 // import './ShareSequenceForm.css'; // Optional: for styling
 
 const teams = [
@@ -8,30 +9,38 @@ const teams = [
 
 const ShareSequenceForm = () => {
   const [sequenceName, setSequenceName] = useState('');
-  const [shareWithOrg, setShareWithOrg] = useState(true);
+  const [entireOrg, setEntireOrg] = useState(true);
+  const [teamIds, setTeamIds] = useState([]);
+  const user = useSelector((state) => state.user.user);
+  const organizationId = user?.organization_id || 1; // fallback if not available
   const [selectedTeams, setSelectedTeams] = useState([]);
 
   const handleToggle = () => {
-    setShareWithOrg(!shareWithOrg);
-    if (!shareWithOrg) setSelectedTeams([]); // Clear teams when toggling to org-wide
+    setEntireOrg(!entireOrg);
+    if (!entireOrg) setTeamIds([]);
   };
 
-  const handleTeamSelect = (team) => {
-    setSelectedTeams((prev) =>
-      prev.includes(team)
-        ? prev.filter((t) => t !== team)
-        : [...prev, team]
+  const handleTeamSelect = (teamId) => {
+    setTeamIds((prev) =>
+      prev.includes(teamId)
+        ? prev.filter((id) => id !== teamId)
+        : [...prev, teamId]
     );
   };
 
   const handleSave = () => {
     const payload = {
+      sequence_id: sequenceId,
       name: sequenceName,
-      shareWithOrg,
-      teams: shareWithOrg ? [] : selectedTeams,
+      entire_org: entireOrg,
+      organization_id: organizationId,
+      team_ids: entireOrg ? [] : teamIds,
     };
-    console.log('Saving sequence:', payload);
-    // Add API call or state update logic here
+    if (isEditing && sequenceId) {
+      dispatch(updateShare({ sequence_id: sequenceId, data: payload }));
+    } else {
+      dispatch(createShare(payload));
+    }
   };
 
   return (

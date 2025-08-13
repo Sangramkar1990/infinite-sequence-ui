@@ -1,3 +1,6 @@
+
+
+
 export default function RecentSequences() {
   return (
     <div className="recent-sequences">

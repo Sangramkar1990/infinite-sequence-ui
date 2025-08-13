@@ -8,9 +8,9 @@ import RecentSequences from '../components/dashbord/RecentSequences';
 import QuickActionsPanel from '../components/dashbord/QuickActionsPanel';
 const Dashboard = () => {
     return (
-    <div className="dashboard-container">
+    <div className="dashboard-container dashboard_main">
       <SidebarNavigation />
-      <main className="main-content">
+      <main className="main-content dashboard-main px-4">
         <WelcomeBanner />
         <StatisticsPanel />
         <RecentActivityList />

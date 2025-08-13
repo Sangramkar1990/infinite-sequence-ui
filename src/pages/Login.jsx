@@ -21,7 +21,7 @@ const Login = () => {
     const response = await login(email, password);
     if (response.success) {
       console.log("success", response);
-      navigate("/flow-editor");
+      navigate("/dashboard");
     } else {
       setError("Invalid credentials");
     }

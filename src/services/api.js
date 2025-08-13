@@ -106,4 +106,7 @@ export const shareService = {
   updateShare: (sequence_id, data) => {
     return apiRequest(`/shares/${sequence_id}`, 'PUT', data);
   },
+  getShareBySequenceId: (sequence_id) => {
+    return apiRequest(`/shares/${sequence_id}`);
+  },
 };

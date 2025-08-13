@@ -1,13 +1,15 @@
+import { History, Orbit, TrendingUp, Award } from "lucide-react";
+
 const activities = [
   { name: 'Kimura', type: 'submission', level: 'beginner', date: 'Jul 10' },
   { name: 'Berimbolo to Heel Hook', type: 'sequence', level: 'beginner', date: 'Jul 10' },
   // ...more
 ];
-
+ 
 export default function RecentActivityList() {
   return (
     <div className="recent-activity">
-      <h3>Recent Activity</h3>
+      <h3><History className="w-6 h-6" />Recent Activity</h3>
       <ul>
         {activities.map((a, i) => (
           <li key={i}>
