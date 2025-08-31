@@ -1,4 +1,4 @@
-import { LayoutDashboard,Home, BookOpen,Plus, List, Share2, Orbit } from 'lucide-react';
+import { Target,Home, BookOpen,Plus, Workflow, Share2, Orbit } from 'lucide-react';
 
 export default function SidebarNavigation() {
   return (
@@ -10,7 +10,7 @@ export default function SidebarNavigation() {
           Dashboard
         </button>
         <button className="sidebar-button my-2">
-          <Orbit className="h-4 w-4" />
+          <Target className="h-4 w-4" />
           Techniques
         </button>
         <button className="sidebar-button my-2">
@@ -18,7 +18,7 @@ export default function SidebarNavigation() {
           Sequences
         </button>
         <button className="sidebar-button my-2">
-          <Share2 className="h-4 w-4" />
+          <Workflow className="h-4 w-4" />
           Flow Builder
         </button>
       </div>

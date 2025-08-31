@@ -1,2 +1,6 @@
 /* This file is intentionally left empty as we're using Bootstrap for styling */
 /* Any custom global styles can be added here */
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

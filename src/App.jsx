@@ -16,6 +16,7 @@ import Teams from './pages/Teams';
 import Roles from './pages/Roles'; // Add this import
 import ShareSequenceForm from './pages/Share'
 import Dashboard from './pages/Dashboard'; // Add this import
+import Techniques from './pages/techniques'; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -77,6 +78,7 @@ function App() {
               
             } />
             <Route path="dashboard" element={<Dashboard/>} />
+            <Route path="techniques" element={<Techniques/>} />
 
           </Routes>
         </main>
