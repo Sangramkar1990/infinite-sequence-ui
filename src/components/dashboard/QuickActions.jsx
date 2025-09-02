@@ -14,21 +14,21 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Workflow className="w-5 h-5" />
-            Quick Actions
+            Quick Actions2
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 ">
           
 
          
-          <Link to={createPageUrl("Techniques?action=create")} className="block my-6">
+          <Link to={createPageUrl("/create-card")} className="block my-6">
             <Button variant="outline" className="w-full justify-start ">
               <Plus className="w-4 h-4 mr-2" />
               Add New Technique
             </Button>
           </Link>
            
-          <Link to={createPageUrl("FlowBuilder")} className="block">
+          <Link to={createPageUrl("create-sequence")} className="block">
             <Button variant="outline" className="w-full justify-start">
               <Workflow className="w-4 h-4 mr-2" />
               Create Sequence

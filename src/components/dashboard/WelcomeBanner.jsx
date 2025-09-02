@@ -25,13 +25,13 @@ export default function WelcomeBanner() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Link to={createPageUrl("Techniques?action=create")}>
+            <Link to={createPageUrl("/create-card")}>
               <Button className="bg-slate-900 hover:bg-slate-800">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Technique
               </Button>
             </Link>
-            <Link to={createPageUrl("FlowBuilder")}>
+            <Link to={createPageUrl("/create-sequence")}>
               <Button variant="outline" className="border-slate-200">
                 <Workflow className="w-4 h-4 mr-2" />
                 New Sequence

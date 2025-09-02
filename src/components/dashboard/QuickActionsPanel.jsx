@@ -7,8 +7,10 @@ import { Link } from "react-router-dom";
 // import { createPageUrl } from "@/utils";
 import { createPageUrl } from "../../lib/utils";
 import { Plus, Target, BookOpen, Workflow, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom"; 
 
 export default function QuickActions({ techniquesByType, recentSequences }) {
+  const navigate = useNavigate();
 
   
   return (
@@ -21,13 +23,13 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Link to={createPageUrl("Techniques?action=create")} className="block">
-            <Button variant="outline" className="w-full justify-start">
+          <Link to={createPageUrl("create-card")} className="block">
+            <Button variant="outline" className="w-full justify-start" >
               <Plus className="w-4 h-4 mr-2" />
               Add New Technique
             </Button>
           </Link>
-          <Link to={createPageUrl("FlowBuilder")} className="block">
+          <Link to={createPageUrl("/create-sequence")} className="block">
             <Button variant="outline" className="w-full justify-start">
               <Workflow className="w-4 h-4 mr-2" />
               Create Sequence

@@ -77,7 +77,7 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
           <div className="text-center py-8">
             <Target className="w-12 h-12 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-500 mb-4">No techniques or sequences yet</p>
-            <Link to={createPageUrl("Techniques?action=create")}>
+            <Link to={createPageUrl("/create-card")}>
               <Button size="sm">Create Your First Technique</Button>
             </Link>
           </div>
@@ -117,14 +117,18 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
                   </Badge>
                   {item.difficulty_level && (
                     <Badge 
-                      variant="outline" 
-                      className={difficultyColors[item.difficulty_level]}
+                      variant={item.difficulty_level}
+                      
+                        
+                      
                     >
+                    
                       {item.difficulty_level}
                     </Badge>
                   )}
                   <span className="text-xs text-slate-500">
-                    {format(new Date(item.created_date), "MMM d")}
+                    {format(new Date(item.created_date ? item.created_date : item.createdAt), "MMM d")}
+                    {/* {item.createdAt} */}
                   </span>
                 </div>
               </div>
