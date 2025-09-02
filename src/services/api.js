@@ -2,24 +2,25 @@ const API_URL = 'http://localhost:5001/api';
 
 const apiRequest = async (endpoint, method = 'GET', data = null) => {
   const url = `${API_URL}${endpoint}`;
+  const token = localStorage.getItem('token');
   const options = {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
     },
     credentials: 'include',
   };
   if (data) {
     options.body = JSON.stringify(data);
   }
-  
-    const response = await fetch(url, options);
-    const statusCode = response.status;
-    const responseData = await response.json();
+  const response = await fetch(url, options);
+  const statusCode = response.status;
+  const responseData = await response.json();
 
-    // console.log("response data", {responseData});
-    
-    return responseData;
+  // console.log("response data", {responseData});
+  
+  return responseData;
   
 };
 

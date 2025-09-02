@@ -77,8 +77,8 @@ function App() {
               <ShareSequenceForm />
               
             } />
-            <Route path="dashboard" element={<Dashboard/>} />
-            <Route path="techniques" element={<Techniques/>} />
+            <Route path="/dashboard" element={<Dashboard/>} />
+            <Route path="/techniques" element={<Techniques/>} />
 
           </Routes>
         </main>

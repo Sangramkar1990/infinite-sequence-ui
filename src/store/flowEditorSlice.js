@@ -1,34 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import _ from 'lodash'; 
+import _ from 'lodash';
+import { cardService } from '../services/api';
 
 const API_BASE_URL = 'http://localhost:5001/api';
-
-// Helper to get token
-const getToken = () => localStorage.getItem('token');
 
 // Async Thunks
 
 export const fetchUserSequences = createAsyncThunk(
   'flowEditor/fetchUserSequences',
   async (_, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/user`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch sequences');
-      }
-      const result = await response.json();
-      return result.data; // Assuming result.data is the array of sequences
+      const result = await cardService.getCardsByUser();
+      return result.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to fetch sequences');
     }
   }
 );
@@ -36,25 +21,11 @@ export const fetchUserSequences = createAsyncThunk(
 export const fetchSequenceById = createAsyncThunk(
   'flowEditor/fetchSequenceById',
   async (sequenceId, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
-    if (!sequenceId) return rejectWithValue('Sequence ID is required');
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/${sequenceId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch sequence');
-      }
-      const result = await response.json();
-      return result.data; // Assuming result.data contains the sequence details including cards
+      const result = await cardService.getCardById(sequenceId);
+      return result.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to fetch sequence');
     }
   }
 );
@@ -62,34 +33,11 @@ export const fetchSequenceById = createAsyncThunk(
 export const saveSequence = createAsyncThunk(
   'flowEditor/saveSequence',
   async ({ sequenceId, cardsData }, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
-    if (!sequenceId) return rejectWithValue('Sequence ID is required for saving');
-     // Check if the data has actually changed
-    // const state = getState();
-    // const existingCards = state.flowEditor.cards; // Adjust based on your state shape
-
-    // if (_.isEqual(cardsData, existingCards)) {
-    //   return rejectWithValue('No changes to save');
-    // }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/${sequenceId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cards: cardsData }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save sequence');
-      }
-      const result = await response.json();
-      return result; // Or specific data if needed, e.g., result.data or just result.success
+      const response = await cardService.updateCard(sequenceId, { cards: cardsData });
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to save sequence');
     }
   }
 );
@@ -97,28 +45,12 @@ export const saveSequence = createAsyncThunk(
 export const searchCards = createAsyncThunk(
   'flowEditor/searchCards',
   async (query, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
     if (!query.trim()) return []; // Return empty if query is empty, handled in component too
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/sequences/search/cards?query=${encodeURIComponent(query)}`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to search cards');
-      }
-      const result = await response.json();
-      return result.data; // Assuming result.data is the array of card search results
+      const response = await cardService.searchCards(query);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to search cards');
     }
   }
 );
@@ -126,25 +58,11 @@ export const searchCards = createAsyncThunk(
 export const fetchCardById = createAsyncThunk(
   'flowEditor/fetchCardById',
   async (cardId, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
-    if (!cardId) return rejectWithValue('Card ID is required');
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/card/${cardId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch card');
-      }
-      const result = await response.json();
-      return result.data; // Assuming result.data contains the card details
+      const result = await cardService.getCardById(cardId);
+      return result.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to fetch card');
     }
   }
 );
@@ -152,24 +70,11 @@ export const fetchCardById = createAsyncThunk(
 export const deleteCard = createAsyncThunk(
   'flowEditor/deleteCard',
   async (cardId, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
-    if (!cardId) return rejectWithValue('Card ID is required');
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/card/${cardId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete card');
-      }
+      await cardService.deleteCard(cardId);
       return cardId;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to delete card');
     }
   }
 );
@@ -177,24 +82,11 @@ export const deleteCard = createAsyncThunk(
 export const deleteSequence = createAsyncThunk(
   'flowEditor/deleteSequence',
   async (sequenceId, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No authentication token found');
-    if (!sequenceId) return rejectWithValue('Sequence ID is required');
     try {
-      const response = await fetch(`${API_BASE_URL}/sequences/${sequenceId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete sequence');
-      }
+      await cardService.deleteCard(sequenceId);
       return sequenceId; // Return deleted id for reducer
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to delete sequence');
     }
   }
 );
