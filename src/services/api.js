@@ -110,3 +110,9 @@ export const shareService = {
     return apiRequest(`/shares/${sequence_id}`);
   },
 };
+
+export const cardService = {
+  getCardsByUser: () => {
+    return apiRequest('/sequences/cards/user');
+  },
+};

@@ -8,7 +8,8 @@ const CreateCardPage = () => {
   const sequence = useSelector((state) =>  {console.log("redux card:", 
     {state:state.flowEditor.currentSequence}
   );return state.flowEditor.currentSequence});
-  let is_sequence_set = Object.keys(sequence).length > 0 ? true : false;
+  console.log("sequence ---->",{sequence});
+  let is_sequence_set = sequence && Object.keys(sequence).length > 0 ? true : false;
   // console.log("is_sequence", is_sequence_set);
 
   // console.log("sequence redux", sequence);

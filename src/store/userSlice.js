@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService } from '../services/api';
+import { authService, cardService } from '../services/api';
 
 export const fetchCurrentUser = createAsyncThunk(
   'user/fetchCurrentUser',
@@ -61,10 +61,27 @@ export const logout = createAsyncThunk(
   }
 );
 
+export const fetchCardsByUser = createAsyncThunk(
+  'user/fetchCardsByUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await cardService.getCardsByUser();
+      if (response.success) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.message || 'Failed to fetch cards');
+      }
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to fetch cards');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
     user: null,
+    cards: [],
     loading: false,
     error: null,
     passwordUpdateStatus: null,
@@ -107,6 +124,18 @@ const userSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.error = null;
+      })
+      .addCase(fetchCardsByUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCardsByUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cards = action.payload;
+      })
+      .addCase(fetchCardsByUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

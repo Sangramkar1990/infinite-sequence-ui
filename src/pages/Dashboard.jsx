@@ -1,4 +1,3 @@
-
 import SidebarNavigation from '../components/dashboard/SidebarNavigation';
 import WelcomeBanner from '../components/dashboard/WelcomeBanner';
 import StatisticsPanel from '../components/dashboard/StatisticsPanel';
@@ -7,7 +6,18 @@ import TechniqueBreakdown from '../components/dashboard/TechniqueBreakdown';
 // import RecentActivity from '../components/dashbord/RecentSequences';
 // import QuickActionsPanel from '../components/dashbord/QuickActionsPanel';
 import QuickActions from '../components/dashboard/QuickActionsPanel';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCardsByUser } from '../store/userSlice';
+
 const Dashboard = () => {
+  const dispatch = useDispatch();
+  const { cards, loading } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(fetchCardsByUser());
+  }, [dispatch]);
+
   const techniquesByType = {
     submission: 10,
     sweep: 6,
@@ -73,11 +83,11 @@ const sequences = [
     techniques: [],
   },
 ];
-const activities = [
-  { name: 'Kimura', type: 'submission', level: 'beginner', date: 'Jul 10' },
-  { name: 'Berimbolo to Heel Hook', type: 'sequence', level: 'beginner', date: 'Jul 10' },
-  // ...more
-];
+// const activities = [
+//   { name: 'Kimura', type: 'submission', level: 'beginner', date: 'Jul 10' },
+//   { name: 'Berimbolo to Heel Hook', type: 'sequence', level: 'beginner', date: 'Jul 10' },
+//   // ...more
+// ];
 
 
     return (
@@ -89,7 +99,19 @@ const activities = [
         <StatisticsPanel />
         {/* <RecentActivityList /> */}
         {/* <TechniqueBreakdown /> */}
-        <RecentActivity techniques={techniques} sequences={sequences} isLoading={false}  />
+        <RecentActivity techniques={cards} sequences={sequences} isLoading={loading} />
+        {/* <div>
+          <h2>Your Cards</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <ul>
+              {cards.map((card) => (
+                <li key={card.id}>{card.name}</li>
+              ))}
+            </ul>
+          )}
+        </div> */}
       </main>
       <QuickActions techniquesByType={techniquesByType} recentSequences={recentSequences}/>
     </div>
