@@ -1,90 +1,115 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService, cardService } from '../services/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { authService, cardService, sequenceService } from "../services/api";
 
 export const fetchCurrentUser = createAsyncThunk(
-  'user/fetchCurrentUser',
+  "user/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.getCurrentUser();
       if (response.success) {
         return response.data;
       } else {
-        return rejectWithValue(response.message || 'Failed to fetch user');
+        return rejectWithValue(response.message || "Failed to fetch user");
       }
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch user');
+      return rejectWithValue(error.message || "Failed to fetch user");
     }
   }
 );
 
 export const updateProfile = createAsyncThunk(
-  'user/updateProfile',
+  "user/updateProfile",
   async (profileData, { rejectWithValue }) => {
     try {
       const response = await authService.updateProfile(profileData);
       if (response.success) {
         return response.data;
       } else {
-        return rejectWithValue(response.message || 'Failed to update profile');
+        return rejectWithValue(response.message || "Failed to update profile");
       }
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to update profile');
+      return rejectWithValue(error.message || "Failed to update profile");
     }
   }
 );
 
 export const updatePassword = createAsyncThunk(
-  'user/updatePassword',
+  "user/updatePassword",
   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const response = await authService.updatePassword(oldPassword, newPassword);
+      const response = await authService.updatePassword(
+        oldPassword,
+        newPassword
+      );
       if (response.success) {
-        return response.message || 'Password updated successfully.';
+        return response.message || "Password updated successfully.";
       } else {
-        return rejectWithValue(response.message || 'Failed to update password');
+        return rejectWithValue(response.message || "Failed to update password");
       }
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to update password');
+      return rejectWithValue(error.message || "Failed to update password");
     }
   }
 );
 
 export const logout = createAsyncThunk(
-  'user/logout',
+  "user/logout",
   async (_, { rejectWithValue }) => {
     try {
       await authService.logout(); // Ensure your backend supports this endpoint
       return true;
     } catch (error) {
-      return rejectWithValue(error.message || 'Logout failed');
+      return rejectWithValue(error.message || "Logout failed");
     }
   }
 );
 
 export const fetchCardsByUser = createAsyncThunk(
-  'user/fetchCardsByUser',
+  "user/fetchCardsByUser",
   async (_, { rejectWithValue }) => {
     try {
+      
       const response = await cardService.getCardsByUser();
       if (response.success) {
         return response.data;
       } else {
-        return rejectWithValue(response.message || 'Failed to fetch cards');
+        return rejectWithValue(response.message || "Failed to fetch cards");
       }
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch cards');
+      return rejectWithValue(error.message || "Failed to fetch cards");
+    }
+  }
+);
+
+export const fetchAllSequences = createAsyncThunk(
+  "user/fetchAllSequences",
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log("fetching sequences");
+      const response = await sequenceService.getAllSequences();
+      console.log("response", response);
+      if (response.success) {
+
+        return response.data;
+      } else {
+        return rejectWithValue(response.message || "Failed to fetch sequences");
+      }
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to fetch sequences");
     }
   }
 );
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState: {
     user: null,
     cards: [],
     loading: false,
     error: null,
     passwordUpdateStatus: null,
+    loadedCards: false,
+    loadedSequences: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -126,15 +151,27 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCardsByUser.pending, (state) => {
-        state.loading = true;
+        state.loadedCards = false;
         state.error = null;
       })
       .addCase(fetchCardsByUser.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadedCards = true;
         state.cards = action.payload;
       })
       .addCase(fetchCardsByUser.rejected, (state, action) => {
-        state.loading = false;
+        state.loadedCards = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchAllSequences.pending, (state) => {
+        state.loadedSequences = false;
+        state.error = null;
+      })
+      .addCase(fetchAllSequences.fulfilled, (state, action) => {
+        state.loadedSequences = true;
+        state.sequences = action.payload;
+      })
+      .addCase(fetchAllSequences.rejected, (state, action) => {
+        state.loadedSequences = false;
         state.error = action.payload;
       });
   },

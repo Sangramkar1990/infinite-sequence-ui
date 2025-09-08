@@ -8,15 +8,39 @@ import TechniqueBreakdown from '../components/dashboard/TechniqueBreakdown';
 import QuickActions from '../components/dashboard/QuickActionsPanel';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCardsByUser } from '../store/userSlice';
+import { fetchCardsByUser, fetchAllSequences } from '../store/userSlice';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { cards, loading } = useSelector((state) => state.user);
+  const { cards,sequences, loadedSequences, loadedCards } = useSelector((state) => state.user);
+  console.log("Redux state - cards:", cards);
+console.log("Redux state - sequences:", sequences);
+  const hasLoaded = loadedSequences && loadedCards;
 
+//  useEffect(() => {
+//    console.log("useEffect triggered");
+//       dispatch(fetchCardsByUser())
+//       dispatch(fetchAllSequences())
+    
+// }, [dispatch]);
+
+
+useEffect(() => {
+   console.log("useEffect triggered");
+   dispatch(fetchCardsByUser())
+     .then(() => console.log("fetchCardsByUser completed"))
+     .catch((error) => console.error("Error in fetchCardsByUser:", error));
+
+   dispatch(fetchAllSequences())
+     .then(() => console.log("fetchAllSequences completed"))
+     .catch((error) => console.error("Error in fetchAllSequences:", error));
+}, [dispatch]);
+// Log sequences when they change
   useEffect(() => {
-    dispatch(fetchCardsByUser());
-  }, [dispatch]);
+    if (sequences && sequences.length > 0) {
+      console.log('Fetched sequences:', sequences);
+    }
+  }, [sequences]);
 
   const techniquesByType = {
     submission: 10,
@@ -40,22 +64,22 @@ const Dashboard = () => {
     created_date: '2025-08-26T14:15:00Z',
   },
 ];
-const sequences = [
-  {
-    id: 'seq1',
-    name: 'Submission Chain A',
-    techniques: ['armbar', 'triangle'],
-    difficulty_level: 'advanced',
-    created_date: '2025-08-28T08:00:00Z',
-  },
-  {
-    id: 'seq2',
-    name: 'Escape Series',
-    techniques: [],
-    difficulty_level: 'beginner',
-    created_date: '2025-08-25T18:45:00Z',
-  },
-];
+// const sequences = [
+//   {
+//     id: 'seq1',
+//     name: 'Submission Chain A',
+//     techniques: ['armbar', 'triangle'],
+//     difficulty_level: 'advanced',
+//     created_date: '2025-08-28T08:00:00Z',
+//   },
+//   {
+//     id: 'seq2',
+//     name: 'Escape Series',
+//     techniques: [],
+//     difficulty_level: 'beginner',
+//     created_date: '2025-08-25T18:45:00Z',
+//   },
+// ];
   const recentSequences = [
   {
     id: 'seq1',
@@ -99,7 +123,7 @@ const sequences = [
         <StatisticsPanel />
         {/* <RecentActivityList /> */}
         {/* <TechniqueBreakdown /> */}
-        <RecentActivity techniques={cards} sequences={sequences} isLoading={loading} />
+        {hasLoaded && (<RecentActivity techniques={cards} sequences={sequences} isLoading={false} />)}
         {/* <div>
           <h2>Your Cards</h2>
           {loading ? (

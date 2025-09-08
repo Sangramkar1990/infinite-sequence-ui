@@ -58,11 +58,16 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
       </Card>
     );
   }
-
-  const allItems = [
+  let allItems;
+  if (!isLoading) {
+    console.log("sequences--->", {sequences})
+    allItems = [
     ...techniques.map(t => ({ ...t, type: 'technique', itemType: t.type })),
     ...sequences.map(s => ({ ...s, type: 'sequence', itemType: 'sequence' }))
   ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 8);
+  }
+
+  
 
   return (
     <Card className="border-0 shadow-sm">

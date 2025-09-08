@@ -117,3 +117,10 @@ export const cardService = {
     return apiRequest('/sequences/cards/user');
   },
 };
+
+export const sequenceService = {
+  //pending apply RBAC
+  getAllSequences: () => {
+    return apiRequest('/sequences');
+  },
+}

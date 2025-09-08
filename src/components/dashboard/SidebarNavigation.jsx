@@ -12,7 +12,7 @@ export default function SidebarNavigation() {
           <Home className="h-4 w-4" />
           Dashboard
         </button>
-        <button className="sidebar-button my-2">
+        <button className="sidebar-button my-2" onClick={()=> navigate("/techniques")}>
           <Target className="h-4 w-4" />
           Techniques
         </button>

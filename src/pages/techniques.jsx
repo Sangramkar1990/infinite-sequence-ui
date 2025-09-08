@@ -10,10 +10,11 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 // import { Skeleton } from "@/components/ui/skeleton";
 import { Skeleton } from "../components/ui/skeleton";
-import { 
-  Target, 
-  Search, 
-  BookOpen, 
+import SidebarNavigation from "../components/dashboard/SidebarNavigation";
+import {
+  Target,
+  Search,
+  BookOpen,
   Filter,
   ChevronLeft,
   ChevronRight
@@ -47,8 +48,8 @@ const difficultyColors = {
   advanced: "bg-red-100 text-red-700"
 };
 
-// export default function TechniqueLibrarySidebar({ techniques, isLoading }) {
-    export default function TechniqueLibrarySidebar({  isLoading }) {
+// Technique Library Component (renamed for clarity)
+function TechniqueLibrary({ isLoading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
@@ -119,7 +120,7 @@ const difficultyColors = {
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        
+
         <div className="space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -130,7 +131,7 @@ const difficultyColors = {
               className="pl-10 h-9"
             />
           </div>
-          
+
           <div className="flex gap-2">
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="h-9">
@@ -145,7 +146,7 @@ const difficultyColors = {
                 <SelectItem value="guard">Guard</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Level" />
@@ -191,28 +192,28 @@ const difficultyColors = {
                   <Target className="w-4 h-4 text-slate-600" />
                   <h4 className="font-medium text-slate-900 text-sm">{technique.name}</h4>
                 </div>
-                
+
                 <div className="flex gap-1 mb-2">
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className={`text-xs ${typeColors[technique.type]}`}
                   >
                     {technique.type}
                   </Badge>
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className={`text-xs ${difficultyColors[technique.difficulty_level]}`}
                   >
                     {technique.difficulty_level}
                   </Badge>
                 </div>
-                
+
                 {technique.description && (
                   <p className="text-xs text-slate-600 line-clamp-2">
                     {technique.description}
                   </p>
                 )}
-                
+
                 <p className="text-xs text-slate-400 mt-2">
                   Drag to canvas to add
                 </p>
@@ -221,6 +222,22 @@ const difficultyColors = {
           )}
         </div>
       </CardContent>
+    </div>
+  );
+}
+
+// Main Techniques Page Component
+export default function Techniques() {
+  return (
+    <div className="dashboard-container dashboard_main">
+      <SidebarNavigation />
+      <main className="main-content dashboard-main px-4">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-slate-900">Techniques</h1>
+          <p className="text-slate-600">Browse and manage your technique library</p>
+        </div>
+        <TechniqueLibrary isLoading={false} />
+      </main>
     </div>
   );
 }
