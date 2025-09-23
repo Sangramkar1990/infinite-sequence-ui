@@ -17,8 +17,6 @@ import Roles from './pages/Roles'; // Add this import
 import ShareSequenceForm from './pages/Share'
 import Dashboard from './pages/Dashboard'; // Add this import
 import Techniques from './pages/techniques'; // Add this import
-// import FlowBuilder from './pages/FlowBuilder';
-import FlowCanvas from './pages/FlowCanvas'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -53,7 +51,7 @@ function App() {
               }
             />
             <Route
-              path="/flow-viewer2"
+              path="/flow-viewer"
               element={
                  //<ProtectedRoute> 
                   <FlowViewer />
@@ -81,7 +79,6 @@ function App() {
             } />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/techniques" element={<Techniques/>} />
-            <Route path="/flow-viewer" element={<FlowCanvas/>} />
 
           </Routes>
         </main>

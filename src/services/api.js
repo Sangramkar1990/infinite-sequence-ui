@@ -116,9 +116,6 @@ export const cardService = {
   getCardsByUser: () => {
     return apiRequest('/sequences/cards/user');
   },
-  searchCards: (cardQuery) => {
-    return apiRequest(`/search/cards?query=${encodeURIComponent(cardQuery)}`);
-  }
 };
 
 export const sequenceService = {

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import _ from 'lodash';
-import { cardService , sequenceService} from '../services/api';
-
+import { cardService, sequenceService } from '../services/api';
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
@@ -49,7 +48,6 @@ export const searchCards = createAsyncThunk(
     if (!query.trim()) return []; // Return empty if query is empty, handled in component too
     try {
       const response = await cardService.searchCards(query);
-      console.log("return card search",{data: response.data})
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to search cards');
