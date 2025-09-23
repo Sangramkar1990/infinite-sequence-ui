@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, useRef} from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   addEdge,
   MiniMap,
@@ -11,6 +11,7 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges, // Import applyNodeChanges
 } from "reactflow";
+import NewCustomNode from "../components/editor/NewCustomNode";
 import { useNavigate, useSearchParams } from "react-router-dom"; // Add useSearchParams
 import { useDispatch, useSelector } from "react-redux";
 import { setSequence } from "../store/sequenceSlice";
@@ -40,10 +41,6 @@ const gapX = 80;
 const gapY = 30;
 const canvasWidth = 1000;
 
-
-
-
-
 const FlowEditor = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
@@ -59,62 +56,67 @@ const FlowEditor = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const handleDestroyCard = useCallback((cardId) => {
-  console.log("card id",{cardId});
-  
-  dispatch(deleteCard(cardId))
-  
-}, []);
-  const nodeTypes = useMemo(() => ({
-  custom: (props) => <CustomNode {...props} data={{ ...props.data, destroyCard: handleDestroyCard }} />,
-}), [handleDestroyCard] )
+    console.log("card id", { cardId });
 
-const onEdgeClick = useCallback((event, edge) => {
-  console.log("inside effect")
-  setSelectedEdge(edge);
-}, []);
-const onEdgesChange = useCallback(
-  (changes) => {
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-    setHasUnsavedChanges(true);
-  },
-  [setEdges]
-);
+    dispatch(deleteCard(cardId));
+  }, []);
+  const nodeTypes = useMemo(
+    () => ({
+      custom: (props) => (
+        <CustomNode
+          {...props}
+          data={{ ...props.data, destroyCard: handleDestroyCard }}
+        />
+      ),
+    }),
+    [handleDestroyCard]
+  );
 
-useEffect(() => {
-  
-  const handleKeyDown = (event) => {
-    if (event.key === 'Backspace' && selectedEdge) {
-      setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
-      setSelectedEdge(null);
+  const onEdgeClick = useCallback((event, edge) => {
+    console.log("inside effect");
+    setSelectedEdge(edge);
+  }, []);
+  const onEdgesChange = useCallback(
+    (changes) => {
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+      setHasUnsavedChanges(true);
+    },
+    [setEdges]
+  );
 
-    }
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-    // Make arrow point from target -> source
-    setEdges((eds) =>
-      eds.map((e) =>
-        e.id === selectedEdge.id
-          ? {
-              ...e,
-              markerStart: {
-                type: MarkerType.ArrowClosed,
-                width: 40,
-                height: 40,
-              },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 40,
-                height: 40,
-              }, 
-              bidirection: true, 
-            }
-          : e
-      )
-    );
-  }
-  };
-  window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
-}, [selectedEdge, setEdges]);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Backspace" && selectedEdge) {
+        setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
+        setSelectedEdge(null);
+      }
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        // Make arrow point from target -> source
+        setEdges((eds) =>
+          eds.map((e) =>
+            e.id === selectedEdge.id
+              ? {
+                  ...e,
+                  markerStart: {
+                    type: MarkerType.ArrowClosed,
+                    width: 40,
+                    height: 40,
+                  },
+                  markerEnd: {
+                    type: MarkerType.ArrowClosed,
+                    width: 40,
+                    height: 40,
+                  },
+                  bidirection: true,
+                }
+              : e
+          )
+        );
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedEdge, setEdges]);
 
   // const hasCardId = cardId ? true : false;
   const dispatch = useDispatch();
@@ -170,14 +172,13 @@ useEffect(() => {
   useEffect(() => {
     console.log("Updated nodes:", nodes);
   }, [nodes]);
-  useEffect(()=>{
-    console.log("unsaved changes state", {hasUnsavedChanges});
-  }, [hasUnsavedChanges])
+  useEffect(() => {
+    console.log("unsaved changes state", { hasUnsavedChanges });
+  }, [hasUnsavedChanges]);
   // Add onNodesChange handler
   const onNodesChange = useCallback(
     (changes) => {
       setNodes((nds) => {
-        
         // Get all the IDs of nodes that are being removed
         const removedNodeIds = changes
           .filter((change) => change.type === "remove")
@@ -200,8 +201,10 @@ useEffect(() => {
           return node;
         });
         // Finally, filter out the nodes that are being removed
-      const finalNodes = updatedNodes.filter((node) => !removedNodeIds.includes(node.id));
-       previousNodesRef.current = finalNodes;
+        const finalNodes = updatedNodes.filter(
+          (node) => !removedNodeIds.includes(node.id)
+        );
+        previousNodesRef.current = finalNodes;
 
         // Finally, filter out the nodes that are being removed
         return updatedNodes.filter((node) => !removedNodeIds.includes(node.id));
@@ -219,57 +222,57 @@ useEffect(() => {
         );
       });
       if (!isInitializing) {
-      setHasUnsavedChanges(true);
-    }
+        setHasUnsavedChanges(true);
+      }
 
-    //   setHasUnsavedChanges(true);
+      //   setHasUnsavedChanges(true);
     },
     [setNodes, setEdges]
   );
   // Helper function to check if nodes have actually changed
-const hasNodesChanged = (previousNodes, currentNodes) => {
-  // If this is the first time or no previous nodes, consider it as no change during initialization
-  if (!previousNodesRef.current) {
-    return false;
-  }
-  
-  const prevNodes = previousNodesRef.current;
-  
-  // Quick check: different lengths
-  if (prevNodes.length !== currentNodes.length) {
-    return true;
-  }
-  
-  // Deep comparison of nodes
-  for (let i = 0; i < currentNodes.length; i++) {
-    const currentNode = currentNodes[i];
-    const prevNode = prevNodes.find(n => n.id === currentNode.id);
-    
-    if (!prevNode) {
-      return true; // New node added
+  const hasNodesChanged = (previousNodes, currentNodes) => {
+    // If this is the first time or no previous nodes, consider it as no change during initialization
+    if (!previousNodesRef.current) {
+      return false;
     }
-    
-    // Check if any meaningful properties have changed
-    if (
-      currentNode.position?.x !== prevNode.position?.x ||
-      currentNode.position?.y !== prevNode.position?.y ||
-      currentNode.selected !== prevNode.selected ||
-      JSON.stringify(currentNode.data) !== JSON.stringify(prevNode.data) ||
-      currentNode.type !== prevNode.type ||
-      currentNode.hidden !== prevNode.hidden ||
-      currentNode.dragging !== prevNode.dragging
-    ) {
+
+    const prevNodes = previousNodesRef.current;
+
+    // Quick check: different lengths
+    if (prevNodes.length !== currentNodes.length) {
       return true;
     }
-  }
-  
-  return false;
-};
+
+    // Deep comparison of nodes
+    for (let i = 0; i < currentNodes.length; i++) {
+      const currentNode = currentNodes[i];
+      const prevNode = prevNodes.find((n) => n.id === currentNode.id);
+
+      if (!prevNode) {
+        return true; // New node added
+      }
+
+      // Check if any meaningful properties have changed
+      if (
+        currentNode.position?.x !== prevNode.position?.x ||
+        currentNode.position?.y !== prevNode.position?.y ||
+        currentNode.selected !== prevNode.selected ||
+        JSON.stringify(currentNode.data) !== JSON.stringify(prevNode.data) ||
+        currentNode.type !== prevNode.type ||
+        currentNode.hidden !== prevNode.hidden ||
+        currentNode.dragging !== prevNode.dragging
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   // Function to convert nodes and edges to linked list format
   const convertToLinkedList = () => {
     const nodeMap = new Map();
-    console.log("convert linked list nodes", {nodes});
+    console.log("convert linked list nodes", { nodes });
     nodes.forEach((node) => {
       console.log("convert linked list", node);
       return nodeMap.set(node.id, {
@@ -330,12 +333,12 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 
   // Function to save sequence
   const saveSequence = async () => {
-   if (!sequenceSelected || !hasUnsavedChanges) return;
+    if (!sequenceSelected || !hasUnsavedChanges) return;
 
-  const linkedListData = convertToLinkedList();
-  if (!linkedListData.length) return;
+    const linkedListData = convertToLinkedList();
+    if (!linkedListData.length) return;
 
-  dispatch(clearSaveError?.()); 
+    dispatch(clearSaveError?.());
     // const linkedListData = convertToLinkedList(); // This logic remains
     console.log("saveSequenceThunk", { linkedListData });
     dispatch(
@@ -357,7 +360,7 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 
   // Add auto-save effect
   useEffect(() => {
-    console.log("auto save init", {hasUnsavedChanges});
+    console.log("auto save init", { hasUnsavedChanges });
     if (hasUnsavedChanges && sequenceSelected) {
       const timeoutId = setTimeout(() => {
         saveSequence();
@@ -369,21 +372,21 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 
   // display selected sequence on page load
   useEffect(() => {
-  let is_url_sequence_id = !!urlSequenceParams;
-  if (is_url_sequence_id) {
-    setIsInitializing(true); // Mark start of loading
+    let is_url_sequence_id = !!urlSequenceParams;
+    if (is_url_sequence_id) {
+      setIsInitializing(true); // Mark start of loading
 
-    dispatch(fetchSequenceById(urlSequenceParams)).then((data) => {
-      if (data.meta.requestStatus === "fulfilled") {
-        // Process the loaded sequence data here
-        processSequenceData(data);
+      dispatch(fetchSequenceById(urlSequenceParams)).then((data) => {
+        if (data.meta.requestStatus === "fulfilled") {
+          // Process the loaded sequence data here
+          processSequenceData(data);
 
-        setIsInitializing(false); // Loading complete, allow changes to mark unsaved
-        setHasUnsavedChanges(false); // Reset unsaved changes on fresh load
-      }
-    });
-  }
-}, [urlSequenceParams]);
+          setIsInitializing(false); // Loading complete, allow changes to mark unsaved
+          setHasUnsavedChanges(false); // Reset unsaved changes on fresh load
+        }
+      });
+    }
+  }, [urlSequenceParams]);
   useEffect(() => {
     if (cardId) {
       dispatch(fetchCardById(cardId))
@@ -414,8 +417,6 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
     }
   }, [cardId, dispatch]);
 
-  
-
   const handleAddCard = (card) => {
     const newNode = {
       id: `node-${Date.now()}`,
@@ -428,10 +429,8 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
         description: card.description,
         url: card.url,
         id: card.id,
-       
       },
     };
-    
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
     setSearchResults([]);
@@ -441,22 +440,26 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 
   // Add edge handling to trigger auto-save
   const onConnect = useCallback((params) => {
-     console.log('sourceNodeId from state:', sourceNodeIdRef.current);
-    
-    setEdges((eds) => 
-        {
-            if(params.target === sourceNodeIdRef.current) {
-                const swappedParams = {
-    ...params,
-    reverse: true,
-    markerStart: { type: MarkerType.ArrowClosed , width: 40, height:40},
+    console.log("sourceNodeId from state:", sourceNodeIdRef.current);
 
-                
-  };
-  return addEdge(swappedParams, eds);
-            }
-            
-            return addEdge({...params, markerEnd :{ type: MarkerType.ArrowClosed , width: 40, height:40},}, eds)});
+    setEdges((eds) => {
+      if (params.target === sourceNodeIdRef.current) {
+        const swappedParams = {
+          ...params,
+          reverse: true,
+          markerStart: { type: MarkerType.ArrowClosed, width: 40, height: 40 },
+        };
+        return addEdge(swappedParams, eds);
+      }
+
+      return addEdge(
+        {
+          ...params,
+          markerEnd: { type: MarkerType.ArrowClosed, width: 40, height: 40 },
+        },
+        eds
+      );
+    });
 
     setHasUnsavedChanges(true);
   }, []);
@@ -529,7 +532,7 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 
       if (card.next) {
         const nextCard = cards.find((c) => c.node_id === card.next);
-        console.log("card bi", {card:nextCard});
+        console.log("card bi", { card: nextCard });
         // console.log("next card", {nextCard});
         const targetNodeId = nextCard ? `${nextCard.node_id}` : null;
         // console.log("target node id", {targetNodeId})
@@ -539,33 +542,33 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
           source: nodeId,
           target: targetNodeId,
           ...(card.bidirection
-    ? {
-        markerStart: {
-          type: MarkerType.ArrowClosed,
-          width: 40,
-          height: 40,
-        },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 40,
-          height: 40,
-        },
-      }
-    : card.reverse
-    ? {
-        markerStart: {
-          type: MarkerType.ArrowClosed,
-          width: 40,
-          height: 40,
-        },
-      }
-    : {
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 40,
-          height: 40,
-        },
-      }),
+            ? {
+                markerStart: {
+                  type: MarkerType.ArrowClosed,
+                  width: 40,
+                  height: 40,
+                },
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  width: 40,
+                  height: 40,
+                },
+              }
+            : card.reverse
+            ? {
+                markerStart: {
+                  type: MarkerType.ArrowClosed,
+                  width: 40,
+                  height: 40,
+                },
+              }
+            : {
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  width: 40,
+                  height: 40,
+                },
+              }),
         });
       }
 
@@ -587,7 +590,7 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
     // Convert linked list to flow representation
     const flowData = convertLinkedListToFlow(sequenceData.cards);
 
-    console.log("dispacthing sequence data", {sequenceData});
+    console.log("dispacthing sequence data", { sequenceData });
 
     // Dispatch the sequence data to Redux store
     dispatch(setSequence([sequenceData]));
@@ -636,41 +639,67 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
             </div>
           )}
           <div className="d-flex mb-3 align-items-center justify-space-between">
-           <div>
-           {user?.organization_id ? <h2>{'Organization: '+ user?.organization_name}</h2> : <></>}
-           </div>
-           <div className="accountProfile ms-auto" style={{ position: 'relative' }}>
-             <button
-               className="btn btn-link p-0"
-               style={{ fontSize: 28 }}
-               onClick={() => setProfileMenuOpen((open) => !open)}
-               aria-label="Profile Menu"
-             >
-               <CgProfile />
-             </button>
-             {profileMenuOpen && (
-               <div
-                // className="mx-3"
-                 style={{
-                   position: 'absolute',
-                   right: 0,
-                   top: '100%',
-                   background: '#fff',
-                   border: '1px solid #ccc',
-                   borderRadius: 8,
-                   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                   minWidth: 160,
-                   zIndex: 1000,
-                 }}
-               >
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"  onClick={() => navigate("/account")}><strong>Account</strong></button>
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/organization")}><strong>Organization</strong></button>
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/teams")}><strong>Teams</strong></button>
-                 <button className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over" onClick={()=> navigate("/roles")}><strong>Roles</strong></button>
-               </div>
-             )}
-           </div>
-            
+            <div>
+              {user?.organization_id ? (
+                <h2>{"Organization: " + user?.organization_name}</h2>
+              ) : (
+                <></>
+              )}
+            </div>
+            <div
+              className="accountProfile ms-auto"
+              style={{ position: "relative" }}
+            >
+              <button
+                className="btn btn-link p-0"
+                style={{ fontSize: 28 }}
+                onClick={() => setProfileMenuOpen((open) => !open)}
+                aria-label="Profile Menu"
+              >
+                <CgProfile />
+              </button>
+              {profileMenuOpen && (
+                <div
+                  // className="mx-3"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    borderRadius: 8,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                    minWidth: 160,
+                    zIndex: 1000,
+                  }}
+                >
+                  <button
+                    className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"
+                    onClick={() => navigate("/account")}
+                  >
+                    <strong>Account</strong>
+                  </button>
+                  <button
+                    className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"
+                    onClick={() => navigate("/organization")}
+                  >
+                    <strong>Organization</strong>
+                  </button>
+                  <button
+                    className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"
+                    onClick={() => navigate("/teams")}
+                  >
+                    <strong>Teams</strong>
+                  </button>
+                  <button
+                    className="dropdown-item w-100 text-start py-2 ps-4 pe-2 menu-over"
+                    onClick={() => navigate("/roles")}
+                  >
+                    <strong>Roles</strong>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="d-flex mb-3 align-items-center justify-content-between">
@@ -735,7 +764,12 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
             </div>
 
             <div>
-              <button className="btn btn-secondary me-2" onClick={() => navigate("/share")}>Share</button>
+              <button
+                className="btn btn-secondary me-2"
+                onClick={() => navigate("/share")}
+              >
+                Share
+              </button>
               <button
                 className="btn btn-secondary me-2"
                 onClick={() => navigate("/create-card")}
@@ -775,18 +809,26 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
                   edges={edges}
                   nodeTypes={nodeTypes}
                   onConnect={onConnect}
-                  onNodesChange={onNodesChange} 
-                  onNodeClick={()=>{
-                    setIsInitializing(false)
+                  onNodesChange={onNodesChange}
+                  onNodeClick={() => {
+                    setIsInitializing(false);
                   }}
                   onEdgeClick={onEdgeClick}
                   onEdgesChange={onEdgesChange}
-                  onConnectStart={(event, { nodeId}) => {
-                    
-                    sourceNodeIdRef.current = nodeId;// Store the source node ID
-                    }}
-           
+                  onConnectStart={(event, { nodeId }) => {
+                    sourceNodeIdRef.current = nodeId; // Store the source node ID
+                  }}
                   fitView
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    position: "relative",
+                    overflow: "hidden",
+                    backgroundColor: "#e2e8f0",
+                    backgroundImage: `linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px),
+                      linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)`,
+                    backgroundSize: "20px 20px",
+                  }}
                 >
                   <MiniMap />
                   <Controls />
@@ -802,4 +844,3 @@ const hasNodesChanged = (previousNodes, currentNodes) => {
 };
 
 export default FlowEditor;
-

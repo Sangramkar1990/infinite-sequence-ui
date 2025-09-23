@@ -139,7 +139,7 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
               </div>
 
               <Link 
-                to={createPageUrl(item.type === 'technique' ? 'Techniques' : 'Sequences')}
+                to={createPageUrl(item.type === 'technique' ? 'Techniques' : 'flow-editor?sequenceSelected='+item.id)}
                 className="text-slate-400 hover:text-slate-600"
               >
                 <ExternalLink className="w-4 h-4" />

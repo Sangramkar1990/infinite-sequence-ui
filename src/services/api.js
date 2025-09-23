@@ -123,4 +123,7 @@ export const sequenceService = {
   getAllSequences: () => {
     return apiRequest('/sequences');
   },
+  getSequenceWithId: (id) => {
+    return apiRequest(`/sequences/${id}`);
+  }
 }
