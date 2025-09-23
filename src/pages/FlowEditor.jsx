@@ -30,6 +30,7 @@ import {
   deleteCard,
   
 } from "../store/flowEditorSlice";
+import { sequenceService } from "../services/api";
 import { CustomNode } from "../components/editor/CustomNode";
 import { CgProfile } from "react-icons/cg";
 
@@ -495,7 +496,7 @@ const FlowEditor = () => {
 
   useEffect(() => {
     dispatch(fetchUserSequences()).then((data) => {
-      // console.log("data----->", data.payload);
+       console.log("data----->", data.payload);
       setSequences(data.payload);
       setError(null);
     });

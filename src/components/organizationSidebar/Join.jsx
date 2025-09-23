@@ -69,6 +69,7 @@ const Join = () => {
         <Alert variant={alertVariant} onClose={() => setAlertMessage(null)} dismissible>
           {alertMessage}
         </Alert>
+        
       )}
       
       <input
