@@ -202,3 +202,11 @@ button[type='button']:last-child {
   margin-top: 0.25rem;      /* 4px spacing below h1 */
   line-height: 1.5;         /* better readability */
 }
+@keyframes shine {
+  100% { transform: translateX(100%); }
+}
+.animate-
+
+\[shine_1\.2s_infinite\]
+
+ { animation: shine 1.2s infinite; }

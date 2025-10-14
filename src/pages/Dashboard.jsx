@@ -80,33 +80,33 @@ useEffect(() => {
 //     created_date: '2025-08-25T18:45:00Z',
 //   },
 // ];
-  const recentSequences = [
-  {
-    id: 'seq1',
-    name: 'Basic Submission Setup',
-    techniques: ['armbar', 'triangle', 'kimura'],
-  },
-  {
-    id: 'seq2',
-    name: 'Guard Sweep Series',
-    techniques: ['scissor_sweep', 'flower_sweep'],
-  },
-  {
-    id: 'seq3',
-    name: 'Escape from Side Control',
-    techniques: ['shrimp_escape', 'bridge_escape', 'underhook_escape', 'roll_escape'],
-  },
-  {
-    id: 'seq4',
-    name: 'Mount Control and Submission',
-    techniques: ['americana', 'cross_choke'],
-  },
-  {
-    id: 'seq5',
-    name: 'Back Control Escapes',
-    techniques: [],
-  },
-];
+//   const recentSequences = [
+//   {
+//     id: 'seq1',
+//     name: 'Basic Submission Setup',
+//     techniques: ['armbar', 'triangle', 'kimura'],
+//   },
+//   {
+//     id: 'seq2',
+//     name: 'Guard Sweep Series',
+//     techniques: ['scissor_sweep', 'flower_sweep'],
+//   },
+//   {
+//     id: 'seq3',
+//     name: 'Escape from Side Control',
+//     techniques: ['shrimp_escape', 'bridge_escape', 'underhook_escape', 'roll_escape'],
+//   },
+//   {
+//     id: 'seq4',
+//     name: 'Mount Control and Submission',
+//     techniques: ['americana', 'cross_choke'],
+//   },
+//   {
+//     id: 'seq5',
+//     name: 'Back Control Escapes',
+//     techniques: [],
+//   },
+// ];
 // const activities = [
 //   { name: 'Kimura', type: 'submission', level: 'beginner', date: 'Jul 10' },
 //   { name: 'Berimbolo to Heel Hook', type: 'sequence', level: 'beginner', date: 'Jul 10' },
@@ -115,15 +115,20 @@ useEffect(() => {
 
 
     return (
-    <div className="dashboard-container dashboard_main">
-      <SidebarNavigation />
-      <main className="main-content dashboard-main px-4">
+    <div className=" flex justify-around dashboard_main">
+      <SidebarNavigation selectedItem="dashboard"/>
+      <main className="main-content flex justify-around dashboard-main px-4 pt-2" style={{marginLeft: "306px", width: "calc(100% - 306px)"}}>
         <WelcomeBanner />
         
         <StatisticsPanel />
         {/* <RecentActivityList /> */}
         {/* <TechniqueBreakdown /> */}
-        {hasLoaded && (<RecentActivity techniques={cards} sequences={sequences} isLoading={false} />)}
+        <div className="flex justify-between ">
+          {hasLoaded && (<RecentActivity techniques={cards} sequences={sequences} isLoading={false} />)}
+          {hasLoaded && (<QuickActions techniquesByType={techniquesByType} recentSequences={sequences}/>)}
+
+        </div>
+        
         {/* <div>
           <h2>Your Cards</h2>
           {loading ? (
@@ -137,7 +142,7 @@ useEffect(() => {
           )}
         </div> */}
       </main>
-      <QuickActions techniquesByType={techniquesByType} recentSequences={recentSequences}/>
+      
     </div>
   );
 

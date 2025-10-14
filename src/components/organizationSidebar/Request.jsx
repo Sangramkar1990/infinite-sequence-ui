@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { organizationService } from '../../services/api';
-import Alert from 'react-bootstrap/Alert'; // Assuming Bootstrap is set up and Alert component is available
+import Alert from 'react-bootstrap/Alert'; 
 
 const Request = () => {
   const [inviteRequests, setInviteRequests] = useState([]);
@@ -34,9 +34,9 @@ const Request = () => {
     if (searchEmail.trim() === '') {
       setFilteredRequests(inviteRequests);
     } else {
-      const filtered = inviteRequests.filter(request =>
+      const filtered = Array.isArray(inviteRequests) ? inviteRequests.filter(request =>
         request.user_email && request.user_email.toLowerCase().includes(searchEmail.toLowerCase())
-      );
+      ) : [];
       setFilteredRequests(filtered);
     }
   }, [searchEmail, inviteRequests]);
@@ -101,7 +101,7 @@ const Request = () => {
                 <td className="py-2 px-4 border-b">{new Date(request.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</td>
                
                 <td className="py-2 px-4 border-b">
-                  {request.status === 1 && ( // Only show buttons if status is pending (assuming 1 is pending)
+                  {request.status === 1 && ( 
                     <>
                       <button
                         className="bg-green-500 mx-2 text-black px-3 py-1 rounded mr-2 hover:bg-green-600"

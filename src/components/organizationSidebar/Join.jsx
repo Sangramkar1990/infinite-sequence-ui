@@ -6,12 +6,12 @@ const Join = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [alertMessage, setAlertMessage] = useState(null);
-  const [alertVariant, setAlertVariant] = useState('success');
+  const [alertVariant, setAlertVariant] = useState('success'); 
 
   const handleSearch = async (event) => {
     const value = event.target.value;
     setSearchTerm(value);
-    if (value.length > 2) { // Only search if more than 2 characters are typed
+    if (value.length > 2) { 
       try {
         const response = await organizationService.searchOrganizations(value);
         if (response.success && Array.isArray(response.data)) {

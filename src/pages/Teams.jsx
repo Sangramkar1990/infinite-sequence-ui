@@ -4,6 +4,7 @@ import { CgProfile } from "react-icons/cg";
 import { useNavigate } from "react-router-dom"; 
 
 const Teams = ({ organizationId }) => {
+  //checking
   const [teams, setTeams] = useState([]);
    const navigate = useNavigate();
   const [showCreate, setShowCreate] = useState(false);

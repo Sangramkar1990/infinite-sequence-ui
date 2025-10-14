@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import { 
   Target, 
   BookOpen, 
@@ -10,10 +10,13 @@ import {
   Award
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { createPageUrl } from "../../lib/utils";
+import CreateCardModal from "./CreateCardModal";
+import CreateSequenceModal from "./CreateSequenceModal";
 
 
 export default function WelcomeBanner() {
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [showSequenceModal, setShowSequenceModal] = useState(false);
   return (
    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -25,19 +28,17 @@ export default function WelcomeBanner() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Link to={createPageUrl("/create-card")}>
-              <Button className="bg-slate-900 hover:bg-slate-800">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Technique
-              </Button>
-            </Link>
-            <Link to={createPageUrl("/create-sequence")}>
-              <Button variant="outline" className="border-slate-200">
-                <Workflow className="w-4 h-4 mr-2" />
-                New Sequence
-              </Button>
-            </Link>
+            <Button className="bg-slate-900 hover:bg-slate-800" id="add-technique-button" onClick={() => setShowCardModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Technique
+            </Button>
+            <Button variant="outline" className="border-slate-200" id="add-sequence-button" onClick={() => setShowSequenceModal(true)}>
+              <Workflow className="w-4 h-4 mr-2" />
+              New Sequence
+            </Button>
           </div>
+          <CreateCardModal show={showCardModal} onClose={() => setShowCardModal(false)} />
+          <CreateSequenceModal show={showSequenceModal} onClose={() => setShowSequenceModal(false)} />
         </div>
   ) ;
 }

@@ -1,18 +1,44 @@
-import React from "react";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
 import { Card , CardContent, CardHeader, CardTitle} from "../ui/card";
-// import { Button } from "@/components/ui/button";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
-// import { createPageUrl } from "@/utils";
-import { createPageUrl } from "../../lib/utils";
 import { Plus, Target, BookOpen, Workflow, BarChart3 } from "lucide-react";
-import { useNavigate } from "react-router-dom"; 
+import CreateCardModal from "./CreateCardModal";
+import CreateSequenceModal from "./CreateSequenceModal";
+import { userService } from "../../services/api";
 
 export default function QuickActions({ techniquesByType, recentSequences }) {
-  const navigate = useNavigate();
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [showSequenceModal, setShowSequenceModal] = useState(false);
 
+  console.log('recent sequences ---->', {recentSequences})
+
+  const [breakdown, setBreakdown] = useState({
+        
+        techniques: {
+          Submission: 0,
+          Position: 0,
+          Sweep: 0,
+          Escape: 0,
+          Guard: 0,
+          Other: 0,
   
+        },
+      });
+    
+      useEffect(() => {
+        const fetchStats = async () => {
+          try {
+            const data = await userService.techniqueBreakdown();
+            console.log('breakdown ---- >', {data} )
+            setBreakdown(data );
+          } catch (error) {
+            console.error("Failed to fetch statistics:", error);
+          }
+        };
+    
+        fetchStats();
+      }, []);
+
   return (
     <div className="space-y-6">
       <Card className="border-0 shadow-sm">
@@ -23,33 +49,28 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Link to={createPageUrl("create-card")} className="block">
-            <Button variant="outline" className="w-full justify-start" >
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Technique
-            </Button>
-          </Link>
-          <Link to={createPageUrl("/create-sequence")} className="block">
-            <Button variant="outline" className="w-full justify-start">
-              <Workflow className="w-4 h-4 mr-2" />
-              Create Sequence
-            </Button>
-          </Link>
-          <Link to={createPageUrl("Techniques")} className="block">
-            <Button variant="outline" className="w-full justify-start">
+          <Button variant="outline" className="w-full justify-start mb-2" id="add-technique-button" onClick={() => setShowCardModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Technique
+          </Button>
+          <Button variant="outline" className="w-full justify-start mb-2" id="add-sequence-button" onClick={() => setShowSequenceModal(true)}>
+            <Workflow className="w-4 h-4 mr-2" />
+            Create Sequence
+          </Button>
+          <a href={"/Techniques"} className="block">
+            <Button variant="outline" className="w-full justify-start mb-2">
               <Target className="w-4 h-4 mr-2" />
               Browse Techniques
             </Button>
-          </Link>
-          <Link to={createPageUrl("Sequences")} className="block">
-            <Button variant="outline" className="w-full justify-start">
+          </a>
+          <a href={"/Sequences"} className="block">
+            <Button variant="outline" className="w-full justify-start mb-2">
               <BookOpen className="w-4 h-4 mr-2" />
               View Sequences
             </Button>
-          </Link>
+          </a>
         </CardContent>
       </Card>
-
       <Card className="border-0 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -59,12 +80,13 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {Object.entries(techniquesByType).map(([type, count]) => (
-              <div key={type} className="flex justify-between items-center">
+            
+            {Object.entries(breakdown).map(([key, value]) => (
+              <div key={key} className="flex justify-between items-center">
                 <span className="text-sm font-medium capitalize text-slate-700">
-                  {type.replace('_', ' ')}
+                  {key}
                 </span>
-                <span className="text-sm font-bold text-slate-900">{count}</span>
+                <span className="text-sm font-bold text-slate-900">{typeof value === 'object' ?JSON.stringify(value) : String(value)}</span>
               </div>
             ))}
             {Object.keys(techniquesByType).length === 0 && (
@@ -75,7 +97,6 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
           </div>
         </CardContent>
       </Card>
-
       {recentSequences.length > 0 && (
         <Card className="border-0 shadow-sm">
           <CardHeader>
@@ -90,7 +111,7 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
                 <div key={sequence.id} className="p-3 bg-slate-50 rounded-lg">
                   <h4 className="font-medium text-slate-900 text-sm">{sequence.name}</h4>
                   <p className="text-xs text-slate-500 mt-1">
-                    {sequence.techniques?.length || 0} techniques
+                    {sequence.cards?.length || 0} techniques
                   </p>
                 </div>
               ))}
@@ -98,6 +119,8 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
           </CardContent>
         </Card>
       )}
+      <CreateCardModal show={showCardModal} onClose={() => setShowCardModal(false)} />
+      <CreateSequenceModal show={showSequenceModal} onClose={() => setShowSequenceModal(false)} />
     </div>
   );
 }

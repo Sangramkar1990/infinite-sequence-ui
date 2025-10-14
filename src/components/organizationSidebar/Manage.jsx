@@ -16,7 +16,7 @@ const Manage = ({ organizationId = false, inviteLink = false }) => {
   const [copiedInviteLink, setCopiedInviteLink] = useState(false);
   const [memberships, setMemberships] = useState([]);
   const [loadingMemberships, setLoadingMemberships] = useState(true);
-  const [errorMemberships, setErrorMemberships] = useState(null);
+  const [errorMemberships, setErrorMemberships] = useState(null); // State for membership errors
 
   useEffect(() => {
     //  console.log("fetching memebers")

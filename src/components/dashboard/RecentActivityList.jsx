@@ -36,7 +36,7 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
   console.log("sequences", sequences);
   if (isLoading) {
     return (
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-sm w-100 p-2 mr-12">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
@@ -61,16 +61,18 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
   let allItems;
   if (!isLoading) {
     console.log("sequences--->", {sequences})
+    console.log("techniques--->", {techniques})
     allItems = [
     ...techniques.map(t => ({ ...t, type: 'technique', itemType: t.type })),
     ...sequences.map(s => ({ ...s, type: 'sequence', itemType: 'sequence' }))
-  ].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 8);
+  ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  console.log("allItems--->", {allItems})
   }
 
   
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="border-0 shadow-sm w-100 p-2 mr-12">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5" />
@@ -148,6 +150,8 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
           ))
         )}
       </CardContent>
+     
     </Card>
+    
   );
 }

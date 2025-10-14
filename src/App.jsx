@@ -17,6 +17,10 @@ import Roles from './pages/Roles'; // Add this import
 import ShareSequenceForm from './pages/Share'
 import Dashboard from './pages/Dashboard'; // Add this import
 import Techniques from './pages/techniques'; // Add this import
+import TechniquesNew from './pages/TechniquesNew'; // Add this import
+import AccountNewPage from './pages/AccountNew';
+import Sequences from './pages/sequences'; // Add this import
+import FlowBuilder from './pages/FlowBuilder'; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -25,13 +29,13 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Navbar />
+        
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/account" element={
+            <Route path="/account-old" element={
               // <ProtectedRoute>
               <Account/>
               // </ProtectedRoute>
@@ -78,7 +82,12 @@ function App() {
               
             } />
             <Route path="/dashboard" element={<Dashboard/>} />
-            <Route path="/techniques" element={<Techniques/>} />
+            <Route path="/techniques" element={<TechniquesNew/>} />
+            <Route path="/account" element={<AccountNewPage/>}/>
+            <Route path="/sequences" element={<Sequences/>}/>
+            <Route path="/flow-builder" element={<FlowBuilder/>}/>
+
+
 
           </Routes>
         </main>

@@ -1,9 +1,32 @@
 import { BookOpen, Orbit, TrendingUp, Award, Target } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
+import { useState, useEffect } from "react";
+import { userService } from "../../services/api";
 
 export default function StatisticsPanel() {
+  const [stats, setStats] = useState({
+    totalSequences: 0,
+    totalCards: {
+      total: 0,
+      addedLastWeek: 0,
+    },
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await userService.statistics();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch statistics:", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
-    <div className="stats-panel d-flex justify-content-between">
+    <div className="stats-panel d-flex justify-content-between mb-4">
       <Card className="technique-card border-0 shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -11,20 +34,28 @@ export default function StatisticsPanel() {
               <p className="text-sm font-medium text-slate-500 mb-1">
                 Total Techniques
               </p>
-              <p className="text-2xl font-bold text-slate-900">8</p>
-              <div
-                className="flex items-center gap-1 text-green-600"
-                style={{ color: "green" }}
+              <p
+                className="text-2xl font-bold text-slate-900"
+                id="total-techniques"
               >
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-xs text-gray-400">
-                  +4 since last week
-                </span>
-              </div>
+                {stats.totalCards.total}
+              </p>
+              {stats.totalCards.addedLastWeek > 0 && (
+                <div
+                  className="flex items-center gap-1 text-green-600"
+                  style={{ color: "green" }}
+                  id="techniques-increase"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="text-xs text-gray-400" id="techniques-weekly">
+                    +{stats.totalCards.addedLastWeek} since last week
+                  </span>
+                </div>
+              )}
             </div>
             <div
-              className="p-2"
-              style={{ backgroundColor: "#bff3f2", borderRadius: "10px" }}
+              className="p-2 bg-blue-100 rounded-lg"
+              
             >
               <Target className="w-6 h-6" style={{ color: "blue" }} />
             </div>
@@ -73,7 +104,7 @@ export default function StatisticsPanel() {
               <p className="text-sm font-medium text-slate-500 mb-1">
                 Sequences Created
               </p>
-              <p className="text-2xl font-bold text-slate-900">4</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.totalSequences}</p>
               <div
                 className="flex items-center gap-1 text-green-600"
                 style={{ color: "green" }}
@@ -85,11 +116,8 @@ export default function StatisticsPanel() {
               </div>
             </div>
             <div
-              className="p-2"
-              style={{
-                backgroundColor: "rgb(243 220 188)",
-                borderRadius: "10px",
-              }}
+              className="p-2 bg-amber-100 rounded-lg"
+              
             >
               <BookOpen className="w-6 h-6" style={{ color: "orange" }} />
             </div>
@@ -143,7 +171,7 @@ export default function StatisticsPanel() {
               <p className="text-sm font-medium text-slate-500 mb-1">
                 Most Used Type
               </p>
-              <p className="text-2xl font-bold text-slate-900">Submission</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.mostUsedTechnique}</p>
               
             </div>
             <div

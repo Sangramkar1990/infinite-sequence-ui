@@ -10,7 +10,7 @@ const Security = () => {
   const [success, setSuccess] = useState('');
   const dispatch = useDispatch();
   const { passwordUpdateStatus, error: userError } = useSelector(state => state.user);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

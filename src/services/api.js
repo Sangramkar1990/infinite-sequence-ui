@@ -1,3 +1,5 @@
+import TechniqueBreakdown from "../components/dashboard/TechniqueBreakdown";
+
 const API_URL = 'http://localhost:5001/api';
 
 const apiRequest = async (endpoint, method = 'GET', data = null) => {
@@ -23,6 +25,15 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
   return responseData;
   
 };
+
+export const userService = {
+  statistics: () => {
+    return apiRequest('/users/statistics');
+  },
+  techniqueBreakdown: () => {
+    return apiRequest('/users/techniques/breakdown');
+  }
+}
 
 export const authService = {
   register: (userData) => {
