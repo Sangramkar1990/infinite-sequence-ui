@@ -1,41 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Target, Search } from 'lucide-react';
 import { Card } from 'react-bootstrap';
-
-const staticData = [
-  {
-    id: 'tech1',
-    name: 'Armbar from Guard',
-    type: 'submission',
-    difficulty_level: 'beginner',
-    description: 'A fundamental submission from the guard position, targeting the elbow joint.',
-    created_date: '2025-08-27T10:30:00Z',
-  },
-  {
-    id: 'tech2',
-    name: 'Scissor Sweep',
-    type: 'sweep',
-    difficulty_level: 'intermediate',
-    description: 'A sweep from the guard that uses a scissoring motion of the legs to off-balance the opponent.',
-    created_date: '2025-08-26T14:15:00Z',
-  },
-  {
-    id: 'tech3',
-    name: 'Triangle Choke',
-    type: 'submission',
-    difficulty_level: 'intermediate',
-    description: 'A chokehold that involves using the legs to form a triangle around the opponent\'s head and one arm.',
-    created_date: '2025-08-25T11:00:00Z',
-  },
-  {
-    id: 'tech4',
-    name: 'Guard Pass to Side Control',
-    type: 'position',
-    difficulty_level: 'beginner',
-    description: 'A basic pass to get from the opponent\'s guard to a dominant side control position.',
-    created_date: '2025-08-24T09:00:00Z',
-  },
-];
+import { fetchCardsByUser, searchCards } from '../../store/sequenceSlice';
 
 const typeColors = {
   position: "bg-blue-100 text-blue-800",
@@ -53,17 +20,43 @@ const difficultyColors = {
 
 export default function TechniqueList() {
   const [searchTerm, setSearchTerm] = useState('');
+  const dispatch = useDispatch();
+  const { cards, loading } = useSelector((state) => state.sequence);
+
+  useEffect(() => {
+    dispatch(fetchCardsByUser());
+  }, [dispatch]);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    if (e.target.value === '') {
+      dispatch(fetchCardsByUser());
+    } else {
+      dispatch(searchCards(e.target.value));
+    }
+  };
+
+  const onDragStart = (event, card) => {
+    event.dataTransfer.setData('application/reactflow', JSON.stringify(card));
+    event.dataTransfer.effectAllowed = 'move';
+  };
 
   const filteredTechniques = useMemo(() => {
+    if (!cards || !Array.isArray(cards.data)) return [];
+    // The API search might be broad, so we can still filter on the client side for a better experience.
     const lower = searchTerm.toLowerCase();
-    return staticData.filter((item) => {
+    if (!lower) return cards.data;
+    return cards.data.filter((item) => {
       return (
         item.name.toLowerCase().includes(lower) ||
         (item.description && item.description.toLowerCase().includes(lower)) ||
         item.type.toLowerCase().includes(lower)
       );
     });
-  }, [searchTerm]);
+  }, [cards, searchTerm]);
+  useEffect(()=>{
+    console.log('cards in list ----- >',{ cards , filteredTechniques, loading})
+  },[cards, filteredTechniques])
 
   return (
     <div className="flex flex-col bg-gray-50 p-4" style={{ width: "306px" }}>
@@ -73,20 +66,28 @@ export default function TechniqueList() {
           type="text"
           placeholder="Search techniques..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearch}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
         />
       </div>
 
-      {filteredTechniques.length === 0 ? (
+      {loading === 'loading' || loading === 'idle' ? (
+        <p className="text-center text-gray-500 text-sm">Loading...</p>
+      ) :
+      filteredTechniques.length === 0 
+      
+       ? 
+       (
         <p className="text-center text-gray-500 text-sm">No techniques found.</p>
       ) : (
         <div className="space-y-3 overflow-y-auto">
           {filteredTechniques.map((technique) => (
             <Card
-            draggable
+              draggable
+              onDragStart={(event) => onDragStart(event, technique)}
               key={technique.id}
               className="bg-white rounded-xl shadow p-3"
+              style={{ cursor: 'grab' }}
             >
               <div className="flex items-center mb-2">
                 <Target className="w-4 h-4 text-slate-600 mr-2 flex-shrink-0" />
@@ -94,16 +95,39 @@ export default function TechniqueList() {
               </div>
 
               <div className="flex flex-wrap gap-1 mb-2">
-                <span
+                {technique.type && <span
                   className={`text-xs px-2 py-0.5 rounded-full ${typeColors[technique.type]}`}
                 >
                   {technique.type}
-                </span>
-                <span
+                </span>}
+                {technique.difficulty_level && <span
                   className={`text-xs px-2 py-0.5 rounded-full ${difficultyColors[technique.difficulty_level]}`}
                 >
                   {technique.difficulty_level}
-                </span>
+                </span>}
+              </div>
+
+              <div className="flex flex-wrap justify-between">
+            {technique.difficulty &&(<span
+              className={`self-start text-sm font-semibold mb-2 px-2 py-1 rounded ${
+                technique.difficulty === 'Advanced'
+                  ? 'bg-red-200 text-red-800'
+                  : technique.difficulty === 'Intermediate'
+                  ? 'bg-yellow-200 text-yellow-800'
+                  : 'bg-green-200 text-green-800'
+              }`}
+            >
+              {technique.difficulty}
+            </span>)}
+
+            <span className="text-xs border border-yellow-500 uppercase bg-yellow-200 text-yellow-800 px-2 py-1 rounded-xl  w-fit mb-2">
+                {technique.effect}
+              </span>
+
+             <span className="text-xs border border-blue-500 uppercase bg-red-200 text-red-800 px-2 py-1 rounded-xl  w-fit mb-2">
+                {technique.type}
+              </span>
+
               </div>
 
               {technique.description && (

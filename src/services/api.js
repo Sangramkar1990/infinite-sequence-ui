@@ -127,6 +127,10 @@ export const cardService = {
   getCardsByUser: () => {
     return apiRequest('/sequences/cards/user');
   },
+  searchCards: (query) => {
+    return apiRequest(`/sequences/search/cards?query=${encodeURIComponent(query)}`);
+  }
+
 };
 
 export const sequenceService = {
@@ -136,5 +140,12 @@ export const sequenceService = {
   },
   getSequenceWithId: (id) => {
     return apiRequest(`/sequences/${id}`);
+  },
+  getFullSequences: () => {
+    return apiRequest('/sequences/full');
+  },
+  updateSequence: (id, data) => {
+    return apiRequest(`/sequences/${id}`, 'PUT', data);
   }
+
 }

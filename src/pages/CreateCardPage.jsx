@@ -18,7 +18,8 @@ const CreateCardPage = () => {
     name: '',
     type: '',
     effect: '',
-    description: ''
+    description: '',
+    
   });
 
   const handleChange = (e) => {

@@ -63,10 +63,18 @@ const FlowBuilder = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
   const [showSequenceModal, setShowSequenceModal] = useState(false);
+  const [sequenceName, setSequenceName] = useState('LOADING');
+   const reactFlowWrapper = useRef(null);
+   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  // const [fetchedSequence, setFetchedSequence] = useState(null);
+
+  // useEffect(() => {
+  //   console.log("fetchedSequence changed", { fetchedSequence });
+  // }, [fetchedSequence]);
   const handleDestroyCard = useCallback((cardId) => {
     console.log("card id", { cardId });
 
-    dispatch(deleteCard(cardId));
+    dispatch(deleteCard(cardId)); 
   }, []);
   const nodeTypes = useMemo(
     () => ({
@@ -79,6 +87,10 @@ const FlowBuilder = () => {
     }),
     [handleDestroyCard]
   );
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
   const onEdgeClick = useCallback((event, edge) => {
     console.log("inside effect");
@@ -130,7 +142,7 @@ const FlowBuilder = () => {
   const dispatch = useDispatch();
   const {
     sequences: flowEditorSequences, // Renamed to avoid conflict with local state
-    currentSequence,
+currentSequence,
     searchResults: flowEditorSearchResults, // Renamed
     status: flowEditorStatus,
     error: flowEditorError,
@@ -237,6 +249,49 @@ const FlowBuilder = () => {
     },
     [setNodes, setEdges]
   );
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      console.log("drop event", reactFlowWrapper);
+      if (!reactFlowInstance) {
+        return;
+      }
+
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const cardData = event.dataTransfer.getData('application/reactflow');
+
+      // check if the dropped element is valid
+      if (typeof cardData === 'undefined' || !cardData) {
+        return;
+      }
+
+      const card = JSON.parse(cardData);
+
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+      
+      const newNode = {
+        id: `node-${Date.now()}`,
+        type: 'custom',
+        position,
+        data: {
+          name: card.name,
+          type: card.type,
+          effect: card.effect,
+          description: card.description,
+          url: card.url,
+          id: card.id,
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+      setHasUnsavedChanges(true);
+    },
+    [reactFlowInstance]
+  );
   // Helper function to check if nodes have actually changed
   const hasNodesChanged = (previousNodes, currentNodes) => {
     // If this is the first time or no previous nodes, consider it as no change during initialization
@@ -249,7 +304,7 @@ const FlowBuilder = () => {
     // Quick check: different lengths
     if (prevNodes.length !== currentNodes.length) {
       return true;
-    }
+}
 
     // Deep comparison of nodes
     for (let i = 0; i < currentNodes.length; i++) {
@@ -341,6 +396,7 @@ const FlowBuilder = () => {
 
   // Function to save sequence
   const saveSequence = async () => {
+    console.log("saving sequence 1")
     if (!sequenceSelected || !hasUnsavedChanges) return;
 
     const linkedListData = convertToLinkedList();
@@ -371,6 +427,7 @@ const FlowBuilder = () => {
     console.log("auto save init", { hasUnsavedChanges });
     if (hasUnsavedChanges && sequenceSelected) {
       const timeoutId = setTimeout(() => {
+        console.log('saving 0');
         saveSequence();
       }, 2000); // Auto-save after 2 seconds of no changes
 
@@ -388,7 +445,9 @@ const FlowBuilder = () => {
         if (data.meta.requestStatus === "fulfilled") {
           // Process the loaded sequence data here
           processSequenceData(data);
-
+          console.log("sequence data name ---->", data.payload.name)
+          setSequenceName(data.payload.name)
+          setSequenceSelected(urlSequenceParams)
           setIsInitializing(false); // Loading complete, allow changes to mark unsaved
           setHasUnsavedChanges(false); // Reset unsaved changes on fresh load
         }
@@ -424,6 +483,22 @@ const FlowBuilder = () => {
       // searchHandler(cardId);
     }
   }, [cardId, dispatch]);
+
+  // useEffect(() => {
+  //   const sequenceIdFromUrl = searchParams.get("id");
+  //   if (sequenceIdFromUrl) {
+  //     dispatch(fetchSequenceById(sequenceIdFromUrl))
+  //       .unwrap()
+  //       .then((sequenceData) => {
+  //         setFetchedSequence(sequenceData)
+  //         processSequenceData(sequenceData)
+  //       })
+  //       .catch((err) => {
+  //         console.error("Failed to fetch sequence by id:", err);
+  //         setError("Failed to fetch sequence by id.");
+  //       });
+  //   }
+  // }, [searchParams, dispatch]);
 
   const handleAddCard = (card) => {
     const newNode = {
@@ -802,11 +877,11 @@ const FlowBuilder = () => {
           </div>
 
           <div 
-          style={{  zIndex: "-1" }}
+          style={{  zIndex: "1" }}
            >
             <div className="flex pt-4">
                 <h4 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-2">
-              Sequence Name
+              {sequenceName ? sequenceName : '...LOADING'}
             </h4>
             <div className="ms-auto space-x-2 mb-2">
                 <Button className="bg-slate-900 hover:bg-slate-800 me-2" id="add-technique-button" >
@@ -829,9 +904,39 @@ const FlowBuilder = () => {
               <p className="text-muted">
                 Create and connect cards in this editor
               </p>
+              <FlowBuilder />
+              <div className="flex-grow h-full" ref={reactFlowWrapper}>
+                <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onConnect={onConnect}
+                  onInit={setReactFlowInstance}
+                  onDrop={onDrop}
+                  onDragOver={onDragOver}
+                  nodeTypes={nodeTypes}
+                  onEdgeClick={onEdgeClick}
+                  fitView
+                >
+                  <Background />
+                  <Controls />
+                  <MiniMap />
+                </ReactFlow>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
             </div> */}
             <div className=" flex">
-              <div style={{ height: "90vh", width: "100%" }}>
+              <div
+               ref={reactFlowWrapper}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+              style={{ height: "90vh", width: "100%" }}>
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -841,6 +946,8 @@ const FlowBuilder = () => {
                   onNodeClick={() => {
                     setIsInitializing(false);
                   }}
+            //       onDrop={onDrop}
+            // onDragOver={onDragOver}
                   onEdgeClick={onEdgeClick}
                   onEdgesChange={onEdgesChange}
                   onConnectStart={(event, { nodeId }) => {

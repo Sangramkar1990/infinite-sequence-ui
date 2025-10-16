@@ -1,0 +1,42 @@
+.technique-list {
+  width: 300px;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.technique-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.technique-card {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: grab;
+}
+
+.technique-card h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.technique-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}

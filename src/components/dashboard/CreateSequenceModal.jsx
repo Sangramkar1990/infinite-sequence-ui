@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateSequenceModal({ show, onClose }) {
   const [newSequence, setNewSequence] = useState({ name: '', description: '' });
   const [nameError, setNameError] = useState('');
+     const navigate = useNavigate();
 
   const handleCreateSequence = async () => {
     setNameError('');
@@ -25,6 +27,8 @@ export default function CreateSequenceModal({ show, onClose }) {
         body: JSON.stringify(newSequence),
       });
       if (response.ok) {
+        setNewSequence({ name: '', description: '' });
+        navigate('/sequences');
         onClose();
       } else {
         setNameError('Failed to create sequence');

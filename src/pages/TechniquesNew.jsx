@@ -1,124 +1,91 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import SidebarNavigation from '../components/dashboard/SidebarNavigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { sequenceService } from '../services/api';
+import { setSequences, fetchCardsByUser } from '../store/sequenceSlice';
+import { Play , Target} from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
-const staticData = [
-  {
-    id: 1,
-    title: 'Kimura',
-    type: 'submission',
-    level: 'beginner',
-    description:
-      'This is a fundamental technique that can be used from a multitude of positions. It is a strong lock that...',
-    tags: ['fundamental', 'closed guard'],
-    date: '2025-07-10',
-  },
-  {
-    id: 2,
-    title: 'Heel Hook',
-    type: 'submission',
-    level: 'advanced',
-    description:
-      'Attack the opponent’s heel by isolating the leg and twisting for a powerful lock.',
-    tags: ['leg lock', 'heel hook'],
-    date: '2025-07-10',
-  },
-  {
-    id: 3,
-    title: 'Rear Naked Choke',
-    type: 'submission',
-    level: 'beginner',
-    description:
-      'Classic submission from back control. Secure the hooks, get your arm under the chin, and squeeze with the...',
-    tags: ['back control', 'choke', 'fundamental'],
-    date: '2025-07-10',
-  },
-  {
-    id: 4,
-    title: 'Guard Pull',
-    type: 'position',
-    level: 'beginner',
-    description:
-      'Technique to take the fight to the ground from standing and establish closed guard.',
-    tags: ['closed guard', 'fundamental'],
-    date: '2025-07-10',
-  },
-  {
-    id: 5,
-    title: 'Scissor Sweep',
-    type: 'sweep',
-    level: 'beginner',
-    description:
-      'Fundamental sweep from closed guard using hip movement and leg positioning to off-balance opponent.',
-    tags: ['closed guard', 'fundamental'],
-    date: '2025-07-10',
-  },
-  {
-    id: 6,
-    title: 'Hip Escape',
-    type: 'escape',
-    level: 'beginner',
-    description:
-      'Essential movement to create space and escape from bottom positions like side control or mount.',
-    tags: ['escape', 'movement'],
-    date: '2025-07-10',
-  },
-  {
-    id: 7,
-    title: 'Triangle Choke',
-    type: 'submission',
-    level: 'intermediate',
-    description:
-      'Use the legs to isolate one arm and apply pressure on the neck for a choke.',
-    tags: ['choke', 'leg'],
-    date: '2025-07-10',
-  },
-  {
-    id: 8,
-    title: 'Armbar from Guard',
-    type: 'submission',
-    level: 'intermediate',
-    description:
-      'Classic armbar from closed guard isolating the arm and extending the hips.',
-    tags: ['armbar', 'guard'],
-    date: '2025-07-10',
-  },
-];
 
 export default function TechniquesNew() {
+  const [searchParams] = useSearchParams();
+  const newCard = searchParams.get('new') === 'true';
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
+  const dispatch = useDispatch();
+  const { cards, loading } = useSelector((state) => state.sequence);
+  const { sequences } = useSelector((state) => state.sequence);
+
+  const hasQuery = searchParams.has('new');
+
+   useEffect(() => {
+    dispatch(fetchCardsByUser());
+  }, [dispatch, hasQuery]);
+
+  // useEffect(() => {
+  //   const fetchSequences = async () => {
+  //     try {
+  //       const response = await sequenceService.getAllSequences();
+  //       dispatch(setSequences(response.data));
+  //     } catch (error) {
+  //       console.error('Failed to fetch sequences:', error);
+  //     }
+  //   };
+  //   fetchSequences();
+  // }, [dispatch]);
+  // const filtered = useMemo(() => {
+  //   if (!cards) return [];
+  //   const lower = searchTerm.toLowerCase();
+  //   return cards.data.filter((item) => {
+  //     return (
+  //       item.name.toLowerCase().includes(lower) ||
+  //       (item.description && item.description.toLowerCase().includes(lower)) ||
+  //       (item.type && item.tags.toLowerCase().includes(lower)) ||
+  //       (item.effect && item.effect.toLowerCase().includes(lower))
+  //     );
+  //   });
+  // }, [searchTerm, cards]);
+
+  useEffect(() => {
+   
+      console.log('cards ----- >',cards)
+  
+},[cards])
+useEffect(() => {
+    console.log('loading ----- >',loading)    }, [loading])
 
   // Derive unique filter options
-  const types = useMemo(
-    () => ['All', ...new Set(staticData.map((i) => i.type))],
-    []
+  // const types = useMemo(
+  //   () => ['All', ...new Set(cards.map((i) => i.type))],
+  //   [cards]
+  // );
+
+  const types = useMemo(() => { 
+   const list = cards.data ?? [];
+    const uniqueTypes = [...new Set(list.map(item => item.type))];
+    return ['All', ...uniqueTypes]; 
+  },[cards.data]
   );
-  const levels = useMemo(
-    () => ['All', ...new Set(staticData.map((i) => i.level))],
-    []
-  );
+  // const levels = useMemo(
+  //   () => ['All', ...new Set(sequences.map((i) => i.level))],
+  //   [sequences]
+  // );
 
   // Filtered list
-  const filtered = useMemo(() => {
-    const term = searchTerm.toLowerCase();
-    return staticData.filter((item) => {
-      // text search
-      const matchesText =
-        item.title.toLowerCase().includes(term) ||
-        item.description.toLowerCase().includes(term) ||
-        item.tags.some((t) => t.toLowerCase().includes(term));
+  // const filtered = useMemo(() => {
+  //   const term = searchTerm.toLowerCase();
+  //   return sequences.filter((item) => {
+  //     // text search
+  //     const matchesText =
+  //       item.name.toLowerCase().includes(term) ||
+  //       item.description.toLowerCase().includes(term) 
 
-      // type filter
-      const matchesType = selectedType === 'All' || item.type === selectedType;
+      
 
-      // level filter
-      const matchesLevel =
-        selectedLevel === 'All' || item.level === selectedLevel;
-
-      return matchesText && matchesType && matchesLevel;
-    });
-  }, [searchTerm, selectedType, selectedLevel]);
+  //     return matchesText ;
+  //   });
+  // }, [searchTerm, selectedType, selectedLevel, sequences]);
 
   return (
     <div className="flex">
@@ -151,7 +118,7 @@ export default function TechniquesNew() {
           ))}
         </select>
 
-        <select
+        {/* <select
           value={selectedLevel}
           onChange={(e) => setSelectedLevel(e.target.value)}
           className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -163,70 +130,108 @@ export default function TechniquesNew() {
                 : lvl.charAt(0).toUpperCase() + lvl.slice(1)}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
 
       {/* Count */}
       <p className="max-w-4xl mx-auto text-gray-600 mb-4">
-        {filtered.length} techniques found
+        {loading === 'succeeded' && `${cards.data.length} techniques found` }
       </p>
 
       {/* Cards Grid */}
-      <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((item) => (
+      
+         {loading === 'loading' && <p className="text-center text-gray-500">Loading...</p>}
+      {loading === 'failed' && <p className="text-center text-red-500">Error loading sequences.</p>}
+      {loading === 'succeeded' && cards.data.length !== 0 ?
+       ( 
+        <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {
+          cards.data.map((item) => (
           <div
             key={item.id}
             className="bg-white rounded-xl shadow p-5 flex flex-col"
           >
-            {/* Header */}
+           
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-medium">{item.title}</h2>
-              <span className="text-xs uppercase bg-gray-200 text-gray-800 px-2 py-1 rounded">
-                {item.type}
-              </span>
+              <div className="flex me-auto">
+
+              
+               <div
+              className="p-2 bg-gray-200 rounded-lg flex items-center justify-center w-10 h-10 me-2"
+              
+            >
+              <Target className="w-4 h-4 inline-block " />
+              </div>
+              <h5 className="text-xl font-medium">{item.name}</h5>
+              </div>
+              <a href={item.url} target="_blank" rel="noopener noreferrer"><Play className="w-4 h-4 inline-block mr-1" /></a>
+              
+             
             </div>
 
-            {/* Level Badge */}
-            <span
+            <div className="flex flex-wrap justify-between">
+            {item.difficulty &&(<span
               className={`self-start text-sm font-semibold mb-2 px-2 py-1 rounded ${
-                item.level === 'advanced'
+                item.difficulty === 'Advanced'
                   ? 'bg-red-200 text-red-800'
-                  : item.level === 'intermediate'
+                  : item.difficulty === 'Intermediate'
                   ? 'bg-yellow-200 text-yellow-800'
                   : 'bg-green-200 text-green-800'
               }`}
             >
-              {item.level}
-            </span>
+              {item.difficulty}
+            </span>)}
 
-            {/* Description */}
+            <span className="text-xs border border-yellow-500 uppercase bg-yellow-200 text-yellow-800 px-2 py-1 rounded-xl  w-fit mb-2">
+                {item.effect}
+              </span>
+
+             <span className="text-xs border border-blue-500 uppercase bg-red-200 text-red-800 px-2 py-1 rounded-xl  w-fit mb-2">
+                {item.type}
+              </span>
+
+              </div>
+
+          
             <p className="text-gray-600 mb-4 flex-grow">{item.description}</p>
+            <div className="text-xs text-gray-400">
+                Published: {new Date(item.createdAt).toLocaleDateString()}
+              </div>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {item.tags.map((tag) => (
+           
+            {/* <div className="flex flex-wrap gap-2 mb-4">
+              {item.tags && item.tags.map((tag) => (
                 <span
                   key={tag}
                   className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
                 >
                   {tag}
                 </span>
-              ))}
+              ))
+            }
+            </div> */}
             </div>
-
-            {/* Footer */}
-            <div className="text-xs text-gray-400">
-              Published: {new Date(item.date).toLocaleDateString()}
-            </div>
-          </div>
         ))}
+        </div>
+          
+        )
+        : 
+        (<p className="col-span-full text-center text-gray-500">
+              No techniques match your criteria.
+            </p>)
+      
+      }
 
-        {filtered.length === 0 && (
+
+        {/* {cards.data.length === 0 && (
           <p className="col-span-full text-center text-gray-500">
             No techniques match your criteria.
           </p>
-        )}
-      </div>
+        )} */}
+
+      
+      
+    
     </div>
     </div>
   );

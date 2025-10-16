@@ -34,7 +34,7 @@ export const saveSequence = createAsyncThunk(
   'flowEditor/saveSequence',
   async ({ sequenceId, cardsData }, { rejectWithValue }) => {
     try {
-      const response = await cardService.updateCard(sequenceId, { cards: cardsData });
+      const response = await sequenceService.updateSequence(sequenceId, { cards: cardsData });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to save sequence');

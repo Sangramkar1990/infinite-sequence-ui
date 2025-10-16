@@ -211,12 +211,12 @@ export const CustomNode = ({ data, selected = false }) => {
             <br />
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
                         <div className="flex gap-1.5 flex-wrap">
                           <Badge variant="secondary" className={typeColors[data.type]}>
                             {data.type}
                           </Badge>
-                          {/* <Badge variant="outline">{data.difficulty_level}</Badge> */}
+                          <Badge variant="outline">{data.difficulty_level}</Badge>
                         </div>
                         
                         {data.tags && data.tags.length > 0 && (
@@ -229,7 +229,30 @@ export const CustomNode = ({ data, selected = false }) => {
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </div> */}
+
+                     <div className="flex flex-wrap justify-between">
+            {data.difficulty &&(<span
+              className={`self-start text-sm font-semibold mb-2 px-2 py-1 rounded me-2 ${
+                data.difficulty === 'Advanced'
+                  ? 'bg-red-200 text-red-800'
+                  : data.difficulty === 'Intermediate'
+                  ? 'bg-yellow-200 text-yellow-800'
+                  : 'bg-green-200 text-green-800'
+              }`}
+            >
+              {data.difficulty}
+            </span>)}
+
+            <span className="text-xs border border-yellow-500 uppercase bg-yellow-200 text-yellow-800 me-2 px-2 py-1 rounded-xl  w-fit mb-2">
+                {data.effect}
+              </span>
+
+             <span className="text-xs border border-blue-500 uppercase bg-red-200 text-red-800 me-2 px-2 py-1 rounded-xl  w-fit mb-2">
+                {data.type}
+              </span>
+
+              </div>
         </div>
       </div>
       <Handle

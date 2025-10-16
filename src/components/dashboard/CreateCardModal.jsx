@@ -1,12 +1,16 @@
+import { DiffIcon } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateCardModal({ show, onClose }) {
+   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     video: '',
     name: '',
     type: '',
     effect: '',
-    description: ''
+    description: '',
+    difficulty: '',
   });
   const [error, setError] = useState(null);
   function convertYouTubeUrlToEmbed(url) {
@@ -48,11 +52,22 @@ export default function CreateCardModal({ show, onClose }) {
           name: formData.name,
           type: formData.type,
           effect: formData.effect,
-          description: formData.description
+          description: formData.description,
+          difficulty: formData.difficulty,
         })
       });
       const result = await response.json();
       if (result.success) {
+        
+        navigate('/techniques');
+        setFormData({
+          video: '',
+          name: '',
+          type: '',
+          effect: '',
+          description: '',
+          difficulty: '',
+        });
         onClose();
       } else {
         setError(result.message || 'Failed to create card');
@@ -63,7 +78,7 @@ export default function CreateCardModal({ show, onClose }) {
   };
   if (!show) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style={{zIndex: 1000}}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style={{zIndex: 1051}}>
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-xl relative">
         <button className="absolute top-2 right-2 text-gray-500" onClick={onClose}>&times;</button>
         <h3 className="text-xl font-bold mb-4">Create New Card</h3>
@@ -89,7 +104,7 @@ export default function CreateCardModal({ show, onClose }) {
                   ))}
                 </select>
               ) : field === 'difficulty' ? (
-                <select className="form-select w-full border rounded p-2" name="effect" value={formData.effect} onChange={handleChange}>
+                <select className="form-select w-full border rounded p-2" name="difficulty" value={formData.difficulty} onChange={handleChange}>
                   <option value="">Select Type</option>
                   {['Beginner', 'Intermediate', 'Advanced'].map((option) => (
                     <option key={option} value={option}>{option}</option>
