@@ -69,6 +69,7 @@ export const CustomNode = ({ data, selected = false }) => {
         position="left"
         style={{ background: "#555", width: 10, height: 10 }}
       />
+      
 
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">

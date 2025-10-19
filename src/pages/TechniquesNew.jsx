@@ -135,18 +135,18 @@ useEffect(() => {
 
       {/* Count */}
       <p className="max-w-4xl mx-auto text-gray-600 mb-4">
-        {loading === 'succeeded' && `${cards.data.length} techniques found` }
+        {loading === 'succeeded' && `${cards.length} techniques found` }
       </p>
 
       {/* Cards Grid */}
       
          {loading === 'loading' && <p className="text-center text-gray-500">Loading...</p>}
       {loading === 'failed' && <p className="text-center text-red-500">Error loading sequences.</p>}
-      {loading === 'succeeded' && cards.data.length !== 0 ?
+      {loading === 'succeeded' && cards.length !== 0 ?
        ( 
         <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {
-          cards.data.map((item) => (
+          cards.map((item) => (
           <div
             key={item.id}
             className="bg-white rounded-xl shadow p-5 flex flex-col"

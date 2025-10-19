@@ -27,6 +27,10 @@ export default function TechniqueList() {
     dispatch(fetchCardsByUser());
   }, [dispatch]);
 
+  useEffect(() => {
+    console.log('cards ----- >',cards)  }, [cards]);
+   
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     if (e.target.value === '') {
@@ -38,6 +42,7 @@ export default function TechniqueList() {
 
   const onDragStart = (event, card) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(card));
+    console.log('Dragging card:', card);
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -74,14 +79,14 @@ export default function TechniqueList() {
       {loading === 'loading' || loading === 'idle' ? (
         <p className="text-center text-gray-500 text-sm">Loading...</p>
       ) :
-      filteredTechniques.length === 0 
+      cards.length === 0 
       
        ? 
        (
         <p className="text-center text-gray-500 text-sm">No techniques found.</p>
       ) : (
         <div className="space-y-3 overflow-y-auto">
-          {filteredTechniques.map((technique) => (
+          {cards.map((technique) => (
             <Card
               draggable
               onDragStart={(event) => onDragStart(event, technique)}
