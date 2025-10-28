@@ -10,12 +10,15 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCardsByUser, fetchAllSequences } from '../store/userSlice';
 
+
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { cards,sequences, loadedSequences, loadedCards } = useSelector((state) => state.user);
   console.log("Redux state - cards:", cards);
 console.log("Redux state - sequences:", sequences);
   const hasLoaded = loadedSequences && loadedCards;
+
+  
 
 //  useEffect(() => {
 //    console.log("useEffect triggered");

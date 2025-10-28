@@ -143,13 +143,13 @@ export default function OrganizationRequest() {
 
                         <>
                       <button
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                        className="px-4 me-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                         onClick={() => handleStatusUpdate(request.id, 2)} // 2 for approved
                       >
                         Approve
                       </button>
                       <button
-                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                        className="px-4 py-2 bg-red-400 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                         onClick={() => handleStatusUpdate(request.id, 3)} // 3 for denied
                       >
                         Deny

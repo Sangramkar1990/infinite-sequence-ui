@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { membershipService } from '../../services/api'; // Import membershipService
+import { useSelector } from "react-redux";
 
 export default function OrganizationManage() {
   const [memberships, setMemberships] = useState([]);
   const [loadingMemberships, setLoadingMemberships] = useState(true);
   const [errorMemberships, setErrorMemberships] = useState(null);
+  const { user } = useSelector((state) => state.user);
+  const [organization, setOrganization] = useState([]);
+  // let organization = [];
+  useEffect(()=>{
+    if(user?.membership){
+      console.log("user membership", {membership: user.membership});
+      setOrganization(user.membership);
+    }
+
+  },[user]);
+  
 
   useEffect(() => {
       //  console.log("fetching memebers")
@@ -72,7 +84,7 @@ export default function OrganizationManage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {memberships.map((org) => (
+                {organization.length > 0 ? organization.map((org) => (
                   <tr key={org.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {org.organization_name || 'N/A'}
@@ -94,7 +106,7 @@ export default function OrganizationManage() {
                       })}
                     </td>
                   </tr>
-                ))}
+                )) : <tr className='w-100 text-center mt-2'></tr>}
               </tbody>
             </table>
           </div>

@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { Building2, Users, Shield, User, ChevronDown } from 'lucide-react';
-import RolesPermissionsComponent from './roles';
-import TeamsManagementComponent from './teamsA';
-import Subscription from './Subscription';
-import Security from './Secuirity';
-import Profile from './Profile';
-import OrganizationManage from './OrganizationManage';
-import OrganizationRequest from './OrganizationRequest';
-import OrganizationJoin from './OrganizationJoin';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Building2, Users, Shield, User, ChevronDown } from "lucide-react";
+import RolesPermissionsComponent from "./roles";
+import TeamsManagementComponent from "./teamsA";
+import Subscription from "./Subscription";
+import Security from "./Secuirity";
+import Profile from "./Profile";
+import OrganizationManage from "./OrganizationManage";
+import OrganizationRequest from "./OrganizationRequest";
+import OrganizationJoin from "./OrganizationJoin";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useAuth } from "../../context/AuthContext"; // Import useAuth
 
-import {
-  Target,
-  ChevronLeft
-} from "lucide-react";
+import { Target, ChevronLeft, LogOut } from "lucide-react"; // Import LogOut icon
 
 // Dummy components for content rendering
 const Organization = () => <div className="p-4">Organization Settings</div>;
@@ -38,32 +37,247 @@ const contentComponents = {
 };
 
 const SidebarNavigationComponent = () => {
-  const [selectedItem, setSelectedItem] = useState('manage');
-  const [openSubMenu, setOpenSubMenu] = useState('organization');
-   const navigate = useNavigate();
+  const [selectedItem, setSelectedItem] = useState("manage");
+  const [openSubMenu, setOpenSubMenu] = useState("organization");
+  const [menuItem, setMenuItem] = useState([]);
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.user);
+  const { logout } = useAuth(); // Use the useAuth hook to get the logout function
+  let permissions = [];
+ 
 
-  const menuItems = [
-    { id: 'organization', icon: Building2, label: 'Organization', component: 'Organization' ,
-      subItems : [
-        {id: 'manage', label: 'Manage', component: 'OrganizationManage'},
-        {id: 'requests', label: 'Requests', component: 'OrganizationRequest'},
-        {id: 'join', label: 'Join', component: 'OrganizationJoin'},
+  useEffect(() => {
+    if (user && user.permissions) {
+      // console.log("sidebar user permission:", {
+      //   permissions: permissions.includes("manage_organization"),
+      //   permissionsUser: permissions,
+      //   menuItems,
+      // });
+      permissions = user.permissions;
+      let items = [];
+      if(permissions.includes("manage_organization")){
+       items = [
+            {
+              id: "organization",
+              icon: Building2,
+              label: "Organization",
+              component: "Organization",
+              subItems: [
+                {
+                  id: "manage",
+                  label: "Manage",
+                  component: "OrganizationManage",
+                },
+                {
+                  id: "requests",
+                  label: "Requests",
+                  component: "OrganizationRequest",
+                },
+                { id: "join", label: "Join", component: "OrganizationJoin" },
               ],
-    },
-    { id: 'teams', icon: Users, label: 'Teams', component: 'TeamsManagementComponent' },
-    { id: 'roles', icon: Shield, label: 'Roles', component: 'RolesPermissionsComponent' },
-    
-    {
-      id: 'accounts',
-      icon: User,
-      label: 'Accounts',
-      subItems: [
-        { id: 'profile', label: 'Profile', component: 'Profile' },
-        { id: 'subscription', label: 'Subscription', component: 'Subscription' },
-        { id: 'security', label: 'Security', component: 'Security' },
-      ],
-    },
-  ];
+            },
+            {
+              id: "teams",
+              icon: Users,
+              label: "Teams",
+              component: "TeamsManagementComponent",
+            },
+            {
+              id: "roles",
+              icon: Shield,
+              label: "Roles",
+              component: "RolesPermissionsComponent",
+            },
+
+            {
+              id: "accounts",
+              icon: User,
+              label: "Accounts",
+              subItems: [
+                { id: "profile", label: "Profile", component: "Profile" },
+                {
+                  id: "subscription",
+                  label: "Subscription",
+                  component: "Subscription",
+                },
+                { id: "security", label: "Security", component: "Security" },
+              ],
+            },
+          ]
+      } else if(permissions.includes("manage_teams")){
+       items = [
+            {
+              id: "organization",
+              icon: Building2,
+              label: "Organization",
+              component: "Organization",
+              subItems: [
+                {
+                  id: "manage",
+                  label: "Manage",
+                  component: "OrganizationManage",
+                },
+                { id: "join", label: "Join", component: "OrganizationJoin" },
+              ],
+            },
+            {
+              id: "teams",
+              icon: Users,
+              label: "Teams",
+              component: "TeamsManagementComponent",
+            },
+            {
+              id: "accounts",
+              icon: User,
+              label: "Accounts",
+              subItems: [
+                { id: "profile", label: "Profile", component: "Profile" },
+                {
+                  id: "subscription",
+                  label: "Subscription",
+                  component: "Subscription",
+                },
+                { id: "security", label: "Security", component: "Security" },
+              ],
+            },
+          ]
+      }
+      else {
+       items =  [
+            {
+              id: "organization",
+              icon: Building2,
+              label: "Organization",
+              component: "Organization",
+              subItems: [
+                {
+                  id: "manage",
+                  label: "Manage",
+                  component: "OrganizationManage",
+                },
+                { id: "join", label: "Join", component: "OrganizationJoin" },
+              ],
+            },
+            {
+              id: "accounts",
+              icon: User,
+              label: "Accounts",
+              subItems: [
+                { id: "profile", label: "Profile", component: "Profile" },
+                {
+                  id: "subscription",
+                  label: "Subscription",
+                  component: "Subscription",
+                },
+                { id: "security", label: "Security", component: "Security" },
+              ],
+            },
+          ];
+      }
+
+      setMenuItem(items)
+         
+        
+       
+    }
+  }, [user]);
+
+  // const menuItems = permissions.includes('manage_organization') ? [
+  //   {
+  //     id: "organization",
+  //     icon: Building2,
+  //     label: "Organization",
+  //     component: "Organization",
+  //     subItems: [
+  //       { id: "manage", label: "Manage", component: "OrganizationManage" },
+  //       { id: "requests", label: "Requests", component: "OrganizationRequest" },
+  //       { id: "join", label: "Join", component: "OrganizationJoin" },
+  //     ],
+  //   },
+  //   {
+  //     id: "teams",
+  //     icon: Users,
+  //     label: "Teams",
+  //     component: "TeamsManagementComponent",
+  //   },
+  //   {
+  //     id: "roles",
+  //     icon: Shield,
+  //     label: "Roles",
+  //     component: "RolesPermissionsComponent",
+  //   },
+
+  //   {
+  //     id: "accounts",
+  //     icon: User,
+  //     label: "Accounts",
+  //     subItems: [
+  //       { id: "profile", label: "Profile", component: "Profile" },
+  //       {
+  //         id: "subscription",
+  //         label: "Subscription",
+  //         component: "Subscription",
+  //       },
+  //       { id: "security", label: "Security", component: "Security" },
+  //     ],
+  //   },
+  // ] : permissions.includes('manage_teams') ? [
+  //   {
+  //     id: "organization",
+  //     icon: Building2,
+  //     label: "Organization",
+  //     component: "Organization",
+  //     subItems: [
+  //       { id: "manage", label: "Manage", component: "OrganizationManage" },
+  //       { id: "join", label: "Join", component: "OrganizationJoin" },
+  //     ],
+  //   },
+  //   {
+  //     id: "teams",
+  //     icon: Users,
+  //     label: "Teams",
+  //     component: "TeamsManagementComponent",
+  //   },
+  //   {
+  //     id: "accounts",
+  //     icon: User,
+  //     label: "Accounts",
+  //     subItems: [
+  //       { id: "profile", label: "Profile", component: "Profile" },
+  //       {
+  //         id: "subscription",
+  //         label: "Subscription",
+  //         component: "Subscription",
+  //       },
+  //       { id: "security", label: "Security", component: "Security" },
+  //     ],
+  //   },
+  // ]  : [
+  //   {
+  //     id: "organization",
+  //     icon: Building2,
+  //     label: "Organization",
+  //     component: "Organization",
+  //     subItems: [
+  //       { id: "manage", label: "Manage", component: "OrganizationManage" },
+  //       { id: "join", label: "Join", component: "OrganizationJoin" },
+  //     ],
+  //   },
+  //   {
+  //     id: "accounts",
+  //     icon: User,
+  //     label: "Accounts",
+  //     subItems: [
+  //       { id: "profile", label: "Profile", component: "Profile" },
+  //       {
+  //         id: "subscription",
+  //         label: "Subscription",
+  //         component: "Subscription",
+  //       },
+  //       { id: "security", label: "Security", component: "Security" },
+  //     ],
+  //   },
+  // ] ;
 
   const handleMenuItemClick = (item) => {
     if (item.subItems && item.subItems.length > 0) {
@@ -85,13 +299,18 @@ const SidebarNavigationComponent = () => {
     setOpenSubMenu(parentId);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login"); // Navigate to the login page after logout
+  };
+
   const findComponent = (itemId) => {
-    for (const item of menuItems) {
+    for (const item of menuItem) {
       if (item.id === itemId && item.component) {
         return item.component;
       }
       if (item.subItems) {
-        const subItem = item.subItems.find(sub => sub.id === itemId);
+        const subItem = item.subItems.find((sub) => sub.id === itemId);
         if (subItem && subItem.component) {
           return subItem.component;
         }
@@ -101,59 +320,80 @@ const SidebarNavigationComponent = () => {
   };
 
   const componentName = findComponent(selectedItem);
-  const SelectedComponent = componentName ? contentComponents[componentName] : null;
+  const SelectedComponent = componentName
+    ? contentComponents[componentName]
+    : null;
 
   const isParentOfSelected = (item) => {
     if (!item.subItems) return false;
-    return item.subItems.some(si => si.id === selectedItem);
-  }
+    return item.subItems.some((si) => si.id === selectedItem);
+  };
 
   return (
     <>
       {/* Sidebar */}
-      <div className="bg-white border-end vh-100 position-fixed start-0 top-0" 
-           style={{ width: '280px', zIndex: 1050 }}>
+      <div
+        className="bg-white border-end vh-100 position-fixed start-0 top-0"
+        style={{ width: "280px", zIndex: 1050 }}
+      >
         <div className="d-flex flex-column h-100">
           {/* Brand */}
           <div className="p-3 mb-4">
-          <div className="flex items-center">
-            <div className="bg-black rounded-lg p-2">
+            <div className="flex items-center">
+              <div className="bg-black rounded-lg p-2">
                 <Target className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-3">
+              </div>
+              <div className="ml-3">
                 <div className="text-lg font-bold">BBJ Flows</div>
                 <div className="text-sm">techniques and sequences</div>
+              </div>
             </div>
-          </div>
           </div>
 
           {/* Navigation Menu */}
           <nav className="flex-grow-1 px-3 py-4">
             <ul className="list-unstyled">
-              {menuItems.map((item) => (
+              {menuItem.map((item) => (
                 <li key={item.id} className="mb-1">
                   <a
                     href="#"
-                    onClick={(e) => { e.preventDefault(); handleMenuItemClick(item); }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleMenuItemClick(item);
+                    }}
                     className={`sidebar-nav-item d-flex align-items-center justify-content-between gap-3 px-3 py-3 text-decoration-none rounded ${
-                      (selectedItem === item.id && !item.subItems) || openSubMenu === item.id || isParentOfSelected(item) ? 'selected' : ''
+                      (selectedItem === item.id && !item.subItems) ||
+                      openSubMenu === item.id ||
+                      isParentOfSelected(item)
+                        ? "selected"
+                        : ""
                     }`}
                   >
                     <div className="d-flex align-items-center gap-3">
                       <item.icon size={20} strokeWidth={1.5} />
                       <span>{item.label}</span>
                     </div>
-                    {item.subItems && <ChevronDown size={16} className={`chevron ${openSubMenu === item.id ? 'rotate-180' : ''}`} />}
+                    {item.subItems && (
+                      <ChevronDown
+                        size={16}
+                        className={`chevron ${
+                          openSubMenu === item.id ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
                   </a>
                   {item.subItems && openSubMenu === item.id && (
                     <ul className="list-unstyled ps-4 pt-2">
-                      {item.subItems.map(subItem => (
+                      {item.subItems.map((subItem) => (
                         <li key={subItem.id}>
                           <a
                             href="#"
-                            onClick={(e) => { e.preventDefault(); handleSubMenuItemClick(subItem, item.id); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleSubMenuItemClick(subItem, item.id);
+                            }}
                             className={`sidebar-sub-item d-flex align-items-center gap-3 px-3 py-2 text-decoration-none rounded ${
-                              selectedItem === subItem.id ? 'selected' : ''
+                              selectedItem === subItem.id ? "selected" : ""
                             }`}
                           >
                             <span>{subItem.label}</span>
@@ -167,27 +407,48 @@ const SidebarNavigationComponent = () => {
             </ul>
           </nav>
           <div className="mt-auto mb-4 ">
-          <button className="w-full p-2 bg-transparent border-0 "onClick={() => navigate('/dashboard')}>
-            <div className="flex items-center">
+            <button
+              className="w-full p-2 bg-transparent border-0 "
+              onClick={() => navigate("/dashboard")}
+            >
+              <div className="flex items-center">
                 <ChevronLeft className="h-10 w-10 flex-shrink-0" />
                 <div className="ml-3 text-center flex-grow">
-                    <div className="text-lg">Dashboard</div>
-                    <div className="text-sm font-bold">go back to dashboard</div>
+                  <div className="text-lg">Dashboard</div>
+                  <div className="text-sm font-bold">go back to dashboard</div>
                 </div>
-            </div>
-          </button>
+              </div>
+            </button>
+            {/* Logout Button */}
+            <button
+              className="w-full p-2 bg-transparent border-0 mt-2"
+              onClick={handleLogout}
+            >
+              <div className="flex items-center">
+                <LogOut className="h-10 w-10 flex-shrink-0" />
+                <div className="ml-3 text-center flex-grow">
+                  <div className="text-lg">Logout</div>
+                  <div className="text-sm font-bold">
+                    Sign out of your account
+                  </div>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className='w-100' style={{ marginLeft: '280px' }}>
+      <div className="w-100" style={{ marginLeft: "280px" }}>
         <div className="p-5">
           <h3 className="fw-bold mb-3 mx-auto text-center">Account Settings</h3>
           <div className="content-area mx-auto">
-            {SelectedComponent ? <SelectedComponent /> : <p className="text-muted">Select an option from the sidebar.</p>}
+            {SelectedComponent ? (
+              <SelectedComponent />
+            ) : (
+              <p className="text-muted">Select an option from the sidebar.</p>
+            )}
           </div>
-          
         </div>
       </div>
 

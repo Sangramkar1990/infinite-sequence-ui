@@ -69,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('token'); // <--- Add this line to remove the token
       setUser(null);
       setIsAuthenticated(false);
     }

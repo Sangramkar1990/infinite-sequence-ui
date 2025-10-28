@@ -20,7 +20,9 @@ import Techniques from './pages/techniques'; // Add this import
 import TechniquesNew from './pages/TechniquesNew'; // Add this import
 import AccountNewPage from './pages/AccountNew';
 import Sequences from './pages/sequences'; // Add this import
+// import FlowBuilder from './pages/FlowBuilder_old'; // Add this import
 import FlowBuilder from './pages/FlowBuilder'; // Add this import
+// import TestBuilder2 from './pages/TestBuilder2'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
@@ -86,6 +88,8 @@ function App() {
             <Route path="/account" element={<AccountNewPage/>}/>
             <Route path="/sequences" element={<Sequences/>}/>
             <Route path="/flow-builder" element={<FlowBuilder/>}/>
+            {/* <Route path="/test-builder" element={<FlowBuilderTest/>}/>
+            <Route path="/test-builder-2" element={<TestBuilder2/>}/> */}
 
 
 

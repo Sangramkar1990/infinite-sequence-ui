@@ -36,6 +36,7 @@ export function Button({
   children,
   className,
   variant = "solid",
+  disabled, // Destructure disabled prop
   ...props
 }: ButtonProps) {
   const variants = {
@@ -47,14 +48,15 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center px-4 py-2 rounded transition",
+        "inline-flex items-center px-4 py-2 rounded transition cursor-not-allowed",
         variants[variant],
+        disabled && "opacity-50 cursor-not-allowed", // Conditionally apply disabled styles
         className
       )}
+      disabled={disabled} // Ensure the disabled attribute is passed to the button
       {...props}
     >
       {children}
     </button>
   );
 }
-

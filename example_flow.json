@@ -1,0 +1,227 @@
+{
+  "nodes": [
+    {
+      "id": "node-1752082212686",
+      "type": "custom",
+      "position": {
+        "x": -476.3185809702833,
+        "y": -1489.6460220997214
+      },
+      "data": {
+        "name": "card 6",
+        "type": "Submission",
+        "effect": "No GI",
+        "description": "test",
+        "url": " https://www.youtube.com/embed/PzRARzgBBNo",
+        "id": "a07f7694-549e-4bd9-a202-8443666f8f44",
+        "position": {
+          "x": -476.3185809702833,
+          "y": -1489.6460220997214
+        },
+        "next": "node-1760881838791"
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1760881838791",
+      "type": "custom",
+      "position": {
+        "x": -450.98669971819737,
+        "y": -1243.9617120795533
+      },
+      "data": {
+        "name": "technique 4",
+        "type": "Position",
+        "effect": "GI",
+        "description": "hello world",
+        "url": "https://www.youtube.com/embed/23enzBqgkhs",
+        "id": "f0862297-8dcb-4309-87e0-f673660fad0b",
+        "position": {
+          "x": -450.98669971819737,
+          "y": -1243.9617120795533
+        },
+        "next": "node-1760881856849"
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1760881856849",
+      "type": "custom",
+      "position": {
+        "x": -935.4901038490164,
+        "y": -1048.6085343502823
+      },
+      "data": {
+        "name": "new technique ",
+        "type": "Sweep",
+        "effect": "Beginner",
+        "description": "hello world",
+        "url": "https://www.youtube.com/embed/23enzBqgkhs",
+        "id": "bbd56c72-afed-4beb-bd0c-68dcf6172974",
+        "position": {
+          "x": -935.4901038490164,
+          "y": -1048.6085343502823
+        },
+        "next": null
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1752102921317",
+      "type": "custom",
+      "position": {
+        "x": -1305.58511695575,
+        "y": -1674.015726416526
+      },
+      "data": {
+        "name": "test",
+        "type": "Position",
+        "effect": "GI",
+        "description": "sss",
+        "url": "https://www.youtube.com/embed/729k4AvpAL0",
+        "id": "23eb5120-f977-4e26-b741-993c09abc007",
+        "position": {
+          "x": -1305.58511695575,
+          "y": -1674.015726416526
+        },
+        "next": "node-1752082217674"
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1752082217674",
+      "type": "custom",
+      "position": {
+        "x": -14.702157017429727,
+        "y": -1767.1878761404132
+      },
+      "data": {
+        "name": "card 4",
+        "type": "Guard",
+        "effect": "No GI",
+        "description": "test 3",
+        "url": "https://www.youtube.com/embed/23enzBqgkhs",
+        "id": "47660ce1-4a4a-443d-9ba2-754b21679112",
+        "position": {
+          "x": -14.702157017429727,
+          "y": -1767.1878761404132
+        },
+        "next": "node-1752082212686"
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1752086869851",
+      "type": "custom",
+      "position": {
+        "x": -1143.171099639109,
+        "y": -1997.2221780896448
+      },
+      "data": {
+        "name": "card 6",
+        "type": "Submission",
+        "effect": "No GI",
+        "description": "test",
+        "url": " https://www.youtube.com/embed/PzRARzgBBNo",
+        "id": "a07f7694-549e-4bd9-a202-8443666f8f44",
+        "position": {
+          "x": -1143.171099639109,
+          "y": -1997.2221780896448
+        },
+        "next": "node-1760881760478"
+      },
+      "width": 500,
+      "height": 161
+    },
+    {
+      "id": "node-1760881760478",
+      "type": "custom",
+      "position": {
+        "x": -363.59975253613266,
+        "y": -2159.1579464347406
+      },
+      "data": {
+        "name": "technique 3",
+        "type": "Guard",
+        "effect": "No GI",
+        "description": "hello world",
+        "url": "https://www.youtube.com/embed/23enzBqgkhs",
+        "id": "1b58f8a5-10a1-4dea-a371-4369a3f2238c",
+        "position": {
+          "x": -363.59975253613266,
+          "y": -2159.1579464347406
+        },
+        "next": "node-1752082217674"
+      },
+      "width": 500,
+      "height": 161
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-node-1752082212686-node-node-1760881838791",
+      "source": "node-1752082212686",
+      "target": "node-1760881838791",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "id": "edge-node-1760881838791-node-node-1760881856849",
+      "source": "node-1760881838791",
+      "target": "node-1760881856849",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "id": "edge-node-1752102921317-node-node-1752082217674",
+      "source": "node-1752102921317",
+      "target": "node-1752082217674",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "id": "edge-node-1752082217674-node-node-1752082212686",
+      "source": "node-1752082217674",
+      "target": "node-1752082212686",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "id": "edge-node-1752086869851-node-node-1760881760478",
+      "source": "node-1752086869851",
+      "target": "node-1760881760478",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    },
+    {
+      "id": "edge-node-1760881760478-node-node-1752082217674",
+      "source": "node-1760881760478",
+      "target": "node-1752082217674",
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 40,
+        "height": 40
+      }
+    }
+  ]
+}

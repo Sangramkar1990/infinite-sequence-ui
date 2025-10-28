@@ -88,6 +88,9 @@ export const membershipService = {
   updateRoles: (organizationId, updates) => {
     return apiRequest('/memberships/role', 'POST', { organizationId, updates });
   },
+  getMembershipsByOrganizationId: (organizationId) => {
+    return apiRequest(`/memberships/organization/${organizationId}`);
+  },
 };
 
 export const teamService = {
@@ -147,5 +150,31 @@ export const sequenceService = {
   updateSequence: (id, data) => {
     return apiRequest(`/sequences/${id}`, 'PUT', data);
   }
-
 }
+
+export const flowService = {
+  storeFlow: (sequenceId, nodes, edges) => {
+    return apiRequest('/sequences/flows', 'POST', { sequenceId, nodes, edges });
+  },
+  getFlow: (sequenceId) => {
+    return apiRequest(`/sequences/flows/${sequenceId}`);
+  },
+  updateFlow: (sequenceId, nodes, edges) => {
+    return apiRequest(`/sequences/flows/${sequenceId}`, 'PUT', { nodes, edges });
+  },
+};
+
+export const roleService = {
+  getAllRoles: () => {
+    return apiRequest('/roles');
+  },
+  getAllPermissions: () => {
+    return apiRequest('/permissions');
+  },
+  getRolePermissions: (roleId) => {
+    return apiRequest(`/role-permissions/${roleId}`);
+  },
+  updateRolePermissions: (roleId, permissions) => {
+    return apiRequest(`/role-permissions/${roleId}`, 'PUT', { permissions });
+  },
+};

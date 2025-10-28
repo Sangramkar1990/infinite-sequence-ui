@@ -22,7 +22,6 @@ import { useNavigate, useSearchParams } from "react-router-dom"; // Add useSearc
 import { useDispatch, useSelector } from "react-redux";
 import { setSequence } from "../store/sequenceSlice";
 import "reactflow/dist/style.css";
-import { flowService } from "../services/api"; 
 import {
   fetchUserSequences,
   fetchSequenceById,
@@ -38,7 +37,6 @@ import {
 } from "../store/flowEditorSlice";
 import { CustomNode } from "../components/editor/CustomNode";
 import { CgProfile } from "react-icons/cg";
-import FlowData from "../../example_flow2.json";
 
 // Define card layout sizes
 const initialPosition = { x: 50, y: 50 };
@@ -48,7 +46,7 @@ const gapX = 80;
 const gapY = 30;
 const canvasWidth = 1000;
 
-const FlowBuilder = () => {
+const FlowBuilderOld = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [sequences, setSequences] = useState([]);
@@ -73,17 +71,16 @@ const FlowBuilder = () => {
   //   console.log("fetchedSequence changed", { fetchedSequence });
   // }, [fetchedSequence]);
   const handleDestroyCard = useCallback((cardId) => {
-    console.log("destroy card", { cardId });
+    console.log("card id", { cardId });
 
     dispatch(deleteCard(cardId));
   }, []);
   const nodeTypes = useMemo(
     () => ({
-      
       custom: (props) => (
         <CustomNode
           {...props}
-          data={{ ...props.data, destroyCard: handleDestroyCard, nodeId : props.id, deleteNode : deleteNodeById}}
+          data={{ ...props.data, destroyCard: handleDestroyCard }}
         />
       ),
     }),
@@ -105,15 +102,6 @@ const FlowBuilder = () => {
     },
     [setEdges]
   );
-  useEffect(() => {
-    console.log("edges changed", { edges });
-  }, [edges]);
-
-  function deleteNodeById(nodeId) {
-  setNodes(prev => prev.filter(n => n.id !== nodeId));
-  // if you keep edges in state, also remove edges connected to that node:
-  setEdges(prev => prev.filter(e => e.source !== nodeId && e.target !== nodeId));
-}
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -194,7 +182,7 @@ const FlowBuilder = () => {
 
     return {
       x: initialPosition.x + col * (cardWidth + gapX),
-y: initialPosition.y + row * (cardHeight + gapY),
+      y: initialPosition.y + row * (cardHeight + gapY),
     };
   };
 
@@ -252,18 +240,14 @@ y: initialPosition.y + row * (cardHeight + gapY),
             !removedNodeIds.includes(edge.target)
         );
       });
-      
+      if (!isInitializing) {
         setHasUnsavedChanges(true);
-      
+      }
 
       //   setHasUnsavedChanges(true);
     },
     [setNodes, setEdges]
   );
-
-  // useEffect(() => {
-  //   console.log("nodes and edges", { nodes, edges});
-  // }, [nodes,edges]);
 
   const onDrop = useCallback(
     (event) => {
@@ -367,8 +351,7 @@ y: initialPosition.y + row * (cardHeight + gapY),
     edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
       const targetNode = nodeMap.get(edge.target);
-      console.log("edge : ", {edges,  nodeMap});
-      console.log("source node : ", sourceNode);
+      console.log("edge : ", edge);
       // console.log("source node : ", sourceNode);
       // console.log("target node :", targetNode);
       if (sourceNode) {
@@ -376,9 +359,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
         sourceNode.next = edge.target;
         sourceNode.reverse = edge.reverse;
         sourceNode.bidirection = edge.bidirection;
-        sourceNode.sourceIsXAxis = edge.sourceIsXAxis;
-        sourceNode.targetIsYAxis = edge.targetIsYAxis;
-        sourceNode.targetX = edge.targetX; 
       }
     });
 
@@ -405,9 +385,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
           node_id: node.node_id,
           reverse: node.reverse ? node.reverse : false,
           bidirection: node.bidirection ? node.bidirection : false,
-          sourceIsXAxis: node.sourceIsXAxis ? node.sourceIsXAxis : false,
-          targetIsYAxis: node.targetIsYAxis ? node.targetIsYAxis : false,
-          targetX: node.targetX ?  node.targetX : false
         });
         traverseList(node.next);
       }
@@ -420,72 +397,44 @@ y: initialPosition.y + row * (cardHeight + gapY),
 
   // Function to save sequence
   const saveSequence = async () => {
-    console.log("saving sequence 1", {nodes, edges});
-    
+    console.log("saving sequence 1");
     if (!sequenceSelected || !hasUnsavedChanges) return;
 
-    // const linkedListData = convertToLinkedList(); // This logic remains
-    // if (!linkedListData.length) return; // This check might need adjustment based on how flowService handles empty data
+    const linkedListData = convertToLinkedList();
+    if (!linkedListData.length) return;
 
     dispatch(clearSaveError?.());
-    const cleanedNodes = nodes.map(n => ({
-  ...n,
-  data: { id: n.data.id }
-}));
     // const linkedListData = convertToLinkedList(); // This logic remains
-    console.log("saveSequenceThunk", { sequenceSelected, cleanedNodes, edges }); // Log nodes and edges directly
-    try {
-      await flowService.updateFlow(sequenceSelected, cleanedNodes, edges);
-      setHasUnsavedChanges(false);
-      console.log("Flow saved successfully!");
-    } catch (err) {
-      console.error("Failed to save flow:", err);
-      // Handle error display if needed
-    }
+    console.log("saveSequenceThunk", { linkedListData });
+    dispatch(
+      saveSequenceThunk({
+        sequenceId: sequenceSelected,
+        cardsData: linkedListData,
+      })
+    )
+      .unwrap() // Use unwrap to handle promise resolution/rejection here if needed
+      .then(() => {
+        setHasUnsavedChanges(false);
+        // Optionally: dispatch(clearSaveError());
+      })
+      .catch((err) => {
+        // Error is already in saveError from the slice, but you can log or handle locally too
+        console.error("Failed to save sequence (local catch):", err);
+      });
   };
 
   // Add auto-save effect
-  // useEffect(() => {
-  //   console.log("auto save init", { hasUnsavedChanges });
-  //   console.log("nodes and edges for autosave", { nodes, edges });
-  //   let data = {nodes, edges};
-  //   const json = JSON.stringify(data, null, 2); 
-  //   const blob = new Blob([json], { type: 'application/json' });
-  //   const url = URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = "test_json_flow.json";
-  //   a.click();
-  //   URL.revokeObjectURL(url);
-  //   if (hasUnsavedChanges && sequenceSelected) {
-  //     const timeoutId = setTimeout(() => {
-  //       console.log("saving 0");
-  //       saveSequence();
-  //     }, 2000); // Auto-save after 2 seconds of no changes
-
-  //     return () => clearTimeout(timeoutId);
-  //   }
-  // }, [nodes, edges, hasUnsavedChanges, sequenceSelected]);
-
   useEffect(() => {
-    // Removed old logic for loading from example_flow.json
-    // const loadFlowFromFile = async () => {
-    //   try {
-    //     const response = await fetch('/home/pc/Projects/2. Jitsu/frontend/example_flow.json');
-        
-    //     const flowData = FlowData;
-    //     console.log("json responses",flowData)
-    //     setNodes(flowData.nodes || []);
-    //     setEdges(flowData.edges || []);
-    //     setIsInitializing(false);
-    //     setHasUnsavedChanges(false);
-    //   } catch (error) {
-    //     console.error("Failed to load flow from file:", error);
-    //   }
-    // };
+    console.log("auto save init", { hasUnsavedChanges });
+    if (hasUnsavedChanges && sequenceSelected) {
+      const timeoutId = setTimeout(() => {
+        console.log("saving 0");
+        saveSequence();
+      }, 2000); // Auto-save after 2 seconds of no changes
 
-    // loadFlowFromFile();
-  }, []); 
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nodes, edges, hasUnsavedChanges, sequenceSelected]);
 
   // display selected sequence on page load
   useEffect(() => {
@@ -493,25 +442,17 @@ y: initialPosition.y + row * (cardHeight + gapY),
     if (is_url_sequence_id) {
       setIsInitializing(true); // Mark start of loading
 
-      // Fetch flow data using the new flowService
-      flowService.getFlow(urlSequenceParams)
-        .then((data) => {
-          if (data) {
-            
-            setNodes(data.data.nodes || []);
-            setEdges(data.data.edges || []);
-            setSequenceName(data.data.sequence.name || "Unnamed Flow"); // Assuming 'name' is part of the flow data
-            setSequenceSelected(urlSequenceParams);
-            setIsInitializing(false); // Loading complete, allow changes to mark unsaved
-            setHasUnsavedChanges(false); // Reset unsaved changes on fresh load
-            console.log("sequence name test" ,{name : data.data.sequence.name})
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch flow:", err);
-          setError("Failed to load flow data.");
-          setIsInitializing(false);
-        });
+      dispatch(fetchSequenceById(urlSequenceParams)).then((data) => {
+        if (data.meta.requestStatus === "fulfilled") {
+          // Process the loaded sequence data here
+          processSequenceData(data);
+          console.log("sequence data name ---->", data);
+          setSequenceName(data.payload.name);
+          setSequenceSelected(urlSequenceParams);
+          setIsInitializing(false); // Loading complete, allow changes to mark unsaved
+          setHasUnsavedChanges(false); // Reset unsaved changes on fresh load
+        }
+      });
     }
   }, [urlSequenceParams]);
   useEffect(() => {
@@ -544,7 +485,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
     }
   }, [cardId, dispatch]);
 
-  // Removed old useEffect for sequenceIdFromUrl
   // useEffect(() => {
   //   const sequenceIdFromUrl = searchParams.get("id");
   //   if (sequenceIdFromUrl) {
@@ -560,16 +500,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
   //       });
   //   }
   // }, [searchParams, dispatch]);
-  useEffect(()=> {
-    if(edges){
-      console.log("edges --- >", edges)
-    }
-  }, [edges])
-  useEffect(() => {
-    if(nodes){
-      console.log("nodes --- >", nodes)
-    }
-  }, [nodes]);
 
   const handleAddCard = (card) => {
     const newNode = {
@@ -594,7 +524,7 @@ y: initialPosition.y + row * (cardHeight + gapY),
 
   // Add edge handling to trigger auto-save
   const onConnect = useCallback((params) => {
-    console.log("sourceNodeId from state:", {params, sourceIsXAxis: params.sourceHandle === "source-right" ? true : false, targetIsYAxis: params.targetHandle === "target-top"  ? true : false});
+    console.log("sourceNodeId from state:", params);
     //  const { target, targetHandle } = params;
 
      
@@ -604,9 +534,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
         const swappedParams = {
           ...params,
           reverse: true,
-           sourceIsXAxis: params.sourceHandle === "source-right" ? true : false,
-           targetIsYAxis: params.targetHandle === "target-top"  ? true : false,
-           targetX : params.sourceHandle === "source-right" ? params.target : false,
           markerStart: { type: MarkerType.ArrowClosed, width: 40, height: 40 },
         };
         return addEdge(swappedParams, eds);
@@ -615,8 +542,6 @@ y: initialPosition.y + row * (cardHeight + gapY),
       return addEdge(
         {
           ...params,
-          sourceIsXAxis: params.sourceHandle === "source-right" ? true : false,
-           targetIsYAxis: params.targetHandle === "target-top"  ? true : false,
           markerEnd: { type: MarkerType.ArrowClosed, width: 40, height: 40 },
         },
         eds
@@ -670,7 +595,8 @@ y: initialPosition.y + row * (cardHeight + gapY),
     const newNodes = [];
     const newEdges = [];
     // Remove initialPosition calculation here, use stored position
-cards.forEach((card, index) => {
+
+    cards.forEach((card, index) => {
       console.log("each card", card);
       const nodeId = card.node_id ? card.node_id : `node-${index}`;
       // console.log("node 123 id:", nodeId);
@@ -768,32 +694,32 @@ cards.forEach((card, index) => {
     setError(null);
   };
 
-  // // Modify handleSequenceSelect
-  // const handleSequenceSelect = async (event) => {
-  //   const selectedId = event.target.value;
-  //   if (!selectedId) {
-  //     setNodes([]);
-  //     setEdges([]);
-  //     setSelectedSequenceName("");
-  //     return;
-  //   }
-  //   setSequenceSelected(selectedId);
-  //   dispatch(fetchSequenceById(selectedId)).then((data) => {
-  //     if (data.meta.requestStatus === "fulfilled") {
-  //       console.log("fetched sequence data", data);
-  //       processSequenceData(data);
-  //       if (!urlSequenceParams) return;
-  //       const newParams = new URLSearchParams(searchParams);
-  //       newParams.delete("sequenceSelected");
-  //       navigate(`?${newParams.toString()}`, { replace: true });
-  //     }
-  //   });
-  // };
+  // Modify handleSequenceSelect
+  const handleSequenceSelect = async (event) => {
+    const selectedId = event.target.value;
+    if (!selectedId) {
+      setNodes([]);
+      setEdges([]);
+      setSelectedSequenceName("");
+      return;
+    }
+    setSequenceSelected(selectedId);
+    dispatch(fetchSequenceById(selectedId)).then((data) => {
+      if (data.meta.requestStatus === "fulfilled") {
+        console.log("fetched sequence data", data);
+        processSequenceData(data);
+        if (!urlSequenceParams) return;
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete("sequenceSelected");
+        navigate(`?${newParams.toString()}`, { replace: true });
+      }
+    });
+  };
 
   // Update the return statement to match FlowViewer's layout
   return (
     <div className="container-fluid ">
-      <SidebarNavigation selectedItem="flow-builder" inFlow={true} />
+      <SidebarNavigation selectedItem="flow-builder" />
       <div
         className="row"
         style={{ marginLeft: "306px", width: "calc(100% - 306px)" }}
@@ -966,9 +892,7 @@ cards.forEach((card, index) => {
             <div className="ms-auto space-x-2 mb-2">
               <Button
                 className="bg-slate-900 hover:bg-slate-800 me-2"
-                id="save-sequence-button"
-                onClick={saveSequence}
-                disabled={!hasUnsavedChanges }
+                id="add-technique-button"
               >
                 <File className="w-4 h-4 mr-2" />
                 Save Sequence
@@ -1004,9 +928,8 @@ cards.forEach((card, index) => {
                 }}
                 onEdgeClick={onEdgeClick}
                 onEdgesChange={onEdgesChange}
-                onConnectStart={(event, { nodeId}) => {
+                onConnectStart={(event, { nodeId }) => {
                   sourceNodeIdRef.current = nodeId; // Store the source node ID
-                  console.log("connect start from event", {target :event.target.dataset.handleid});
                 }}
                 fitView
                 style={{
@@ -1043,4 +966,4 @@ cards.forEach((card, index) => {
   );
 };
 
-export default FlowBuilder;
+export default FlowBuilderOld;

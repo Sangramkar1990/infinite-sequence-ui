@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export default function TechniquesNew() {
   const [searchParams] = useSearchParams();
+  const createTechniques = searchParams.get('createNew') === 'true';
   const newCard = searchParams.get('new') === 'true';
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
@@ -18,6 +19,10 @@ export default function TechniquesNew() {
   const { sequences } = useSelector((state) => state.sequence);
 
   const hasQuery = searchParams.has('new');
+
+  // useEffect(()=>{
+  //   console.log("create techniques", {createTechniques})
+  // },[createTechniques]);
 
    useEffect(() => {
     dispatch(fetchCardsByUser());
@@ -90,7 +95,7 @@ useEffect(() => {
   return (
     <div className="flex">
 
-    <SidebarNavigation selectedItem="techniques"/>
+    <SidebarNavigation selectedItem="techniques" triggerCreateTechniues={createTechniques}/>
     <div className="min-h-screen bg-gray-50 p-6 " style={{marginLeft: "306px", width: "calc(100% - 306px)"}}>
       <h1 className="text-3xl font-semibold text-center mb-6">
         BJJ Techniques Library

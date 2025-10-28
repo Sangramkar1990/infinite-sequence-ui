@@ -11,5 +11,11 @@ export default {
       },
     },
   },
+  variants: {
+    extend: {
+      opacity: ['disabled'],
+      cursor: ['disabled'],
+    },
+  },
   plugins: [],
 }

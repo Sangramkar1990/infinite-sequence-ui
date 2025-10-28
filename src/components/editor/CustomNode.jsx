@@ -38,6 +38,10 @@ export const CustomNode = ({ data, selected = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
+  useEffect(()=> {
+    console.log("custom node data",{id :data});
+  }, [data])
+
   useEffect(() => {
     if (!menuOpen) return;
     function handleClickOutside(event) {
@@ -66,7 +70,8 @@ export const CustomNode = ({ data, selected = false }) => {
     >
       <Handle
         type="target"
-        position="left"
+        position="top"
+        id="target-top"
         style={{ background: "#555", width: 10, height: 10 }}
       />
       
@@ -78,22 +83,24 @@ export const CustomNode = ({ data, selected = false }) => {
         <h4 className="font-bold text-slate-900 flex-1">{data.name}</h4>
 
         {data.url && (
-          <button
-            
+          <a
+            href={data.url}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-slate-400 hover:text-amber-500 mr-1"
           >
             <Play className="w-5 h-5" />
-          </button>
+          </a>
         )}
 
         <button
           onClick={() => {
-            if (data.destroyCard) {
-              data.destroyCard(data.id);
+            if (data.deleteNode) {
+              data.deleteNode(data.nodeId);
             }
-            setMenuOpen(false);
+            
           }}
-          className="text-slate-400 hover:text-red-500 opacity-50 group-hover:opacity-100"
+          className="text-red-400 hover:text-red-600 opacity-50 group-hover:opacity-100"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -258,7 +265,20 @@ export const CustomNode = ({ data, selected = false }) => {
       </div>
       <Handle
         type="source"
+        position="bottom"
+        id="source-bottom"
+        style={{ background: "#555", width: 10, height: 10, zIndex: 1000 }}
+      />
+      <Handle
+        type="target"
+        position="left"
+        id="target-left"
+        style={{ background: "#555", width: 10, height: 10 }}
+      />
+      <Handle
+        type="source"
         position="right"
+        id="source-right"
         style={{ background: "#555", width: 10, height: 10 }}
       />
     </div>
