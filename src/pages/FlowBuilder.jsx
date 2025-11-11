@@ -56,6 +56,7 @@ const FlowBuilder = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlSequenceParams = searchParams.get("sequenceSelected");
+  const isEdit = searchParams.get("edit");
   const cardId = searchParams.get("cardId");
   const [selectedEdge, setSelectedEdge] = useState(null);
   const user = useSelector((state) => state.user.user);
@@ -420,14 +421,14 @@ y: initialPosition.y + row * (cardHeight + gapY),
 
   // Function to save sequence
   const saveSequence = async () => {
-    console.log("saving sequence 1", {nodes, edges});
+    console.log("saving sequence 1", {nodes, edges, isValid: !sequenceSelected , sequenceSelected});
     
     if (!sequenceSelected || !hasUnsavedChanges) return;
 
     // const linkedListData = convertToLinkedList(); // This logic remains
     // if (!linkedListData.length) return; // This check might need adjustment based on how flowService handles empty data
 
-    dispatch(clearSaveError?.());
+    // dispatch(clearSaveError?.());
     const cleanedNodes = nodes.map(n => ({
   ...n,
   data: { id: n.data.id }
@@ -977,6 +978,7 @@ cards.forEach((card, index) => {
                 variant="outline"
                 className="border-slate-200"
                 id="add-sequence-button"
+                onClick={() => navigate(`/share?sequenceId=${sequenceSelected}`)}
               >
                 <Share2 className="w-4 h-4 mr-2" />
                 Share

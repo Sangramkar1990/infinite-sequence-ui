@@ -28,7 +28,8 @@ export default function SidebarNavigation({
   const [isLoading, setIsLoading] = useState(true);
 
   const [userName, setUserName] = useState("john doe");
-  let permissions = [];
+  const [permissions, setPermissions] = useState([]);
+  // let permissions = [];
   //   const roleTypeColors = {
   //   user: "bg-green-100 text-green-700",
   //   teamLead: "bg-amber-100 text-amber-700",
@@ -40,7 +41,7 @@ export default function SidebarNavigation({
       console.log("sidebar user permission:", {
         permissions: user.permissions,
       });
-      permissions = user.permissions;
+      setPermissions(user.permissions);
     }
   }, [user]);
 
@@ -71,12 +72,12 @@ export default function SidebarNavigation({
       id: "techniques",
     },
     { path: "/sequences", icon: BookOpen, label: "Sequences", id: "sequences" },
-    {
-      path: "/flow-builder",
-      icon: Workflow,
-      label: "Flow Builder",
-      id: "flow-builder",
-    },
+    // {
+    //   path: "/flow-builder",
+    //   icon: Workflow,
+    //   label: "Flow Builder",
+    //   id: "flow-builder",
+    // },
   ];
 
   return (

@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SidebarNavigation from "../components/dashboard/SidebarNavigation";
-import { fetchAllSequences } from "../store/sequenceSlice";
-import { Orbit, Target, BookOpen, Workflow } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { fetchAllSequences, fetchMySequences, deleteSequence } from "../store/sequenceSlice"; // Added fetchMySequences and deleteSequence
+import { Orbit, Target, BookOpen, Workflow, Edit, Trash2, Play } from "lucide-react"; // Added Edit, Trash2, Play
+import { useSearchParams, useNavigate } from "react-router-dom"; // Added useNavigate
+import { sequenceService } from '../services/api'; // Import sequenceService
 
 export default function Sequences() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,18 +13,39 @@ export default function Sequences() {
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
+  const [showMySequences, setShowMySequences] = useState(false); // New state for toggling my sequences
   const { sequences, loading } = useSelector((state) => state.sequence);
- 
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     console.log("sequences ----- >", sequences.data);
   }, [sequences]);
 
-
-
   useEffect(() => {
-    dispatch(fetchAllSequences());
-  }, [dispatch]);
+    if (showMySequences) {
+      dispatch(fetchMySequences()); // Dispatch fetchMySequences if showMySequences is true
+    } else {
+      dispatch(fetchAllSequences()); // Otherwise, dispatch fetchAllSequences
+    }
+  }, [dispatch, showMySequences]); // Added showMySequences to dependency array
+
+  const handleDeleteSequence = (sequenceId) => {
+    if (window.confirm('Are you sure you want to delete this sequence? This action cannot be undone.')) {
+      dispatch(deleteSequence(sequenceId))
+        .then(() => {
+          // Re-fetch sequences after successful deletion
+          if (showMySequences) {
+            dispatch(fetchMySequences());
+          } else {
+            dispatch(fetchAllSequences());
+          }
+        })
+        .catch(error => {
+          console.error('Failed to delete sequence:', error);
+          // Optionally, show an error message to the user
+        });
+    }
+  };
 
   // useEffect(() => {
   //   dispatch(fetchCardsByUser());
@@ -100,6 +122,15 @@ export default function Sequences() {
             </option>
           ))}
         </select> */}
+          {showMySequences ?
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setShowMySequences(false)}>
+              Show All Sequences
+            </button>
+            : <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setShowMySequences(true)}>
+              My Sequences
+            </button>}
         </div>
 
         {loading === "loading" && (
@@ -127,25 +158,38 @@ export default function Sequences() {
                     </div>
                     <h2 className="text-xl font-medium">{item.name}</h2>
                   </div>
-                  <a
-                    href={`/flow-builder/?sequenceSelected=${item.id}`}
-                    target="_self"
-                    rel="noopener noreferrer"
-                  >
-                    <Workflow className="w-4 h-4 inline-block mr-1" />
-                  </a>
+                  {/* Action buttons */}
+                  <div className="flex justify-end gap-2 mt-4">
+                    {/* Play Button */}
+                    <a href={`/flow-viewer?sequenceId=${item.id}`} target="_self" rel="noopener noreferrer" className="relative group">
+                      <button className="flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue font-bold p-2 rounded-full w-10 h-10">
+                        <Play className="w-5 h-5" />
+                      </button>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Play</span>
+                    </a>
 
-                  {/* <span
-                  className={`px-2 py-1 text-sm rounded ${
-                    item.difficulty === 'Advanced'
-                      ? 'bg-red-200 text-red-800'
-                      : item.difficulty === 'Intermediate'
-                      ? 'bg-yellow-200 text-yellow-800'
-                      : 'bg-green-200 text-green-800'
-                  }`}
-                >
-                  {item.difficulty}
-                </span> */}
+                    {showMySequences && (
+                      <>
+                        {/* Edit Button */}
+                        <button
+                          className="relative group flex justify-center items-center bg-green-100 hover:bg-green-200 text-green font-bold p-2 rounded-full w-10 h-10"
+                          onClick={() => navigate(`/flow-builder?sequenceSelected=${item.id}`)} // Navigate to FlowBuilder for editing
+                        >
+                          <Edit className="w-5 h-5" />
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Edit</span>
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          className="relative group flex justify-center items-center bg-red-100 hover:bg-red-200 text-red font-bold p-2 rounded-full w-10 h-10"
+                          onClick={() => handleDeleteSequence(item.id)}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Delete</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {item.description && (

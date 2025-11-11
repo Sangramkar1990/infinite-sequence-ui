@@ -1,17 +1,44 @@
 import { DiffIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { cardService } from '../../services/api';
 
-export default function CreateCardModal({ show, onClose }) {
+
+export default function CreateCardModal({ show, onClose, edit = false , cardData = null}) {
    const navigate = useNavigate();
+  // const createURL = 'http://localhost:5001/api/sequences/create-card';
+  // const editUrlRaw = 'http://localhost:5001/api/sequences/card'
+  //   const editUrl = null;
+
+  const [editcardId, setEditcardId] = useState(null);
+   console.log("edit", edit, cardData);
   const [formData, setFormData] = useState({
     video: '',
     name: '',
     type: '',
     effect: '',
-    description: '',
+    description:'',
     difficulty: '',
   });
+
+  useEffect(()=> {
+    if(edit){
+      setFormData({
+        video: cardData?.url || '',
+        name: cardData?.name || '',
+        type: cardData?.type || '',
+        effect: cardData?.effect || '',
+        description: cardData?.description || '',
+        difficulty: cardData?.difficulty || '',
+      })
+      setEditcardId(cardData?.id || null);
+
+    }
+  }, [edit, cardData])
+
+  // useEffect(()=> {
+  //   console.log("form data", {url: formData.video, cardData : cardData.url})
+  // }, [formData, cardData ])
   const [error, setError] = useState(null);
   function convertYouTubeUrlToEmbed(url) {
     try {
@@ -36,27 +63,37 @@ export default function CreateCardModal({ show, onClose }) {
   };
   const handleSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('No authentication token found');
-        return;
-      }
-      const response = await fetch('http://localhost:5001/api/sequences/create-card', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          video: convertYouTubeUrlToEmbed(formData.video),
-          name: formData.name,
-          type: formData.type,
-          effect: formData.effect,
-          description: formData.description,
-          difficulty: formData.difficulty,
-        })
-      });
-      const result = await response.json();
+      // const token = localStorage.getItem('token');
+      // if (!token) {
+      //   setError('No authentication token found');
+      //   return;
+      // }
+      // const response = await fetch('http://localhost:5001/api/sequences/create-card', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     video: convertYouTubeUrlToEmbed(formData.video),
+      //     name: formData.name,
+      //     type: formData.type,
+      //     effect: formData.effect,
+      //     description: formData.description,
+      //     difficulty: formData.difficulty,
+      //   })
+      // });
+      // const result = await response.json();
+       const cardDataToSend = {
+        video: convertYouTubeUrlToEmbed(formData.video),
+        name: formData.name,
+        type: formData.type,
+        effect: formData.effect,
+        description: formData.description,
+        difficulty: formData.difficulty,
+      };
+
+      const result = await cardService.createCard(cardDataToSend);
       if (result.success) {
         
         navigate('/techniques');
@@ -76,12 +113,43 @@ export default function CreateCardModal({ show, onClose }) {
       setError(error.message);
     }
   };
+  const handleEdit = async () => {
+    try {
+      // const token = localStorage.getItem('token'); // No longer needed as apiRequest handles it
+      // if (!token) {
+      //   setError('No authentication token found');
+      //   return;
+      // }
+      const cardDataToUpdate = {
+        video: convertYouTubeUrlToEmbed(formData.video),
+        name: formData.name,
+        type: formData.type,
+        effect: formData.effect,
+        description: formData.description,
+        difficulty: formData.difficulty,
+      };
+
+      
+
+      const result = await cardService.patchCard(editcardId, cardDataToUpdate); // Use cardService.patchCard
+
+      if (result.success) {
+        navigate('/techniques');
+        onClose();
+      } else {
+        setError(result.message || 'Failed to update card');
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
   if (!show) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style={{zIndex: 1051}}>
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-xl relative">
         <button className="absolute top-2 right-2 text-gray-500" onClick={onClose}>&times;</button>
-        <h3 className="text-xl font-bold mb-4">Create New Card</h3>
+        {edit && <h3 className="text-xl font-bold mb-4">Edit Card</h3>}
+        {!edit && <h3 className="text-xl font-bold mb-4">Create New Card</h3>}
         {error && <div className="text-red-500 mb-2">{error}</div>}
         <form className="space-y-4">
           {['video', 'name', 'type', 'effect','difficulty' , 'description'].map((field) => (
@@ -119,7 +187,13 @@ export default function CreateCardModal({ show, onClose }) {
         </form>
         <div className="flex justify-end gap-2 mt-6">
           <button type="button" className="btn btn-warning px-4 py-2 rounded" onClick={onClose}>Cancel</button>
+          {edit ?
+          <button type="button" className="btn btn-primary px-4 py-2 rounded" onClick={handleEdit}>
+            Edit Card
+          </button> :
           <button type="button" className="btn btn-primary px-4 py-2 rounded" onClick={handleSubmit}>Create Card</button>
+          }
+          
         </div>
       </div>
     </div>

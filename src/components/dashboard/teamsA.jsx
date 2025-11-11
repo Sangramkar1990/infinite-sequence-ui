@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, Trash2, Upload } from 'lucide-react';
 import { teamService, membershipSearchService, membershipService } from '../../services/api';
 import { CgProfile } from "react-icons/cg";
 import { useNavigate } from "react-router-dom"; 
+import { useSelector } from 'react-redux';
 const TeamsManagementComponent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [organization_id, setOrganizationId] = useState(null);
@@ -16,16 +17,25 @@ const TeamsManagementComponent = () => {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [onSave, setOnSave] = useState(false);
   const [newTeam, setNewTeam] = useState('');
+  const {user} = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (user) {
+      console.log("user ----->", user)
+    }
+  }, [user]);
 
   
   useEffect(() => {
     const fetchOrganizationId = async () => {
       try {
-        const response = await membershipService.getMemberships();
-        console.log("membership response ----->", response.data[0].organization_id)
-        if (response && response.data.length > 0) {
+        const response = await membershipService.getAllMembershipByOrganization();
+        console.log("membership response ----->", response)
+        if (response.data && response.data?.length > 0) {
           setOrganizationId(response.data[0].organization_id);
-        }
+        }else if(user.role === 'admin')
+          setOrganizationId(user.organization_id)
+        
       } catch (error) {
         console.error("Error fetching organization ID:", error);
       }

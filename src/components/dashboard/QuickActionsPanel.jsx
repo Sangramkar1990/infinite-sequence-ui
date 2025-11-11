@@ -5,10 +5,14 @@ import { Plus, Target, BookOpen, Workflow, BarChart3 } from "lucide-react";
 import CreateCardModal from "./CreateCardModal";
 import CreateSequenceModal from "./CreateSequenceModal";
 import { userService } from "../../services/api";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function QuickActions({ techniquesByType, recentSequences }) {
   const [showCardModal, setShowCardModal] = useState(false);
   const [showSequenceModal, setShowSequenceModal] = useState(false);
+  const navigate = useNavigate();
 
   console.log('recent sequences ---->', {recentSequences})
 
@@ -49,11 +53,11 @@ export default function QuickActions({ techniquesByType, recentSequences }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button variant="outline" className="w-full justify-start mb-2" id="add-technique-button" onClick={() => setShowCardModal(true)}>
+          <Button variant="outline" className="w-full justify-start mb-2" id="add-technique-button" onClick={() => {console.log("adding new techniques"); setShowCardModal(true)}}>
             <Plus className="w-4 h-4 mr-2" />
             Add New Technique
           </Button>
-          <Button variant="outline" className="w-full justify-start mb-2" id="add-sequence-button" onClick={() => setShowSequenceModal(true)}>
+          <Button variant="outline" className="w-full justify-start mb-2" id="add-sequence-button" onClick={() => {console.log("adding new sequences");setShowSequenceModal(true)}}>
             <Workflow className="w-4 h-4 mr-2" />
             Create Sequence
           </Button>

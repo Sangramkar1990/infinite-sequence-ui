@@ -13,6 +13,7 @@ import { createPageUrl } from "../../lib/utils";
 import { Clock, Target, BookOpen, ExternalLink, Play } from "lucide-react";
 // import { Skeleton } from "@/components/ui/skeleton";
 import { Skeleton } from "../ui/skeleton";
+import {useNavigate} from "react-router-dom";
 
 
  
@@ -32,6 +33,7 @@ const difficultyColors = {
 };
 
 export default function RecentActivity({ techniques, sequences, isLoading }) {
+  const navigate = useNavigate();
   console.log("techniques", techniques);
   console.log("sequences", sequences);
   if (isLoading) {
@@ -84,9 +86,9 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
           <div className="text-center py-8">
             <Target className="w-12 h-12 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-500 mb-4">No techniques or sequences yet</p>
-            <Link to={createPageUrl("/create-card")}>
-              <Button size="sm">Create Your First Technique</Button>
-            </Link>
+            
+              <Button size="sm" onClick={() => navigate("/techniques?createNew=true")}>Create Your First Technique</Button>
+            
           </div>
         ) : (
           allItems.map((item) => (
@@ -141,7 +143,7 @@ export default function RecentActivity({ techniques, sequences, isLoading }) {
               </div>
 
               <Link 
-                to={createPageUrl(item.type === 'technique' ? 'Techniques' : 'flow-editor?sequenceSelected='+item.id)}
+                to={createPageUrl(item.type === 'technique' ? 'Techniques' : 'flow-viewer?sequenceId='+item.id)}
                 className="text-slate-400 hover:text-slate-600"
               >
                 <ExternalLink className="w-4 h-4" />

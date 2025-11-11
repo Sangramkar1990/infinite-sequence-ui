@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Target, Search } from 'lucide-react';
 import { Card } from 'react-bootstrap';
-import { fetchCardsByUser, searchCards } from '../../store/sequenceSlice';
+import { fetchCardsByUser, searchCards, fetchAllCards } from '../../store/sequenceSlice';
+import CreateCardModal from './CreateCardModal';
 
 const typeColors = {
   position: "bg-blue-100 text-blue-800",
@@ -24,21 +25,21 @@ export default function TechniqueList() {
   const { cards, loading } = useSelector((state) => state.sequence);
 
   useEffect(() => {
-    dispatch(fetchCardsByUser());
+    dispatch(fetchAllCards());
   }, [dispatch]);
 
   useEffect(() => {
     console.log('cards ----- >',cards)  }, [cards]);
    
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    if (e.target.value === '') {
-      dispatch(fetchCardsByUser());
-    } else {
-      dispatch(searchCards(e.target.value));
-    }
-  };
+  // const handleSearch = (e) => {
+  //   setSearchTerm(e.target.value);
+  //   if (e.target.value === '') {
+  //     dispatch(fetchCardsByUser());
+  //   } else {
+  //     dispatch(searchCards(e.target.value));
+  //   }
+  // };
 
   const onDragStart = (event, card) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(card));
@@ -71,7 +72,7 @@ export default function TechniqueList() {
           type="text"
           placeholder="Search techniques..."
           value={searchTerm}
-          onChange={handleSearch}
+          // onChange={handleSearch}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
         />
       </div>

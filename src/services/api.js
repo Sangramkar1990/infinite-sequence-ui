@@ -85,11 +85,14 @@ export const membershipService = {
   getAllMemberships: () => {
     return apiRequest('/memberships');
   },
-  updateRoles: (organizationId, updates) => {
-    return apiRequest('/memberships/role', 'POST', { organizationId, updates });
+  updateRoles: (userId, data) => {
+    return apiRequest(`/memberships/role/${userId}`, 'POST', data);
   },
   getMembershipsByOrganizationId: (organizationId) => {
     return apiRequest(`/memberships/organization/${organizationId}`);
+  },
+  getAllMembershipByOrganization: () => {
+    return apiRequest('/memberships/getMembershipOrg');
   },
 };
 
@@ -130,9 +133,22 @@ export const cardService = {
   getCardsByUser: () => {
     return apiRequest('/sequences/cards/user');
   },
+  getAllCards: () => {
+    return apiRequest('/sequences/cards/all');
+  },
   searchCards: (query) => {
     return apiRequest(`/sequences/search/cards?query=${encodeURIComponent(query)}`);
-  }
+
+  },
+   createCard: (cardData) => {
+    return apiRequest('/sequences/create-card', 'POST', cardData);
+  },
+  patchCard: (cardId, cardData) => {
+    return apiRequest(`/sequences/card/${cardId}`, 'PATCH', cardData);
+  },
+  destroyCard: (cardId) => {
+    return apiRequest(`/sequences/card/${cardId}`, 'DELETE');
+  },
 
 };
 
@@ -149,7 +165,13 @@ export const sequenceService = {
   },
   updateSequence: (id, data) => {
     return apiRequest(`/sequences/${id}`, 'PUT', data);
-  }
+  },
+  getMySequences: () => {
+    return apiRequest('/sequences/user'); 
+  },
+  deleteSequence: (id) => { // Added deleteSequence method
+    return apiRequest(`/sequences/${id}`, 'DELETE');
+  },
 }
 
 export const flowService = {

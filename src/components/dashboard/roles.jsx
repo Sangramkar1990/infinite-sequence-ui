@@ -23,7 +23,7 @@ const RolesPermissionsComponent = () => {
     }
   }, [user])
 
-  useEffect(() => {
+ 
     const fetchMembershipsAndRoles = async () => {
       if (!organizationId) {
         setLoadingRoles(false);
@@ -32,25 +32,26 @@ const RolesPermissionsComponent = () => {
 
       try {
         setLoadingRoles(true);
-        const response = await membershipService.getMembershipsByOrganizationId(organizationId);
+        const response = await membershipService.getAllMembershipByOrganization(organizationId);
         if (response && response.data) {
           console.log("response data", {data: response.data})
           setMemberships(response.data);
+          setRoles(response.roles); 
 
           // Extract unique roles from memberships
-          const uniqueRoles = [];
-          const roleIds = new Set();
-          response.data.forEach(membership => {
-            if (membership.role && !roleIds.has(membership.role.id)) {
-              uniqueRoles.push(membership.role);
-              roleIds.add(membership.role.id);
-            }
-          });
-          setRoles(uniqueRoles);
+          // const uniqueRoles = [];
+          // const roleIds = new Set();
+          // response.data.forEach(membership => {
+          //   if (membership.role && !roleIds.has(membership.role.id)) {
+          //     uniqueRoles.push(membership.role);
+          //     roleIds.add(membership.role.id);
+          //   }
+          // });
+          // // setRoles(uniqueRoles);
 
-          if (uniqueRoles.length > 0) {
-            setSelectedRole(uniqueRoles[0]); // Select the first unique role by default
-          }
+          // if (uniqueRoles.length > 0) {
+          //   setSelectedRole(uniqueRoles[0]); // Select the first unique role by default
+          // }
         }
       } catch (err) {
         // setError('Failed to fetch memberships or roles.');
@@ -59,7 +60,7 @@ const RolesPermissionsComponent = () => {
         setLoadingRoles(false);
       }
     };
-
+  useEffect(() => {
     fetchMembershipsAndRoles();
   }, [organizationId]);
 
@@ -85,17 +86,33 @@ const RolesPermissionsComponent = () => {
 
     fetchPermissions();
   }, [selectedRole]);
-  
-  const userPermissions = [
-    { id: 1, name: 'can_edit.content', enabled: true },
-    { id: 2, name: 'can_create_team', enabled: true },
-    { id: 3, name: 'can_view_content', enabled: true }
-  ];
+   const handleChangeRole = async (userId, targetRoleName) => {
+    try {
+      const targetRole = roles.find(role => role.name === targetRoleName);
+      if (!targetRole) {
+        console.error(`Role '${targetRoleName}' not found.`);
+        return;
+      }
 
-  const teamLeaderPermissions = [
-    { id: 1, name: 'can_create_team', enabled: true },
-    { id: 2, name: 'can_invite_user', enabled: true }
-  ];
+      await membershipService.updateRoles(userId, {roleId: targetRole.id});
+      // Re-fetch memberships to update the UI
+      fetchMembershipsAndRoles();
+    } catch (err) {
+      console.error('Error updating user role:', err);
+      // Optionally, set an error state to display to the user
+    }
+  };
+  
+  // const userPermissions = [
+  //   { id: 1, name: 'can_edit.content', enabled: true },
+  //   { id: 2, name: 'can_create_team', enabled: true },
+  //   { id: 3, name: 'can_view_content', enabled: true }
+  // ];
+
+  // const teamLeaderPermissions = [
+  //   { id: 1, name: 'can_create_team', enabled: true },
+  //   { id: 2, name: 'can_invite_user', enabled: true }
+  // ];
 
   return (
     <div className="container-fluid p-4 bg-light min-vh-100">
@@ -104,11 +121,12 @@ const RolesPermissionsComponent = () => {
         <div className="col-md-5">
           <div className="card shadow-sm border-0">
             <div className="card-body p-4">
-              <h2 className="mb-4 fw-bold">Roles</h2>
+              <h2 className="mb-4 fw-bold">Search Members</h2>
               
               {/* Page Navigation */}
               <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
-                <div className="d-flex align-items-center gap-2">
+                <p>change roles of members</p>
+                {/* <div className="d-flex align-items-center gap-2">
                   <span className="fw-medium">Page</span>
                   <button className="btn btn-sm btn-light border-0">
                     <ChevronLeft size={16} />
@@ -117,7 +135,7 @@ const RolesPermissionsComponent = () => {
                   <button className="btn btn-sm btn-light border-0">
                     <ChevronRight size={16} />
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {/* Search Box */}
@@ -147,11 +165,40 @@ const RolesPermissionsComponent = () => {
                       className={`d-flex align-items-center justify-content-between p-2 rounded cursor-pointer ${selectedRole && selectedRole.id === membership.id ? 'bg-primary text-white' : ''}`}
                       onClick={() => setSelectedRole(membership)}
                     >
-                      <span className="fw-medium">{membership.user.name}</span>
+                      {/* <span className="fw-medium">{membership.user.name}</span>
                       <span className={`badge bg-secondary rounded-circle d-flex align-items-center justify-content-center`}
                             style={{ width: '40px', height: '40px', fontSize: '16px' }}>
                         {membership.user.name.charAt(0).toUpperCase()}
-                      </span>
+                      </span> */}
+                      <div className="d-flex flex-column">
+                        <span className="fw-medium">{membership.user.name}</span>
+                        <span className="text-sm text-muted">{membership.user.role.name}</span>
+                      </div>
+                       {membership.user.role.name === 'team lead' ? (
+                        <button
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the parent onClick
+                            handleChangeRole(membership.user.id, 'user');
+                            // console.log('Change to User for:', membership.user.name);
+                            // Add logic to change role to user
+                          }}
+                        >
+                          Change to User
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the parent onClick
+                            handleChangeRole(membership.user.id, 'team lead');
+                            // console.log('Change to Team Lead for:', membership.user.name);
+                            // Add logic to change role to team lead
+                          }}
+                        >
+                          Change to Team Lead
+                        </button>
+                      )}
                     </div>
                   ))
                 )}

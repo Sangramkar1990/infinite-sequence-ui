@@ -55,6 +55,68 @@ export const CustomNode = ({ data, selected = false }) => {
     };
   }, [menuOpen]);
 
+  // Conditional rendering for when data is missing
+  if (!data || !data.name) {
+    return (
+      <div
+        className="absolute bg-white rounded-xl shadow-lg border border-red-400 w-72 p-4 cursor-grab active:cursor-grabbing hover:shadow-2xl hover:border-red-600 transition-all group"
+        style={{
+          padding: 30,
+          background: selected ? "#f4f4f4" : "#fff",
+          border: "1px solid #ccc",
+          borderRadius: 20,
+          minWidth: 220,
+          width: 500,
+          position: "relative",
+        }}
+      >
+        <Handle
+          type="target"
+          position="top"
+          id="target-top"
+          style={{ background: "#555", width: 10, height: 10 }}
+        />
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+            <Trash2 className="w-5 h-5 text-red-600" />
+          </div>
+          <h4 className="font-bold text-red-900 flex-1">Missing Technique</h4>
+          <button
+            onClick={() => {
+              if (data && data.deleteNode) { // Ensure data and deleteNode exist before calling
+                data.deleteNode(data.nodeId);
+              }
+            }}
+            className="text-red-400 hover:text-red-600 opacity-50 group-hover:opacity-100"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="text-red-700 mt-3">
+          The Technique might have been deleted by the Admin or Owner, please Remove or Replace this card.
+        </p>
+        <Handle
+          type="source"
+          position="bottom"
+          id="source-bottom"
+          style={{ background: "#555", width: 10, height: 10, zIndex: 1000 }}
+        />
+        <Handle
+          type="target"
+          position="left"
+          id="target-left"
+          style={{ background: "#555", width: 10, height: 10 }}
+        />
+        <Handle
+          type="source"
+          position="right"
+          id="source-right"
+          style={{ background: "#555", width: 10, height: 10 }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className="absolute bg-white rounded-xl shadow-lg border border-slate-200 w-72 p-4 cursor-grab active:cursor-grabbing hover:shadow-2xl hover:border-amber-400 transition-all group"

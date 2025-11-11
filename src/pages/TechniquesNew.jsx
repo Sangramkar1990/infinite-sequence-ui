@@ -2,9 +2,13 @@ import { useState, useMemo, useEffect } from 'react';
 import SidebarNavigation from '../components/dashboard/SidebarNavigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { sequenceService } from '../services/api';
-import { setSequences, fetchCardsByUser } from '../store/sequenceSlice';
-import { Play , Target} from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { setSequences, fetchCardsByUser, fetchAllCards } from '../store/sequenceSlice';
+import { Play , Target, Edit, Trash2} from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import CreateCardModal from '../components/dashboard/CreateCardModal';
+import { cardService } from '../services/api';
+// import Button from '../components/ui/button';
+
 
 
 export default function TechniquesNew() {
@@ -14,19 +18,48 @@ export default function TechniquesNew() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
+  const [showMyTechniques, setShowMyTechniques] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [selectedCardData, setSelectedCardData] = useState(null);
+
+
+  const navigate = useNavigate();
+  
   const dispatch = useDispatch();
   const { cards, loading } = useSelector((state) => state.sequence);
   const { sequences } = useSelector((state) => state.sequence);
 
   const hasQuery = searchParams.has('new');
+   const handleDeleteCard = (cardId) => {
+    if (window.confirm('Are you sure you want to delete this technique? This action cannot be undone.')) {
+      cardService.destroyCard(cardId)
+      .then(() => {
+        // Dispatch action to remove card from state
+        dispatch(fetchCardsByUser()); 
+      })
+      .catch(error => {
+        console.error('Failed to delete card:', error);
+        // Optionally, show an error message to the user
+      });
+
+      // Implement actual delete logic here later
+      console.log(`Deleting card with ID: ${cardId}`);
+      // For now, you might want to dispatch an action to remove it from the UI optimistically
+      // or re-fetch all cards after a successful deletion.
+    }
+  };
 
   // useEffect(()=>{
   //   console.log("create techniques", {createTechniques})
   // },[createTechniques]);
 
    useEffect(() => {
-    dispatch(fetchCardsByUser());
-  }, [dispatch, hasQuery]);
+    if(showMyTechniques){
+      dispatch(fetchCardsByUser());
+    }else{
+      dispatch(fetchAllCards());
+    }
+  }, [dispatch, hasQuery, showMyTechniques]);
 
   // useEffect(() => {
   //   const fetchSequences = async () => {
@@ -122,6 +155,16 @@ useEffect(() => {
             </option>
           ))}
         </select>
+        {showMyTechniques ?
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
+        onClick={() => setShowMyTechniques(false)}>
+          show all technique
+        </button>
+        : <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"  
+        onClick={() => setShowMyTechniques(true)}>
+          My Techniques
+        </button>}
+        
 
         {/* <select
           value={selectedLevel}
@@ -154,9 +197,9 @@ useEffect(() => {
           cards.map((item) => (
           <div
             key={item.id}
-            className="bg-white rounded-xl shadow p-5 flex flex-col"
+            className="bg-white rounded-xl shadow p-4 flex flex-col"
           >
-           
+            
             <div className="flex items-center justify-between mb-3">
               <div className="flex me-auto">
 
@@ -169,7 +212,7 @@ useEffect(() => {
               </div>
               <h5 className="text-xl font-medium">{item.name}</h5>
               </div>
-              <a href={item.url} target="_blank" rel="noopener noreferrer"><Play className="w-4 h-4 inline-block mr-1" /></a>
+              {/* <a href={item.url} target="_blank" rel="noopener noreferrer"><Play className="w-4 h-4 inline-block mr-1" /></a> */}
               
              
             </div>
@@ -203,6 +246,53 @@ useEffect(() => {
                 Published: {new Date(item.createdAt).toLocaleDateString()}
               </div>
 
+               <div  className="flex justify-end gap-2 mt-4">
+                {/* Play Button */}
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="relative group">
+                  <button className="flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue font-bold p-2 rounded-full w-10 h-10">
+                    <Play className="w-5 h-5" />
+                  </button>
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Play</span>
+                </a>
+
+                {showMyTechniques && (
+                  <>
+                    {/* Edit Button */}
+                    <button 
+                      className="relative group flex justify-center items-center bg-green-100 hover:bg-green-200 text-green font-bold p-2 rounded-full w-10 h-10"
+                      onClick={() => {
+                        setSelectedCardData(item);
+                        setShowCardModal(true);
+                      }}
+                    >
+                      <Edit className="w-5 h-5" />
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Edit</span>
+                    </button>
+
+                    {/* Delete Button */}
+                    <button 
+                      className="relative group flex justify-center items-center bg-red-100 hover:bg-red-200 text-red font-bold p-2 rounded-full w-10 h-10"
+                      onClick={() => handleDeleteCard(item.id)}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Delete</span>
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* {showMyTechniques && (
+            <button className="flex justify-center align-center bg-green-100 hover:bg-green-200 text-green font-bold m-2 ms-auto w-10 py-2 px-2 rounded"
+             onClick={() => {
+              setSelectedCardData(item);
+              setShowCardModal(true);
+             }}
+            >
+            <Edit className="w-4 h-4 inline-block mr-1" /> 
+            </button>
+            )} */}
+           
+
            
             {/* <div className="flex flex-wrap gap-2 mb-4">
               {item.tags && item.tags.map((tag) => (
@@ -234,7 +324,15 @@ useEffect(() => {
           </p>
         )} */}
 
-      
+      <CreateCardModal
+              show={showCardModal}
+              onClose={() => {
+                setShowCardModal(false); 
+                dispatch(fetchCardsByUser());
+              }}
+              edit={true}
+              cardData={selectedCardData}
+            />
       
     
     </div>

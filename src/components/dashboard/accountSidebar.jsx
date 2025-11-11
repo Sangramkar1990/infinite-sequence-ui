@@ -43,7 +43,8 @@ const SidebarNavigationComponent = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const { logout } = useAuth(); // Use the useAuth hook to get the logout function
-  let permissions = [];
+  const [permissions, setPermissions] = useState([]);
+  // let permissions = [];
  
 
   useEffect(() => {
@@ -53,9 +54,10 @@ const SidebarNavigationComponent = () => {
       //   permissionsUser: permissions,
       //   menuItems,
       // });
-      permissions = user.permissions;
+      
+      setPermissions(user.permissions);
       let items = [];
-      if(permissions.includes("manage_organization")){
+      if(user.permissions.includes("manage_organization")){
        items = [
             {
               id: "organization",
@@ -104,7 +106,7 @@ const SidebarNavigationComponent = () => {
               ],
             },
           ]
-      } else if(permissions.includes("manage_teams")){
+      } else if(user.permissions.includes("manage_teams")){
        items = [
             {
               id: "organization",

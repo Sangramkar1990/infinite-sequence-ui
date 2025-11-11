@@ -11,7 +11,7 @@ export default function OrganizationManage() {
   // let organization = [];
   useEffect(()=>{
     if(user?.membership){
-      console.log("user membership", {membership: user.membership});
+      console.log("user membership", {membership: user.membership, length : memberships.length});
       setOrganization(user.membership);
     }
 
