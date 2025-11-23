@@ -133,6 +133,15 @@ useEffect(() => {
       <h1 className="text-3xl font-semibold text-center mb-6">
         BJJ Techniques Library
       </h1>
+       {showMyTechniques ? (
+          <h2 className="text-3xl font-semibold mb-4 text-center">
+            Techniques created by you
+          </h2>
+        ) : (
+          <h2 className="text-3xl font-semibold mb-4 text-center">
+            All techniques
+          </h2>
+        )}
 
       {/* Search + Filters */}
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 mb-8">

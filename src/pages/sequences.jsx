@@ -1,15 +1,27 @@
 import { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SidebarNavigation from "../components/dashboard/SidebarNavigation";
-import { fetchAllSequences, fetchMySequences, deleteSequence } from "../store/sequenceSlice"; // Added fetchMySequences and deleteSequence
-import { Orbit, Target, BookOpen, Workflow, Edit, Trash2, Play } from "lucide-react"; // Added Edit, Trash2, Play
+import {
+  fetchAllSequences,
+  fetchMySequences,
+  deleteSequence,
+} from "../store/sequenceSlice"; // Added fetchMySequences and deleteSequence
+import {
+  Orbit,
+  Target,
+  BookOpen,
+  Workflow,
+  Edit,
+  Trash2,
+  Play,
+} from "lucide-react"; // Added Edit, Trash2, Play
 import { useSearchParams, useNavigate } from "react-router-dom"; // Added useNavigate
-import { sequenceService } from '../services/api'; // Import sequenceService
+import { sequenceService } from "../services/api"; // Import sequenceService
 
 export default function Sequences() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchParams] = useSearchParams();
-  const createSequences = searchParams.get('createNew') === 'true';
+  const createSequences = searchParams.get("createNew") === "true";
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
@@ -30,7 +42,11 @@ export default function Sequences() {
   }, [dispatch, showMySequences]); // Added showMySequences to dependency array
 
   const handleDeleteSequence = (sequenceId) => {
-    if (window.confirm('Are you sure you want to delete this sequence? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this sequence? This action cannot be undone."
+      )
+    ) {
       dispatch(deleteSequence(sequenceId))
         .then(() => {
           // Re-fetch sequences after successful deletion
@@ -40,8 +56,8 @@ export default function Sequences() {
             dispatch(fetchAllSequences());
           }
         })
-        .catch(error => {
-          console.error('Failed to delete sequence:', error);
+        .catch((error) => {
+          console.error("Failed to delete sequence:", error);
           // Optionally, show an error message to the user
         });
     }
@@ -92,7 +108,10 @@ export default function Sequences() {
 
   return (
     <div className="flex">
-      <SidebarNavigation selectedItem="sequences" triggerCreateSequence={createSequences}/>
+      <SidebarNavigation
+        selectedItem="sequences"
+        triggerCreateSequence={createSequences}
+      />
 
       <div
         className="min-h-screen bg-gray-100 p-6"
@@ -101,6 +120,15 @@ export default function Sequences() {
         <h1 className="text-3xl font-semibold mb-4 text-center">
           BJJ Technique Sequences
         </h1>
+        {showMySequences ? (
+          <h2 className="text-3xl font-semibold mb-4 text-center">
+            Sequences created by you
+          </h2>
+        ) : (
+          <h2 className="text-3xl font-semibold mb-4 text-center">
+            All sequences
+          </h2>
+        )}
 
         {/* <div className="max-w-md mx-auto mb-6"> */}
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 mb-8">
@@ -122,15 +150,21 @@ export default function Sequences() {
             </option>
           ))}
         </select> */}
-          {showMySequences ?
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setShowMySequences(false)}>
+          {showMySequences ? (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setShowMySequences(false)}
+            >
               Show All Sequences
             </button>
-            : <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setShowMySequences(true)}>
+          ) : (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setShowMySequences(true)}
+            >
               My Sequences
-            </button>}
+            </button>
+          )}
         </div>
 
         {loading === "loading" && (
@@ -150,7 +184,7 @@ export default function Sequences() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex">
-                    <div className="p-2 bg-amber-100 rounded-lg mr-2">
+                    <div className="p-2 bg-amber-100 rounded-lg mr-2 max-h-10">
                       <BookOpen
                         className="w-6 h-6"
                         style={{ color: "orange" }}
@@ -161,11 +195,18 @@ export default function Sequences() {
                   {/* Action buttons */}
                   <div className="flex justify-end gap-2 mt-4">
                     {/* Play Button */}
-                    <a href={`/flow-viewer?sequenceId=${item.id}`} target="_self" rel="noopener noreferrer" className="relative group">
+                    <a
+                      href={`/flow-viewer?sequenceId=${item.id}`}
+                      target="_self"
+                      rel="noopener noreferrer"
+                      className="relative group"
+                    >
                       <button className="flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue font-bold p-2 rounded-full w-10 h-10">
                         <Play className="w-5 h-5" />
                       </button>
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Play</span>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Play
+                      </span>
                     </a>
 
                     {showMySequences && (
@@ -173,10 +214,16 @@ export default function Sequences() {
                         {/* Edit Button */}
                         <button
                           className="relative group flex justify-center items-center bg-green-100 hover:bg-green-200 text-green font-bold p-2 rounded-full w-10 h-10"
-                          onClick={() => navigate(`/flow-builder?sequenceSelected=${item.id}`)} // Navigate to FlowBuilder for editing
+                          onClick={() =>
+                            navigate(
+                              `/flow-builder?sequenceSelected=${item.id}`
+                            )
+                          } // Navigate to FlowBuilder for editing
                         >
                           <Edit className="w-5 h-5" />
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Edit</span>
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Edit
+                          </span>
                         </button>
 
                         {/* Delete Button */}
@@ -185,7 +232,9 @@ export default function Sequences() {
                           onClick={() => handleDeleteSequence(item.id)}
                         >
                           <Trash2 className="w-5 h-5" />
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Delete</span>
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Delete
+                          </span>
                         </button>
                       </>
                     )}
