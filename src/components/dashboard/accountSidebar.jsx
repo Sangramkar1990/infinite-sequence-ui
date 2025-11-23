@@ -72,10 +72,10 @@ const SidebarNavigationComponent = () => {
                 },
                 {
                   id: "requests",
-                  label: "Requests",
+                  label: "Request",
                   component: "OrganizationRequest",
                 },
-                { id: "join", label: "Join", component: "OrganizationJoin" },
+                
               ],
             },
             {
@@ -119,7 +119,7 @@ const SidebarNavigationComponent = () => {
                   label: "Manage",
                   component: "OrganizationManage",
                 },
-                { id: "join", label: "Join", component: "OrganizationJoin" },
+                
               ],
             },
             {
@@ -157,7 +157,7 @@ const SidebarNavigationComponent = () => {
                   label: "Manage",
                   component: "OrganizationManage",
                 },
-                { id: "join", label: "Join", component: "OrganizationJoin" },
+                
               ],
             },
             {
