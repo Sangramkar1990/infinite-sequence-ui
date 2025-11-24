@@ -75,10 +75,16 @@ export const organizationService = {
   updateInviteRequestStatus: (id, status) => {
     // console.log("id", {id});
     return apiRequest(`/invites/${id}/status`, 'PUT', { status });
+  },
+  checkUserAndMembership: (email) => {
+    return apiRequest(`/invites/check-user?email=${encodeURIComponent(email)}`);
   }
 };
 
 export const membershipService = {
+  createMembership: (userId) => {
+    return apiRequest('/memberships', 'POST', { userId});
+  },
   getMemberships: () => {
     return apiRequest('/memberships/me');
   },
