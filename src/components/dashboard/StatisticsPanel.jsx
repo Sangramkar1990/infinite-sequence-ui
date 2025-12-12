@@ -5,10 +5,11 @@ import { userService } from "../../services/api";
 
 export default function StatisticsPanel() {
   const [stats, setStats] = useState({
-    totalSequences: 0,
+    totalSequences: { totalSequences: 0, lastWeekSequences: 0 },
     totalCards: {
       total: 0,
       addedLastWeek: 0,
+      techniques: null,
     },
   });
 
@@ -47,16 +48,16 @@ export default function StatisticsPanel() {
                   id="techniques-increase"
                 >
                   <TrendingUp className="w-4 h-4" />
-                  <span className="text-xs text-gray-400" id="techniques-weekly">
+                  <span
+                    className="text-xs text-gray-400"
+                    id="techniques-weekly"
+                  >
                     +{stats.totalCards.addedLastWeek} since last week
                   </span>
                 </div>
               )}
             </div>
-            <div
-              className="p-2 bg-blue-100 rounded-lg"
-              
-            >
+            <div className="p-2 bg-blue-100 rounded-lg">
               <Target className="w-6 h-6" style={{ color: "blue" }} />
             </div>
           </div>
@@ -104,8 +105,10 @@ export default function StatisticsPanel() {
               <p className="text-sm font-medium text-slate-500 mb-1">
                 Sequences Created
               </p>
-              <p className="text-2xl font-bold text-slate-900">{stats.totalSequences}</p>
-              <div
+              <p className="text-2xl font-bold text-slate-900">
+                {stats.totalSequences.totalSequences}
+              </p>
+              {/* <div
                 className="flex items-center gap-1 text-green-600"
                 style={{ color: "green" }}
               >
@@ -113,12 +116,24 @@ export default function StatisticsPanel() {
                 <span className="text-xs text-gray-400">
                   +1 since last week
                 </span>
-              </div>
+              </div> */}
+              {stats.totalSequences.lastWeekSequences > 0 && (
+                <div
+                  className="flex items-center gap-1 text-green-600"
+                  style={{ color: "green" }}
+                  id="techniques-increase"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span
+                    className="text-xs text-gray-400"
+                    id="techniques-weekly"
+                  >
+                    +{stats.totalSequences.lastWeekSequences} since last week
+                  </span>
+                </div>
+              )}
             </div>
-            <div
-              className="p-2 bg-amber-100 rounded-lg"
-              
-            >
+            <div className="p-2 bg-amber-100 rounded-lg">
               <BookOpen className="w-6 h-6" style={{ color: "orange" }} />
             </div>
           </div>
@@ -171,8 +186,9 @@ export default function StatisticsPanel() {
               <p className="text-sm font-medium text-slate-500 mb-1">
                 Most Used Type
               </p>
-              <p className="text-2xl font-bold text-slate-900">{stats.mostUsedTechnique}</p>
-              
+              <p className="text-2xl font-bold text-slate-900">
+                {stats.totalCards.techniques || "N/A"}
+              </p>
             </div>
             <div
               className="p-2"
@@ -217,14 +233,13 @@ export default function StatisticsPanel() {
                 Avg. Difficulty
               </p>
               <p className="text-2xl font-bold text-slate-900">Intermediate</p>
-              
             </div>
             <div
-            className="p-2"
-            style={{ backgroundColor: "#e0bcf3", borderRadius: "10px" }}
-          >
-            <TrendingUp className="w-6 h-6" style={{ color: "purple" }} />
-          </div>
+              className="p-2"
+              style={{ backgroundColor: "#e0bcf3", borderRadius: "10px" }}
+            >
+              <TrendingUp className="w-6 h-6" style={{ color: "purple" }} />
+            </div>
           </div>
         </CardContent>
       </Card>

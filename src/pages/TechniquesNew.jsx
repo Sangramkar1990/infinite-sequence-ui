@@ -250,7 +250,11 @@ useEffect(() => {
               </div>
 
           
-            <p className="text-gray-600 mb-4 flex-grow">{item.description}</p>
+            <p className="text-gray-600 mb-4 flex-grow">
+              {item.description.length > 200
+                ? item.description.substring(0, 200) + "..."
+                : item.description}
+            </p>
             <div className="text-xs text-gray-400">
                 Published: {new Date(item.createdAt).toLocaleDateString()}
               </div>
