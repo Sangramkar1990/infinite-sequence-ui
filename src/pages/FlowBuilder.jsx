@@ -39,6 +39,7 @@ import {
 import { CustomNode } from "../components/editor/CustomNode";
 import { CgProfile } from "react-icons/cg";
 import FlowData from "../../example_flow2.json";
+import ErrorMessage from '../components/ErrorMessage';
 
 // Define card layout sizes
 const initialPosition = { x: 50, y: 50 };
@@ -78,6 +79,19 @@ const FlowBuilder = () => {
 
     dispatch(deleteCard(cardId));
   }, []);
+
+    const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleError = (msg) => {
+    setErrorMessage(msg);
+    setShowError(true);
+  };
+
+  const handleCloseError = () => {
+    setShowError(false);
+    setErrorMessage('');
+  };
   const nodeTypes = useMemo(
     () => ({
       
@@ -118,11 +132,13 @@ const FlowBuilder = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "Backspace" && selectedEdge) {
+      
+      if (!selectedEdge) {handleError("Please select an edge"); return;};
+      if (event?.key === "Backspace" && selectedEdge) {
         setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
         setSelectedEdge(null);
       }
-      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      if (event?.key === "ArrowLeft" || event?.key === "ArrowRight" ) {
         // Make arrow point from target -> source
         setEdges((eds) =>
           eds.map((e) =>
@@ -601,6 +617,8 @@ y: initialPosition.y + row * (cardHeight + gapY),
      
 
     setEdges((eds) => {
+      
+      
       if (params.target === sourceNodeIdRef.current) {
         const swappedParams = {
           ...params,
@@ -805,6 +823,13 @@ cards.forEach((card, index) => {
               {error}
             </div>
           )}
+          {showError && (
+        <ErrorMessage
+          message={errorMessage}
+          duration={5000} // Display for 5 seconds (5000 milliseconds)
+          onClose={handleCloseError}
+        />
+      )}
           {/* <div className="d-flex mb-3 align-items-center justify-space-between">
             <div>
               {user?.organization_id ? (
