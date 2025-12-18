@@ -56,9 +56,9 @@ export default function OrganizationRequest() {
 
   const handleSendInvite = async (userId) => {
     try {
-      const response = await membershipService.createMembership(userId);
+      const response = await organizationService.joinUserToOrganization(userId);
       if (response.success) {
-        setAlertMessage('Membership created successfully!');
+        setAlertMessage('Invite sent successfully!');
         setAlertVariant('success');
         setSearchedUser(null); // Clear searched user after sending invite
         setSearchEmail(''); // Clear search email

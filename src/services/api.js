@@ -78,6 +78,9 @@ export const organizationService = {
   },
   checkUserAndMembership: (email) => {
     return apiRequest(`/invites/check-user?email=${encodeURIComponent(email)}`);
+  },
+  joinUserToOrganization: (userId) => {
+    return apiRequest(`/invites/join/${userId}`, 'POST');
   }
 };
 
