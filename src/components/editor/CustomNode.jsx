@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge";
 
 import React, { useState, useRef, useEffect } from "react";
 
+
 const typeColors = {
   position: "bg-blue-100 text-blue-800",
   submission: "bg-red-100 text-red-800",
@@ -37,6 +38,7 @@ export const deleteButtonStyle =
 export const CustomNode = ({ data, selected = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const [showIframe, setShowIframe] = useState(false);
 
   useEffect(()=> {
     console.log("custom node data",{id :data});
@@ -143,6 +145,7 @@ export const CustomNode = ({ data, selected = false }) => {
           <Target className="w-5 h-5 text-slate-600" />
         </div>
         <h4 className="font-bold text-slate-900 flex-1">{data.name}</h4>
+        
 
         {data.url && (
           <a
@@ -166,6 +169,42 @@ export const CustomNode = ({ data, selected = false }) => {
         >
           <Trash2 className="w-4 h-4" />
         </button>
+      </div>
+      <div className="d-flex ">
+        {data.url && (
+          <>
+            {!showIframe ? (
+              <button
+                onClick={() => setShowIframe(true)}
+                style={{
+                  width: '350px',
+                  height: '180px',
+                  border: '1px solid #ccc',
+                  margin: 'auto',
+                  backgroundColor: '#f0f0f0',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.2em',
+                  color: '#555',
+                }}
+              >
+                Click to view the technique video
+              </button>
+            ) : (
+              <iframe
+                src={data.url}
+                width="350"
+                height="180"
+                style={{ border: '1px solid #ccc', margin: 'auto' }}
+                title="Embedded Content" // Added title for accessibility
+              ></iframe>
+            )}
+          </>
+        )}
+
+       
       </div>
 
       {/* Hamburger Button */}

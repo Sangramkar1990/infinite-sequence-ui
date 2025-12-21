@@ -221,10 +221,19 @@ useEffect(() => {
               </div>
               <h5 className="text-xl font-medium">{item.name}</h5>
               </div>
+
+              
               {/* <a href={item.url} target="_blank" rel="noopener noreferrer"><Play className="w-4 h-4 inline-block mr-1" /></a> */}
               
              
             </div>
+             <iframe
+                src={item.url}
+                width="250"
+                height="200"
+                style={{ border: '1px solid #ccc', margin: 'auto' }}
+                title="Embedded Content" // Added title for accessibility
+              ></iframe>
 
             <div className="flex flex-wrap justify-between">
             {item.difficulty &&(<span
