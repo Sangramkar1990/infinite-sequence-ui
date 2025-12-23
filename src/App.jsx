@@ -26,6 +26,7 @@ import FlowBuilder from './pages/FlowBuilder'; // Add this import
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
+import Player from './pages/Player';
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
             <Route path="/account" element={<AccountNewPage/>}/>
             <Route path="/sequences" element={<Sequences/>}/>
             <Route path="/flow-builder" element={<FlowBuilder/>}/>
+            <Route path="/player" element={<Player/>}/>
             {/* <Route path="/test-builder" element={<FlowBuilderTest/>}/>
             <Route path="/test-builder-2" element={<TestBuilder2/>}/> */}
 

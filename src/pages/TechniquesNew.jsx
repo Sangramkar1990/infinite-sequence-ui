@@ -3,7 +3,7 @@ import SidebarNavigation from '../components/dashboard/SidebarNavigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { sequenceService } from '../services/api';
 import { setSequences, fetchCardsByUser, fetchAllCards } from '../store/sequenceSlice';
-import { Play , Target, Edit, Trash2} from 'lucide-react';
+import { Play , Target, Edit, Trash2, Fullscreen} from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import CreateCardModal from '../components/dashboard/CreateCardModal';
 import { cardService } from '../services/api';
@@ -203,7 +203,9 @@ useEffect(() => {
        ( 
         <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {
-          cards.map((item) => (
+          cards.map((item) => {
+            const playerUrl = `http://localhost:5173/player?url=${encodeURIComponent(item.url)}`;
+            return(
           <div
             key={item.id}
             className="bg-white rounded-xl shadow p-4 flex flex-col"
@@ -234,6 +236,11 @@ useEffect(() => {
                 style={{ border: '1px solid #ccc', margin: 'auto' }}
                 title="Embedded Content" // Added title for accessibility
               ></iframe>
+              <div className='d-flex'>
+                <a target='blank' href={playerUrl} className='text-xs border border-black-100 uppercase bg-white-200 text-yellow-800 px-2 py-1 rounded-xl text-decoration-none d-flex align-items-center mx-auto w-fit mb-2' > <Fullscreen/> Full-Screen</a>
+              </div>
+              
+              
 
             <div className="flex flex-wrap justify-between">
             {item.difficulty &&(<span
@@ -328,7 +335,7 @@ useEffect(() => {
             }
             </div> */}
             </div>
-        ))}
+        ) })}
         </div>
           
         )

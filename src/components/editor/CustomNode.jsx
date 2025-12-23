@@ -1,17 +1,21 @@
 import { Handle } from "reactflow";
-import { Trash2, Target, Play, Tag } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { Trash2, Target, Play, Tag, Fullscreen } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { Badge } from "../ui/badge";
 
 import React, { useState, useRef, useEffect } from "react";
-
 
 const typeColors = {
   position: "bg-blue-100 text-blue-800",
   submission: "bg-red-100 text-red-800",
   escape: "bg-green-100 text-green-800",
   sweep: "bg-amber-100 text-amber-800",
-  guard: "bg-purple-100 text-purple-800"
+  guard: "bg-purple-100 text-purple-800",
 };
 // edgeStyles.js
 export const edgeBaseStyle = {
@@ -40,9 +44,9 @@ export const CustomNode = ({ data, selected = false }) => {
   const menuRef = useRef(null);
   const [showIframe, setShowIframe] = useState(false);
 
-  useEffect(()=> {
-    console.log("custom node data",{id :data});
-  }, [data])
+  useEffect(() => {
+    console.log("custom node data", { id: data });
+  }, [data]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -85,7 +89,8 @@ export const CustomNode = ({ data, selected = false }) => {
           <h4 className="font-bold text-red-900 flex-1">Missing Technique</h4>
           <button
             onClick={() => {
-              if (data && data.deleteNode) { // Ensure data and deleteNode exist before calling
+              if (data && data.deleteNode) {
+                // Ensure data and deleteNode exist before calling
                 data.deleteNode(data.nodeId);
               }
             }}
@@ -95,7 +100,8 @@ export const CustomNode = ({ data, selected = false }) => {
           </button>
         </div>
         <p className="text-red-700 mt-3">
-          The Technique might have been deleted by the Admin or Owner, please Remove or Replace this card.
+          The Technique might have been deleted by the Admin or Owner, please
+          Remove or Replace this card.
         </p>
         <Handle
           type="source"
@@ -138,14 +144,12 @@ export const CustomNode = ({ data, selected = false }) => {
         id="target-top"
         style={{ background: "#555", width: 10, height: 10 }}
       />
-      
 
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
           <Target className="w-5 h-5 text-slate-600" />
         </div>
         <h4 className="font-bold text-slate-900 flex-1">{data.name}</h4>
-        
 
         {data.url && (
           <a
@@ -163,7 +167,6 @@ export const CustomNode = ({ data, selected = false }) => {
             if (data.deleteNode) {
               data.deleteNode(data.nodeId);
             }
-            
           }}
           className="text-red-400 hover:text-red-600 opacity-50 group-hover:opacity-100"
         >
@@ -173,45 +176,35 @@ export const CustomNode = ({ data, selected = false }) => {
       <div className="d-flex ">
         {data.url && (
           <>
-            {!showIframe ? (
-              <button
-                onClick={() => setShowIframe(true)}
-                style={{
-                  width: '350px',
-                  height: '180px',
-                  border: '1px solid #ccc',
-                  margin: 'auto',
-                  backgroundColor: '#f0f0f0',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.2em',
-                  color: '#555',
-                }}
-              >
-                Click to view the technique video
-              </button>
-            ) : (
+            
               <iframe
                 src={data.url}
                 width="350"
                 height="180"
-                style={{ border: '1px solid #ccc', margin: 'auto' }}
+                style={{ border: "1px solid #ccc", margin: "auto" }}
                 title="Embedded Content" // Added title for accessibility
               ></iframe>
-            )}
+           
           </>
         )}
+      </div>
 
-       
+      <div className="d-flex mt-2">
+        <a
+          target="blank"
+          href={`http://localhost:5173/player?url=${encodeURIComponent(
+            data.url
+          )}`}
+          className="text-xs border border-black-100 uppercase bg-white-200 text-yellow-800 px-2 py-1 rounded-xl text-decoration-none d-flex align-items-center mx-auto w-fit mb-2"
+        >
+          {" "}
+          <Fullscreen /> Full-Screen
+        </a>
       </div>
 
       {/* Hamburger Button */}
       <div className="d-flex">
-        
-
-          {/* <div
+        {/* <div
             className="w-100 d-flex flex-column"
             style={{ marginTop: "235px" }}
           >
@@ -263,23 +256,25 @@ export const CustomNode = ({ data, selected = false }) => {
             )} */}
             <br />
             {data.description ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <p className="text-md text-slate-500 mb-3 line-clamp-2 cursor-help">
-                              {data.description}
-                            </p>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" className="max-w-xs p-2 text-xs bg-slate-800 text-white border-slate-800">
-                            <p>{data.description}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <p className="text-xs text-slate-500 mb-3">
-                          No description available.
-                        </p>
-                      )}
-
-            
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-md text-slate-500 mb-3 line-clamp-2 cursor-help">
+                    {data.description}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  align="start"
+                  className="max-w-xs p-2 text-xs bg-slate-800 text-white border-slate-800"
+                >
+                  <p>{data.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <p className="text-xs text-slate-500 mb-3">
+                No description available.
+              </p>
+            )}
 
             {/* <div className="d-flex align-items-center mt-4">
               <input
@@ -340,28 +335,29 @@ export const CustomNode = ({ data, selected = false }) => {
                         )}
                     </div> */}
 
-                     <div className="flex flex-wrap justify-between">
-            {data.difficulty &&(<span
-              className={`self-start text-sm font-semibold mb-2 px-2 py-1 rounded me-2 ${
-                data.difficulty === 'Advanced'
-                  ? 'bg-red-200 text-red-800'
-                  : data.difficulty === 'Intermediate'
-                  ? 'bg-yellow-200 text-yellow-800'
-                  : 'bg-green-200 text-green-800'
-              }`}
-            >
-              {data.difficulty}
-            </span>)}
+          <div className="flex flex-wrap justify-between">
+            {data.difficulty && (
+              <span
+                className={`self-start text-sm font-semibold mb-2 px-2 py-1 rounded me-2 ${
+                  data.difficulty === "Advanced"
+                    ? "bg-red-200 text-red-800"
+                    : data.difficulty === "Intermediate"
+                    ? "bg-yellow-200 text-yellow-800"
+                    : "bg-green-200 text-green-800"
+                }`}
+              >
+                {data.difficulty}
+              </span>
+            )}
 
             <span className="text-xs border border-yellow-500 uppercase bg-yellow-200 text-yellow-800 me-2 px-2 py-1 rounded-xl  w-fit mb-2">
-                {data.effect}
-              </span>
+              {data.effect}
+            </span>
 
-             <span className="text-xs border border-blue-500 uppercase bg-red-200 text-red-800 me-2 px-2 py-1 rounded-xl  w-fit mb-2">
-                {data.type}
-              </span>
-
-              </div>
+            <span className="text-xs border border-blue-500 uppercase bg-red-200 text-red-800 me-2 px-2 py-1 rounded-xl  w-fit mb-2">
+              {data.type}
+            </span>
+          </div>
         </div>
       </div>
       <Handle

@@ -16,12 +16,12 @@ const RolesPermissionsComponent = () => {
   // Get organization_id from Redux store
   const {user} = useSelector(state => state.user);
   const organizationId = user?.organization_id;
-  useEffect(()=>{
-    console.log("members", {user: user.organization_id})
-    if(memberships > 0){
+  // useEffect(()=>{
+  //   console.log("members", {user: user.organization_id})
+  //   if(memberships > 0){
       
-    }
-  }, [user])
+  //   }
+  // }, [user])
 
  
     const fetchMembershipsAndRoles = async () => {
